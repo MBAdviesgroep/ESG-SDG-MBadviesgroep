@@ -675,331 +675,40 @@ async function startGenerate() {
   }, 1600);
 
   try {
-    const data = await analyseViaOpenAI(pdfText);
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pdfText })
+    });
+
     clearInterval(iv);
     steps.forEach(id => {
       document.getElementById(id).classList.remove('active');
       document.getElementById(id).classList.add('done');
     });
+
+    // Altijd als tekst inlezen, dan JSON parsen — vangt ook niet-JSON responses op
+    const raw = await res.text();
+    let data;
+    try {
+      // Strip eventuele markdown fences die de server meegeeft
+      const clean = raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/i,'').trim();
+      data = JSON.parse(clean);
+    } catch(_) {
+      console.error('Ruwe serverrespons:', raw.substring(0, 500));
+      throw new Error('Server gaf geen geldige JSON terug. Status: ' + res.status);
+    }
+
+    if (!res.ok) throw new Error(data?.error || 'Serverfout ' + res.status);
+
     currentData = data;
     setTimeout(() => { setLoading(false); renderResult(currentData); }, 400);
+
   } catch(err) {
     clearInterval(iv);
     setLoading(false);
     showError('Analyse mislukt: ' + err.message);
   }
-}
-
-/* ══════════════════════════════════════════════════════
-   OPENAI ANALYSE — roept /api/generate aan op de server.
-   De server-route (Vercel/Next.js) plaatst de OpenAI-key
-   en stuurt het antwoord als JSON terug.
-   
-   Structuur van /api/generate (POST):
-     Request body : { pdfText: string }
-     Response     : het JSON-object hieronder
-══════════════════════════════════════════════════════ */
-async function analyseViaOpenAI(tekst) {
-  // Maximaal ~14.000 tekens om de context-limiet te respecteren
-  const invoer = tekst.length > 14000
-    ? tekst.slice(0, 14000) + '\n[...rapport ingekort voor verwerking...]'
-    : tekst;
-
-  const systeemPrompt = `Je bent een expert ESG/SFDR/CSRD-adviseur voor vastgoed in Nederland.
-Analyseer het aangeleverde verduurzamingsrapport grondig.
-Retourneer UITSLUITEND een geldig JSON-object — geen uitleg, geen markdown-fences, geen tekst buiten het JSON-object.
-Gebruik "—" voor velden die niet uit het rapport kunnen worden afgeleid.
-Bedragen in euro-notatie (€ 4.200), percentages met %-teken, CO₂ in kg CO₂ of ton CO₂/jaar.`;
-
-  const gebruikerPrompt = `Analyseer dit verduurzamingsrapport en retourneer het volgende JSON-schema volledig ingevuld:
-
-{
-  "object_naam": "naam pand of project",
-  "object_adres": "volledig adres",
-  "functie": "woonfunctie / kantoor / etc.",
-  "bouwjaar": "bouwjaar",
-  "oppervlakte": "X m²",
-  "datum_rapport": "DD-MM-JJJJ",
-  "bron_tool": "naam scan-tool (Rabobank / ING / ABN AMRO / MB Adviesgroep)",
-  "huidig_label": "huidige energielabel letter",
-  "streef_label": "streef energielabel na maatregelen",
-  "samenvatting": "2-3 zinnen samenvatting van de verduurzamingsopgave en potentieel",
-  "huidige_energiekosten": "€ X.XXX",
-  "besparing_jaar": "€ X.XXX",
-  "co2_reductie_pct": "XX%",
-  "co2_reductie_abs": "X,X ton CO₂/jaar",
-  "totaal_investering": "€ XX.XXX",
-  "netto_investering": "€ XX.XXX",
-  "scope1_co2": "X.XXX kg CO₂",
-  "scope2_co2_locatie": "X.XXX kg CO₂",
-  "hernieuwbaar_pct": "XX%",
-  "hernieuwbaar_pct_na": "XX%",
-  "gemiddelde_tvt": "X jaar",
-  "credion_score_nu": "B — korte toelichting huidige ESG-score",
-  "credion_score_na": "A — korte toelichting score na maatregelen",
-  "compl_scope12": 85,
-  "compl_energie": 80,
-  "compl_sdg": 70,
-  "compl_maatregelen": 90,
-  "compl_scope3": 25,
-  "compl_governance": 20,
-  "maatregelen": [
-    {
-      "naam": "naam maatregel",
-      "fase": "Fase 1",
-      "prioriteit": "hoog",
-      "scope": "Scope 1",
-      "besparing_jr": "€ X.XXX",
-      "investering": "€ XX.XXX",
-      "tvt": "X jaar",
-      "co2_reductie": "XX%",
-      "subsidies": "ISDE / SDE++",
-      "omschrijving": "Korte omschrijving van de maatregel en aanpak.",
-      "aandachtspunt": null
-    }
-  ],
-  "esrs_velden": [
-    {
-      "categorie": "E",
-      "standaard": "ESRS E1",
-      "veld": "Scope 1 broeikasgasemissies",
-      "code": "E1-6",
-      "waarde": "X.XXX kg CO₂eq",
-      "waarde_na": "X.XXX kg CO₂eq",
-      "bron": "Energierekening / EPC-rapport",
-      "regelgeving": ["SFDR", "CSRD"],
-      "verplicht_per": "2025",
-      "status": "gevuld",
-      "toelichting": "Toelichting indien nodig"
-    },
-    {
-      "categorie": "E",
-      "standaard": "ESRS E1",
-      "veld": "Scope 2 broeikasgasemissies (locatie-gebaseerd)",
-      "code": "E1-6",
-      "waarde": "X.XXX kg CO₂eq",
-      "waarde_na": "X.XXX kg CO₂eq",
-      "bron": "Elektriciteitsverbruik",
-      "regelgeving": ["SFDR", "CSRD"],
-      "verplicht_per": "2025",
-      "status": "gevuld",
-      "toelichting": null
-    },
-    {
-      "categorie": "E",
-      "standaard": "ESRS E1",
-      "veld": "Primair energieverbruik",
-      "code": "E1-5",
-      "waarde": "X.XXX kWh/jaar",
-      "waarde_na": "X.XXX kWh/jaar",
-      "bron": "EPC / energierekening",
-      "regelgeving": ["SFDR", "Pillar 3"],
-      "verplicht_per": "2025",
-      "status": "gevuld",
-      "toelichting": null
-    },
-    {
-      "categorie": "E",
-      "standaard": "ESRS E1",
-      "veld": "Aandeel hernieuwbare energie",
-      "code": "E1-5",
-      "waarde": "XX%",
-      "waarde_na": "XX%",
-      "bron": "Zonnepanelen / energiemix",
-      "regelgeving": ["SFDR", "Taxonomie"],
-      "verplicht_per": "2025",
-      "status": "indicatief",
-      "toelichting": null
-    },
-    {
-      "categorie": "E",
-      "standaard": "ESRS E1",
-      "veld": "Energielabel vastgoed",
-      "code": "E1-5",
-      "waarde": "Label X",
-      "waarde_na": "Label X",
-      "bron": "EPC-rapport",
-      "regelgeving": ["SFDR", "Pillar 3"],
-      "verplicht_per": "2024",
-      "status": "gevuld",
-      "toelichting": null
-    },
-    {
-      "categorie": "S",
-      "standaard": "ESRS S1",
-      "veld": "Wooncomfort bewoners",
-      "code": "S1-1",
-      "waarde": "—",
-      "waarde_na": "Verbeterd door isolatie/HR-glas",
-      "bron": "—",
-      "regelgeving": ["CSRD"],
-      "verplicht_per": "2026",
-      "status": "ontbreekt",
-      "toelichting": "Kwalitatief in te vullen na uitvoering"
-    },
-    {
-      "categorie": "G",
-      "standaard": "ESRS G1",
-      "veld": "Duurzaamheidsbeleid eigenaar",
-      "code": "G1-1",
-      "waarde": "—",
-      "waarde_na": "—",
-      "bron": "—",
-      "regelgeving": ["CSRD"],
-      "verplicht_per": "2026",
-      "status": "ontbreekt",
-      "toelichting": "Handmatig toe te voegen door adviseur"
-    }
-  ],
-  "sdg_onderbouwing": [
-    {
-      "sdg_nr": "SDG 7",
-      "sdg_naam": "Betaalbare en duurzame energie",
-      "relevantie": "hoog",
-      "maatregel": "naam concrete maatregel",
-      "bewijs": "kwantitatieve onderbouwing uit het rapport",
-      "doelstelling_2030": "relevante SDG-doelstelling",
-      "status": "ok",
-      "sdg_icoon_kleur": "#FCC30B"
-    },
-    {
-      "sdg_nr": "SDG 11",
-      "sdg_naam": "Duurzame steden en gemeenschappen",
-      "relevantie": "middel",
-      "maatregel": "naam maatregel",
-      "bewijs": "onderbouwing",
-      "doelstelling_2030": "doelstelling",
-      "status": "kwalitatief",
-      "sdg_icoon_kleur": "#FD9D24"
-    },
-    {
-      "sdg_nr": "SDG 13",
-      "sdg_naam": "Klimaatactie",
-      "relevantie": "hoog",
-      "maatregel": "naam maatregel",
-      "bewijs": "CO₂-reductie kwantitatief",
-      "doelstelling_2030": "doelstelling",
-      "status": "ok",
-      "sdg_icoon_kleur": "#3F7E44"
-    }
-  ],
-  "gaps": [
-    {
-      "ernst": "waarschuwing",
-      "categorie": "Scope 3",
-      "titel": "Titel van het aandachtspunt",
-      "omschrijving": "Omschrijving waarom dit ontbreekt of aandacht nodig heeft.",
-      "actie": "Concrete actie die adviseur of eigenaar moet nemen",
-      "tijdlijn": "Q1 2025"
-    }
-  ],
-  "subsidie_overzicht": [
-    {
-      "code": "ISDE",
-      "naam": "Investeringssubsidie Duurzame Energie",
-      "type": "Subsidie",
-      "bedrag": "€ X.XXX",
-      "van_toepassing_op": "warmtepomp / zonneboiler",
-      "actie_vereist": "Aanvragen vóór start werkzaamheden",
-      "deadline": "31-12-2025"
-    },
-    {
-      "code": "SDE++",
-      "naam": "Stimulering Duurzame Energieproductie",
-      "type": "Subsidie",
-      "bedrag": "€ X.XXX / jaar",
-      "van_toepassing_op": "zonnepanelen",
-      "actie_vereist": null,
-      "deadline": null
-    }
-  ],
-  "financieringsadvies": {
-    "aanbevolen_structuur": "Aanbevolen financieringsstructuur voor dit project.",
-    "eigen_inbreng_aanbevolen": "XX%",
-    "looptijd_aanbevolen": "XX jaar",
-    "maandlast_schatting": "€ XXX/mnd",
-    "bmkb_groen": false
-  },
-  "risicosignalering": [
-    {
-      "risico": "omschrijving risico",
-      "categorie": "Technisch / Financieel / Regelgeving",
-      "kans": "laag",
-      "impact": "middel",
-      "mitigatie": "hoe dit risico te beperken"
-    }
-  ],
-  "stappenplan": [
-    {
-      "stap": 1,
-      "titel": "Titel stap",
-      "tijdlijn": "Maand 1-2",
-      "actoren": "Eigenaar + adviseur",
-      "omschrijving": "Wat er in deze stap gebeurt.",
-      "resultaat": "Concreet resultaat van deze stap"
-    }
-  ]
-}
-
-RAPPORT:
-${invoer}`;
-
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + getApiKey()
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      temperature: 0.1,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: systeemPrompt },
-        { role: 'user',   content: gebruikerPrompt }
-      ]
-    })
-  });
-
-  if (!res.ok) {
-    const fout = await res.json().catch(() => ({}));
-    throw new Error(fout?.error?.message || 'OpenAI serverfout ' + res.status);
-  }
-
-  const json = await res.json();
-  const inhoud = json?.choices?.[0]?.message?.content;
-  if (!inhoud) throw new Error('OpenAI gaf geen inhoud terug.');
-
-  try {
-    return JSON.parse(inhoud);
-  } catch(_) {
-    // Probeer JSON te extraheren uit de tekst als fallback
-    const match = inhoud.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]);
-    throw new Error('Kon JSON niet verwerken uit het AI-antwoord.');
-  }
-}
-
-/* ── API KEY ─────────────────────────────────────────
-   De OpenAI API-sleutel wordt geladen uit:
-   1. window.OPENAI_API_KEY  (ingesteld via server/Vercel env)
-   2. localStorage           (voor lokale ontwikkeling)
-   Vul hieronder je sleutel in voor lokaal testen:
-─────────────────────────────────────────────────── */
-function getApiKey() {
-  // Optie 1: injecteer via server-side rendering (aanbevolen voor productie)
-  if (typeof window.OPENAI_API_KEY === 'string' && window.OPENAI_API_KEY.startsWith('sk-')) {
-    return window.OPENAI_API_KEY;
-  }
-  // Optie 2: localStorage (alleen voor lokaal testen)
-  const lokaal = localStorage.getItem('openai_api_key');
-  if (lokaal && lokaal.startsWith('sk-')) return lokaal;
-
-  // Optie 3: direct invullen (vervang de lege string door je sleutel voor lokaal testen)
-  const hardcoded = '';
-  if (hardcoded.startsWith('sk-')) return hardcoded;
-
-  throw new Error('Geen OpenAI API-sleutel gevonden. Stel window.OPENAI_API_KEY in of gebruik localStorage.');
 }
 
 /* ── RENDER ─────────────────────────────────────── */
