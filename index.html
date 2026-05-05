@@ -577,6 +577,10 @@ body{font-family:var(--f-body);background:var(--page);min-height:100vh;color:var
 <div class="result" id="result">
 <div class="body">
 
+  <!-- Legacy placeholders: noodzakelijk voor de oorspronkelijke renderResult(). Zonder deze elementen stopt de rapportage op het uploadscherm. -->
+  <div id="rptHdr" style="display:none"></div>
+  <div id="extraSectiesOvz" style="display:none"></div>
+
   <div class="action-row">
     <button class="btn-orange" onclick="printRapport()">
       <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4V1h8v3"/><path d="M4 7h10a1 1 0 011 1v5H3V8a1 1 0 011-1z"/><path d="M5 13v4h8v-4"/></svg>
@@ -782,7 +786,7 @@ async function startGenerate() {
       hangen op het laadscherm en gaat hij altijd door naar de rapportagepagina.
     */
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12000);
+    const timeout = setTimeout(() => controller.abort(), 2500);
 
     let data = null;
     try {
