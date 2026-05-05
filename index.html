@@ -756,6 +756,7 @@ body{font-family:var(--f-body);background:var(--page);min-height:100vh;color:var
   <!-- Legacy placeholders: noodzakelijk voor de oorspronkelijke renderResult(). Zonder deze elementen stopt de rapportage op het uploadscherm. -->
   <div id="rptHdr" style="display:none"></div>
   <div id="extraSectiesOvz" style="display:none"></div>
+  <div id="reportPhotoSection" class="report-photo-section"></div>
 
   <div class="action-row">
     <button class="btn-orange" onclick="printRapport()">
@@ -1823,6 +1824,145 @@ renderResult = function(d) {
       document.body.classList.add('report-mode');
       document.querySelectorAll('.tab-panel').forEach(function(panel){ panel.style.display = 'block'; panel.classList.add('active'); });
       previousPrintRapport();
+    };
+  }
+})();
+</script>
+
+
+<!-- ══ PATCH: pandsfoto meenemen in scherm- en print/PDF-rapport ══ -->
+<style id="reportPhotoPatch">
+  .report-photo-section{display:none;margin:0 0 22px 0;}
+  .report-photo-card{border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow-sm);}
+  .report-photo-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--rule);background:var(--page);}
+  .report-photo-title{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-4);border-left:2px solid var(--orange);padding-left:8px;}
+  .report-photo-name{font-size:11px;color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:48%;}
+  .report-photo-img-wrap{background:#f6f4f0;display:flex;align-items:center;justify-content:center;padding:12px;}
+  .report-photo-img{display:block;max-width:100%;width:100%;max-height:520px;object-fit:contain;border-radius:12px;background:#fff;}
+  body.report-mode .report-photo-section.has-photo{display:block;}
+  body.report-mode #reportPhotoSection{margin-top:0;}
+  @media print{
+    #reportPhotoSection.has-photo{display:block!important;page-break-inside:avoid!important;break-inside:avoid!important;margin:0 0 14pt 0!important;}
+    .report-photo-card{box-shadow:none!important;border:1px solid #ddd!important;border-radius:8pt!important;}
+    .report-photo-head{padding:7pt 9pt!important;}
+    .report-photo-title{font-size:7.5pt!important;}
+    .report-photo-name{font-size:7.5pt!important;}
+    .report-photo-img-wrap{padding:7pt!important;}
+    .report-photo-img{max-height:205mm!important;border-radius:6pt!important;}
+  }
+</style>
+<script id="reportPhotoPatchScript">
+(function(){
+  window._esgBridgePhotoDataUrl = window._esgBridgePhotoDataUrl || '';
+  window._esgBridgePhotoName = window._esgBridgePhotoName || '';
+  window._esgBridgePhotoReadPromise = null;
+
+  function escHtml(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+
+  function ensurePhotoSection(){
+    var sec = document.getElementById('reportPhotoSection');
+    if(!sec){
+      sec = document.createElement('div');
+      sec.id = 'reportPhotoSection';
+      sec.className = 'report-photo-section';
+      var hdr = document.getElementById('rptHdr');
+      if(hdr && hdr.parentNode){ hdr.parentNode.insertBefore(sec, hdr.nextSibling); }
+      else {
+        var resultBody = document.querySelector('#result .body') || document.getElementById('result');
+        if(resultBody) resultBody.insertBefore(sec, resultBody.firstChild);
+      }
+    }
+    return sec;
+  }
+
+  function renderReportPhoto(){
+    var sec = ensurePhotoSection();
+    if(!sec) return;
+    if(!window._esgBridgePhotoDataUrl){
+      sec.classList.remove('has-photo');
+      sec.innerHTML = '';
+      return;
+    }
+    sec.classList.add('has-photo');
+    sec.innerHTML =
+      '<div class="report-photo-card">' +
+        '<div class="report-photo-head">' +
+          '<div class="report-photo-title">Pandsfoto / objectbeeld</div>' +
+          '<div class="report-photo-name">' + escHtml(window._esgBridgePhotoName || 'Geüploade pandsfoto') + '</div>' +
+        '</div>' +
+        '<div class="report-photo-img-wrap">' +
+          '<img class="report-photo-img" src="' + window._esgBridgePhotoDataUrl + '" alt="Pandsfoto van het object">' +
+        '</div>' +
+      '</div>';
+  }
+
+  function readPhotoFile(file){
+    if(!file) return;
+    if(!/^image\//i.test(file.type || '')) return;
+    window._esgBridgePhotoName = file.name || 'Pandsfoto';
+    window._esgBridgePhotoReadPromise = new Promise(function(resolve){
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        window._esgBridgePhotoDataUrl = ev.target && ev.target.result ? ev.target.result : '';
+        renderReportPhoto();
+        resolve();
+      };
+      reader.onerror = function(){ resolve(); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  var photoInput = document.getElementById('photoFileInput');
+  if(photoInput){
+    photoInput.addEventListener('change', function(e){
+      var file = e.target.files && e.target.files[0];
+      readPhotoFile(file);
+    });
+  }
+
+  /* Na renderen altijd de foto opnieuw in het rapport zetten. */
+  if(typeof renderResult === 'function'){
+    var previousRenderWithPhoto = renderResult;
+    renderResult = function(d){
+      previousRenderWithPhoto(d);
+      renderReportPhoto();
+    };
+  }
+
+  /* Zorg dat print/PDF wacht tot de foto is ingelezen en zichtbaar is. */
+  if(typeof printRapport === 'function'){
+    var previousPrintWithPhoto = printRapport;
+    printRapport = function(){
+      var run = function(){ renderReportPhoto(); previousPrintWithPhoto(); };
+      if(window._esgBridgePhotoReadPromise && typeof window._esgBridgePhotoReadPromise.then === 'function'){
+        window._esgBridgePhotoReadPromise.then(run);
+      } else {
+        run();
+      }
+    };
+  }
+
+  /* Nieuw rapport wist ook de foto-preview en de opgeslagen afbeelding. */
+  if(typeof resetTool === 'function'){
+    var previousResetWithPhoto = resetTool;
+    resetTool = function(){
+      window._esgBridgePhotoDataUrl = '';
+      window._esgBridgePhotoName = '';
+      window._esgBridgePhotoReadPromise = null;
+      var input = document.getElementById('photoFileInput');
+      if(input) input.value = '';
+      var zone = document.getElementById('photoZone');
+      if(zone) zone.classList.remove('has-file');
+      var pill = document.getElementById('photoPill');
+      if(pill) pill.classList.remove('on');
+      var title = document.getElementById('photoTitle');
+      if(title) title.textContent = 'Pandsfoto toevoegen';
+      var sub = document.getElementById('photoSub');
+      if(sub) sub.innerHTML = 'Optioneel · <strong>JPG of PNG</strong>';
+      renderReportPhoto();
+      previousResetWithPhoto();
     };
   }
 })();
