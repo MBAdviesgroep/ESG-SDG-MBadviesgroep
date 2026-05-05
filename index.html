@@ -496,11 +496,10 @@ body { font-family: var(--f-body); background: var(--page); min-height: 100vh; c
 <script>
 /* ═══════════════════════════════════════════════════════
    API CONFIGURATIE
-   Vervang de lege string met de OpenAI API-sleutel
-   om de tool te activeren.
+   De OpenAI API-sleutel staat NIET in deze index.
+   De browser roept alleen onze veilige Vercel API-route aan.
 ═══════════════════════════════════════════════════════ */
-const OPENAI_API_KEY = '';   // ← hier de sleutel invullen
-const OPENAI_MODEL   = 'gpt-4o';
+const GENERATE_ENDPOINT = '/api/generate';
 
 /* ═══════════════════════════════════════════════════════
    PDF.JS WORKER
@@ -555,97 +554,43 @@ async function processFile(file) {
 /* ── GENERATE ────────────────────────────────────────── */
 async function startGenerate() {
   if (!pdfText) return;
-
-  if (!OPENAI_API_KEY) {
-    showError('API-sleutel is nog niet ingesteld. Vul OPENAI_API_KEY in de broncode in.');
-    return;
-  }
-
+  hideError();
   setLoading(true);
 
   const steps = ['ls1','ls2','ls3','ls4','ls5'];
   let si = 0;
   const iv = setInterval(() => {
-    if (si > 0) { document.getElementById(steps[si-1]).classList.remove('active'); document.getElementById(steps[si-1]).classList.add('done'); }
-    if (si < steps.length) { document.getElementById(steps[si]).classList.add('active'); si++; }
+    if (si > 0) {
+      document.getElementById(steps[si-1]).classList.remove('active');
+      document.getElementById(steps[si-1]).classList.add('done');
+    }
+    if (si < steps.length) {
+      document.getElementById(steps[si]).classList.add('active');
+      si++;
+    }
   }, 1800);
 
-  const prompt = `Je bent een ESG/ESRS-expert. Analyseer onderstaande tekst uit een verduurzamingsrapport.
-Bereken Scope 1 CO₂ uit gasverbruik: factor 1.785 kg CO₂/m³.
-Bereken Scope 2 CO₂ uit netto netafname: factor 0.42 kg CO₂/kWh (netto = totaal elektra minus zelfopwekking).
-Retourneer ALLEEN valide JSON, geen markdown, geen uitleg.
-
-Schema:
-{
-  "object_naam": "string",
-  "object_adres": "string",
-  "bron_tool": "string (naam bank/tool)",
-  "huidig_label": "string",
-  "streef_label": "string",
-  "samenvatting": "string (2 professionele zinnen)",
-  "huidige_energiekosten": "string (€ X.XXX)",
-  "besparing_jaar": "string (€ X.XXX)",
-  "co2_reductie_pct": "string (bijv. 35%)",
-  "tvt": "string (bijv. 13 jaar)",
-  "scope1_co2": "string (bijv. ~10,6 tCO₂e/jr)",
-  "scope2_co2": "string (bijv. ~0,8 tCO₂e/jr)",
-  "credion_score_nu": "string (A/B/C/D)",
-  "credion_score_na": "string (A/B/C/D)",
-  "esrs_velden": [
-    {
-      "veld": "string (Engelstalige ESRS-veldnaam)",
-      "code": "string (bijv. E1-6 · par. 48a)",
-      "waarde": "string (waarde + eenheid)",
-      "bron": "string (korte bronverwijzing naar rapport)",
-      "regelgeving": ["SFDR"],
-      "status": "gevuld | indicatief | ontbreekt"
-    }
-  ],
-  "sdg_onderbouwing": [
-    {
-      "sdg_nr": "string (bijv. SDG 7)",
-      "sdg_naam": "string",
-      "maatregel": "string",
-      "bewijs": "string (concreet getal of feit)",
-      "status": "ok | kwalitatief | ontbreekt"
-    }
-  ],
-  "gaps": [
-    {
-      "titel": "string",
-      "omschrijving": "string",
-      "ernst": "waarschuwing | ontbreekt"
-    }
-  ],
-  "compl_scope12": number,
-  "compl_energie": number,
-  "compl_sdg": number,
-  "compl_scope3": number,
-  "compl_governance": number
-}
-
-Vul minimaal 6 esrs_velden en 4 sdg_onderbouwing in. compl_* zijn percentages (0-100).
-
-RAPPORTTEKST:
-${pdfText.substring(0, 14000)}`;
-
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const res = await fetch(GENERATE_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENAI_API_KEY },
-      body: JSON.stringify({ model: OPENAI_MODEL, temperature: 0.1, messages: [{ role: 'user', content: prompt }] })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pdfText })
     });
 
     clearInterval(iv);
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || 'OpenAI API-fout ' + res.status);
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (_) {
+      data = null;
     }
 
-    const data = await res.json();
-    const raw = data.choices[0].message.content || '';
-    currentData = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    if (!res.ok) {
+      throw new Error(data?.error || 'Serverfout ' + res.status);
+    }
+
+    currentData = data;
 
     setLoading(false);
     renderResult(currentData);
