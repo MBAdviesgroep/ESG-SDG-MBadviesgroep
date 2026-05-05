@@ -12,52 +12,45 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* Brand — exact MB Duurzaamheidstool palette */
-  --navy:#1B597B;          /* primary blue (was navy) */
-  --navy-2:#1e6990;         /* mid blue */
-  --navy-3:#134460;         /* deep blue */
-  --navy-deep:#0d2233;      /* darkest navy for cover/topbar */
-  --navy-soft:#EEF4F8;      /* blue tint bg */
-  --navy-soft-2:#ddeaf2;
+  --blue:#1B597B;
+  --blue-deep:#134460;
+  --blue-mid:#1e6990;
+  --blue-darkest:#0d2233;
+  --blue-faint:#EEF4F8;
+  --blue-faint2:#ddeaf2;
   --orange:#E26836;
-  --orange-2:#c95a2b;
-  --orange-soft:#FDF3EE;
-  --gold:#B68A4E;
-  --paper:#F4F2EF;          /* warm paper bg */
-  --paper-2:#EDE9E4;
-  --rule:#E3DDD8;
-  --rule-2:#D4CBBC;
+  --orange-deep:#c95a2b;
+  --orange-faint:#FDF3EE;
   --ink:#141414;
   --ink-2:#3A3A3A;
   --ink-3:#6B6B6B;
   --ink-4:#A0A0A0;
   --ink-5:#C8C8C8;
+  --surface:#FFFFFF;
+  --page:#F4F2EF;
+  --page-2:#EDE9E4;
+  --rule:#E3DDD8;
+  --rule-2:#D4CBBC;
   --green:#2A7A50;
   --green-bg:#EBF5EF;
-  --green-dark:#1d5c3c;
   --amber:#8A6000;
   --amber-bg:#FBF4E3;
   --red:#8B2828;
   --red-bg:#FBF0F0;
-  --purple:#3B3478;
-  --purple-bg:#ECEAF5;
-  --teal:#0B5E68;
-  --teal-bg:#E0EEF0;
-  --f-serif:'IBM Plex Serif',serif;
   --f-sans:'IBM Plex Sans',sans-serif;
+  --f-serif:'IBM Plex Serif',serif;
   --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04);
   --shadow-md:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
   --shadow-xl:0 24px 80px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.06);
 }
 html{font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
-body{font-family:var(--f-sans);background:var(--paper);min-height:100vh;color:var(--ink);padding:0 0 80px;line-height:1.55;}
+body{font-family:var(--f-sans);background:var(--page);min-height:100vh;color:var(--ink);padding:0 0 80px;line-height:1.55;}
 
 /* ══════════════════════════════════════════
-   APP CHROME (alleen zichtbaar in upload-mode)
+   TRUST BAR
    ══════════════════════════════════════════ */
-/* Trust bar (matches Duurzaamheidstool) */
 .trust-bar{
-  background:var(--navy-deep);
+  background:var(--blue-deep);
   padding:10px 24px;
   display:flex;align-items:center;justify-content:center;
   gap:32px;flex-wrap:wrap;
@@ -65,147 +58,121 @@ body{font-family:var(--f-sans);background:var(--paper);min-height:100vh;color:va
 .trust-item{
   display:flex;align-items:center;gap:8px;
   color:rgba(255,255,255,.75);
-  font-size:11.5px;font-family:var(--f-sans);letter-spacing:.2px;
+  font-size:11.5px;letter-spacing:.2px;
 }
 .trust-item strong{color:#fff;font-weight:600;}
 .trust-icon{width:14px;height:14px;opacity:.6;flex-shrink:0;}
 
-.app-topbar{
-  background:linear-gradient(135deg,var(--navy-3) 0%,var(--navy) 60%,var(--navy-2) 100%);
-  padding:18px 28px;
-  display:flex;align-items:center;justify-content:space-between;
-  border-bottom:none;position:relative;
-  position:sticky;top:0;z-index:50;
+/* ══════════════════════════════════════════
+   APP CARD (compact zoals Duurzaamheidstool)
+   ══════════════════════════════════════════ */
+.page-wrap{max-width:780px;margin:0 auto;padding:40px 20px 0;}
+.card{
+  background:var(--surface);border-radius:28px;box-shadow:var(--shadow-xl);
+  overflow:hidden;margin-bottom:16px;
 }
-.app-topbar::after{
-  content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
+.hdr{
+  background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue) 60%,var(--blue-mid) 100%);
+  padding:28px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.hdr::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.hdr::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,var(--orange),#f09060);
 }
-.atb-brand{display:flex;align-items:center;gap:14px;color:#fff;}
-.atb-mark{
-  width:46px;height:46px;border-radius:10px;
-  background:#fff;
-  display:flex;align-items:center;justify-content:center;
-  padding:4px;
-  box-shadow:0 2px 8px rgba(0,0,0,.2);
+.hdr-logo{display:flex;align-items:center;gap:14px;color:#fff;}
+.hdr-logo img{
+  width:54px;height:54px;object-fit:contain;display:block;
+  background:#fff;border-radius:10px;padding:4px;
 }
-.atb-mark img{width:100%;height:100%;object-fit:contain;display:block;}
-.atb-name{font-family:var(--f-sans);font-size:17px;font-weight:700;letter-spacing:.1px;}
-.atb-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:1px;letter-spacing:.4px;}
-.atb-chips{display:flex;gap:6px;flex-wrap:wrap;}
-.atb-chip{
-  font-size:10.5px;font-weight:600;letter-spacing:.6px;
-  padding:5px 10px;border-radius:99px;
-  background:rgba(255,255,255,.06);
-  color:rgba(255,255,255,.72);
-  border:1px solid rgba(255,255,255,.08);
+.hdr-name{font-size:17px;font-weight:700;letter-spacing:.1px;}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;letter-spacing:.4px;}
+.hdr-right{text-align:right;}
+.hdr-tag{
+  font-size:9px;letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.4);font-weight:500;margin-bottom:4px;
 }
-.atb-meta{font-size:11.5px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:10px;}
-.atb-dot{width:6px;height:6px;border-radius:50%;background:#4ec98c;box-shadow:0 0 0 3px rgba(78,201,140,.18);}
+.hdr-title{font-size:15px;font-weight:600;color:#fff;letter-spacing:-.2px;}
 
-/* ══════════════════════════════════════════
-   UPLOAD PAGE
-   ══════════════════════════════════════════ */
-.upload-page{max-width:1080px;margin:0 auto;padding:48px 28px 0;}
+.body{padding:38px 40px 40px;}
 
-.up-hero{
-  display:grid;grid-template-columns:1.15fr .85fr;gap:32px;align-items:end;
-  margin-bottom:28px;
-}
-.up-eyebrow{
-  font-size:11px;font-weight:600;letter-spacing:2px;
+.eyebrow{
+  font-size:10.5px;font-weight:600;letter-spacing:2px;
   text-transform:uppercase;color:var(--orange);
-  display:inline-flex;align-items:center;gap:10px;margin-bottom:14px;font-family:var(--f-sans);
+  display:inline-flex;align-items:center;gap:10px;margin-bottom:14px;
 }
-.up-eyebrow::before{content:'';width:24px;height:1.5px;background:var(--orange);}
-.up-title{
-  font-family:var(--f-sans);font-size:48px;line-height:1.08;
-  font-weight:600;color:var(--navy-3);letter-spacing:-1.2px;
-  margin-bottom:18px;
-}
-.up-title em{font-style:italic;color:var(--orange);font-weight:500;}
-.up-lead{font-size:15px;color:var(--ink-3);line-height:1.7;max-width:560px;}
+.eyebrow::before{content:'';width:24px;height:1.5px;background:var(--orange);}
 
-.up-side{
-  background:#fff;border:1px solid var(--rule);border-radius:14px;
-  padding:22px 24px;box-shadow:var(--shadow-sm);
+.h1{
+  font-family:var(--f-sans);font-size:32px;line-height:1.12;
+  font-weight:600;color:var(--blue-deep);letter-spacing:-.7px;
+  margin-bottom:14px;
 }
-.up-side-head{
-  font-family:var(--f-sans);font-size:14px;font-weight:700;color:var(--navy-3);
-  margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--rule);
-  display:flex;align-items:center;gap:10px;letter-spacing:-.1px;
-}
-.up-side-head::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--orange);}
-.up-side-list{display:flex;flex-direction:column;gap:9px;}
-.up-side-item{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--ink-2);line-height:1.5;}
-.up-side-check{
-  width:16px;height:16px;border-radius:50%;background:var(--green-bg);color:var(--green);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
-}
+.h1 em{font-style:italic;color:var(--orange);font-weight:500;}
+.lead{font-size:14px;color:var(--ink-3);line-height:1.7;margin-bottom:28px;}
 
-.up-card{
-  background:#fff;border:1px solid var(--rule);border-radius:18px;
-  box-shadow:var(--shadow-md);overflow:hidden;
+/* Section ruling */
+.sec-head{display:flex;align-items:center;gap:10px;margin:28px 0 18px;}
+.sec-label{
+  font-size:10px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink-4);white-space:nowrap;
+  border-left:2px solid var(--orange);padding-left:7px;
 }
-.up-card-head{
-  padding:22px 28px 18px;border-bottom:1px solid var(--rule);
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
-}
-.up-card-title{
-  font-family:var(--f-sans);font-size:19px;font-weight:700;color:var(--navy-3);letter-spacing:-.2px;
-}
-.up-card-step{
-  font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:1.4px;text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
-}
-.up-card-step b{color:var(--orange);}
+.sec-line{flex:1;height:1px;background:var(--rule);}
 
-.up-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:24px 28px 8px;}
+/* Dropzones */
+.up-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .dropzone{
   border:1.5px dashed var(--rule-2);border-radius:14px;
-  padding:34px 22px 30px;text-align:center;cursor:pointer;
-  transition:all .2s ease;background:var(--paper);position:relative;
-  min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 18px 22px;text-align:center;cursor:pointer;
+  transition:all .2s ease;background:var(--page);position:relative;
+  min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
-.dropzone:hover,.dropzone.drag{border-color:var(--navy);background:var(--navy-soft);}
+.dropzone:hover,.dropzone.drag{border-color:var(--blue);background:var(--blue-faint);}
 .dropzone.has-file{border-color:var(--green);border-style:solid;background:var(--green-bg);}
 .dz-icon{
-  width:54px;height:54px;border-radius:13px;background:#fff;
+  width:44px;height:44px;border-radius:11px;background:#fff;
   display:flex;align-items:center;justify-content:center;
-  border:1px solid var(--rule);margin-bottom:14px;color:var(--navy);
+  border:1px solid var(--rule);margin-bottom:11px;color:var(--blue);
   box-shadow:var(--shadow-sm);
 }
-.dropzone.has-file .dz-icon{background:#fff;border-color:rgba(31,107,69,.2);color:var(--green);}
-.dz-title{font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:4px;}
-.dz-sub{font-size:12px;color:var(--ink-3);line-height:1.6;}
-.dz-sub strong{color:var(--navy);}
+.dropzone.has-file .dz-icon{color:var(--green);}
+.dz-title{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.dz-sub{font-size:11.5px;color:var(--ink-3);line-height:1.55;}
+.dz-sub strong{color:var(--blue);}
 .dz-input{position:absolute;inset:0;opacity:0;cursor:pointer;}
 .dz-pill{
   display:none;background:#fff;border:1px solid rgba(31,107,69,.2);border-radius:9px;
-  padding:9px 12px;margin-top:14px;text-align:left;align-items:center;gap:10px;width:100%;
+  padding:8px 11px;margin-top:11px;text-align:left;align-items:center;gap:9px;width:100%;
 }
 .dz-pill.on{display:flex;}
-.dz-pill .fp-name{font-size:11.5px;font-weight:500;color:var(--ink);word-break:break-all;line-height:1.3;}
+.dz-pill .fp-name{font-size:11px;font-weight:500;color:var(--ink);word-break:break-all;line-height:1.3;}
 .dz-pill .fp-size{font-size:10px;color:var(--ink-4);margin-top:2px;}
 .dz-pill .fp-ok{
   width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:auto;
 }
 
-.progress{height:3px;background:var(--rule);border-radius:99px;overflow:hidden;margin:0 28px;display:none;}
+.progress{height:3px;background:var(--rule);border-radius:99px;overflow:hidden;margin:18px 0 0;display:none;}
 .progress.on{display:block;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--navy) 0%,var(--orange) 100%);transition:width .35s ease;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue) 0%,var(--orange) 100%);transition:width .35s ease;}
 
 .up-error{
-  display:none;margin:14px 28px 0;padding:11px 14px;background:var(--red-bg);
+  display:none;margin:14px 0 0;padding:11px 14px;background:var(--red-bg);
   border:1px solid rgba(138,39,39,.15);border-radius:9px;
   font-size:13px;color:var(--red);align-items:center;gap:10px;
 }
 .up-error.on{display:flex;}
 
-.up-card-foot{padding:18px 28px 26px;}
+.actions{margin-top:24px;}
 .btn-primary{
-  width:100%;height:54px;background:var(--navy);color:#fff;border:none;
+  width:100%;height:54px;background:var(--blue-deep);color:#fff;border:none;
   border-radius:11px;font-size:13.5px;font-weight:600;letter-spacing:.3px;
   font-family:var(--f-sans);cursor:pointer;
   transition:all .15s ease;display:flex;align-items:center;justify-content:center;gap:10px;
@@ -213,521 +180,445 @@ body{font-family:var(--f-sans);background:var(--paper);min-height:100vh;color:va
 }
 .btn-primary:hover:not(:disabled){background:#06182a;transform:translateY(-1px);box-shadow:0 8px 24px rgba(14,42,61,.25);}
 .btn-primary:disabled{opacity:.36;cursor:not-allowed;}
-.btn-primary svg{transition:transform .2s ease;}
-.btn-primary:hover:not(:disabled) svg{transform:translateX(3px);}
 
-.btn-orange{
-  height:46px;background:var(--orange);color:#fff;border:none;border-radius:9px;
-  font-size:13px;font-weight:600;font-family:var(--f-sans);cursor:pointer;
-  transition:all .15s ease;display:flex;align-items:center;justify-content:center;gap:9px;
-  box-shadow:0 3px 10px rgba(216,106,44,.22);padding:0 18px;
+.bullets{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;
+  margin-top:20px;padding-top:20px;border-top:1px solid var(--rule);
 }
-.btn-orange:hover{background:var(--orange-2);transform:translateY(-1px);}
-.btn-ghost{
-  height:46px;background:#fff;color:var(--navy);
-  border:1.5px solid var(--rule);border-radius:9px;
-  font-size:13px;font-weight:600;font-family:var(--f-sans);cursor:pointer;
-  transition:all .15s ease;display:flex;align-items:center;justify-content:center;gap:9px;
-  padding:0 18px;
-}
-.btn-ghost:hover{border-color:var(--navy);background:var(--navy-soft);}
+.bullets div{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--ink-2);line-height:1.5;}
+.bullets svg{flex-shrink:0;color:var(--green);margin-top:2px;}
 
-/* ══════════════════════════════════════════
-   LOADING
-   ══════════════════════════════════════════ */
-.loading{display:none;padding:80px 30px;text-align:center;background:#fff;border:1px solid var(--rule);border-radius:18px;box-shadow:var(--shadow-md);max-width:680px;margin:32px auto 0;}
+/* Loading */
+.loading{display:none;padding:60px 30px;text-align:center;}
 .loading.on{display:block;}
 .loading-orb{
-  width:64px;height:64px;border-radius:50%;
-  background:conic-gradient(from 0deg,transparent 0,var(--navy) 80%,transparent 100%);
-  margin:0 auto 20px;animation:spin 1.1s linear infinite;
-  position:relative;
+  width:54px;height:54px;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0,var(--blue) 80%,transparent 100%);
+  margin:0 auto 18px;animation:spin 1.1s linear infinite;position:relative;
 }
-.loading-orb::after{
-  content:'';position:absolute;inset:7px;border-radius:50%;background:#fff;
-}
+.loading-orb::after{content:'';position:absolute;inset:6px;border-radius:50%;background:#fff;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.loading-title{font-family:var(--f-sans);font-size:21px;font-weight:700;color:var(--navy-3);margin-bottom:6px;letter-spacing:-.2px;}
-.loading-sub{font-size:13px;color:var(--ink-3);line-height:1.7;margin-bottom:24px;}
-.loading-steps{display:flex;flex-direction:column;gap:6px;max-width:380px;margin:0 auto;text-align:left;}
+.loading-title{font-size:18px;font-weight:700;color:var(--blue-deep);margin-bottom:6px;}
+.loading-sub{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin-bottom:22px;}
+.loading-steps{display:flex;flex-direction:column;gap:5px;max-width:340px;margin:0 auto;text-align:left;}
 .loading-step{
-  display:flex;align-items:center;gap:11px;font-size:12.5px;color:var(--ink-4);
-  padding:8px 13px;border-radius:9px;transition:all .2s ease;
+  display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-4);
+  padding:7px 12px;border-radius:8px;transition:all .2s ease;
 }
-.loading-step.active{background:var(--navy-soft);color:var(--navy);font-weight:500;}
+.loading-step.active{background:var(--blue-faint);color:var(--blue);font-weight:500;}
 .loading-step.done{color:var(--green);}
-.step-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.step-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
 .loading-step.active .step-dot{animation:pulse 1s ease infinite;}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:.6}}
 
 /* ══════════════════════════════════════════
-   REPORT VIEW (separate page)
+   REPORT MODE — webview is compact preview
    ══════════════════════════════════════════ */
-.report-shell{display:none;}
-body.report-mode .upload-page,
-body.report-mode .app-topbar,
-body.report-mode .loading{display:none!important;}
-body.report-mode .report-shell{display:block;}
+body.report-mode .page-wrap,
+body.report-mode .trust-bar{display:none!important;}
+
+.rpt-mode{display:none;}
+body.report-mode .rpt-mode{display:block;}
 
 .rpt-toolbar{
-  background:var(--navy);padding:12px 28px;
+  background:var(--blue-deep);padding:14px 28px;
   display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
   position:sticky;top:0;z-index:50;
   border-bottom:3px solid var(--orange);
 }
 .rpt-tb-brand{display:flex;align-items:center;gap:11px;color:#fff;}
 .rpt-tb-mark{
-  width:36px;height:36px;border-radius:8px;background:#fff;padding:3px;
+  width:38px;height:38px;border-radius:8px;background:#fff;padding:3px;
   display:flex;align-items:center;justify-content:center;
 }
 .rpt-tb-mark img{width:100%;height:100%;object-fit:contain;display:block;}
-.rpt-tb-title{font-family:var(--f-sans);font-size:15px;font-weight:700;}
-.rpt-tb-sub{font-size:10.5px;color:rgba(255,255,255,.5);letter-spacing:.4px;margin-top:1px;}
+.rpt-tb-title{font-size:14px;font-weight:700;color:#fff;}
+.rpt-tb-sub{font-size:10.5px;color:rgba(255,255,255,.55);letter-spacing:.4px;margin-top:1px;}
 .rpt-tb-actions{display:flex;gap:10px;}
-.rpt-tb-actions .btn-orange,
-.rpt-tb-actions .btn-ghost{height:42px;font-size:12.5px;}
-.rpt-tb-actions .btn-ghost{background:transparent;border-color:rgba(255,255,255,.2);color:#fff;}
-.rpt-tb-actions .btn-ghost:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.4);}
+.btn-orange{
+  height:42px;background:var(--orange);color:#fff;border:none;border-radius:9px;
+  font-size:12.5px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  padding:0 18px;transition:all .15s;
+}
+.btn-orange:hover{background:var(--orange-deep);transform:translateY(-1px);}
+.btn-ghost{
+  height:42px;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.2);
+  border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;padding:0 18px;
+  transition:all .15s;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.4);}
 
-.report-page{max-width:1040px;margin:0 auto;padding:36px 24px 60px;}
-.report-doc{
-  background:#fff;border-radius:18px;box-shadow:var(--shadow-xl);
-  overflow:hidden;border:1px solid var(--rule);
+.rpt-stage{
+  background:var(--page);
+  padding:30px 20px 60px;
+  min-height:calc(100vh - 70px);
+  display:flex;flex-direction:column;align-items:center;
 }
 
-/* ── COVER ── */
-.cover{
-  position:relative;min-height:520px;
-  background:var(--navy);color:#fff;overflow:hidden;
-  display:flex;flex-direction:column;
+/* ── A4 PAGE STYLING ── */
+/* Reference width 210mm at ~3.78px/mm = 794px; we render at 794×1123 */
+.a4{
+  width:794px;background:#fff;
+  margin:0 auto 24px;
+  box-shadow:0 12px 48px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.05);
+  position:relative;overflow:hidden;
+  font-size:11pt;
+  color:var(--ink-2);
 }
-.cover-photo{position:absolute;inset:0;}
-.cover-photo img{width:100%;height:100%;object-fit:cover;display:block;}
-.cover-photo::after{
+.a4.cover{
+  /* portrait full page */
+  height:1123px;
+}
+.a4.content{
+  min-height:1123px;
+  padding:0 0 60px;
+}
+
+/* ─── COVER ─── */
+.cover-bg{position:absolute;inset:0;}
+.cover-bg img{width:100%;height:100%;object-fit:cover;display:block;}
+.cover-bg::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(14,42,61,.55) 0%,rgba(14,42,61,.85) 60%,rgba(14,42,61,.96) 100%);
-}
-.cover.no-photo{
   background:
-    radial-gradient(circle at 20% 0%,rgba(216,106,44,.18) 0%,transparent 45%),
-    radial-gradient(circle at 90% 90%,rgba(31,79,111,.4) 0%,transparent 50%),
-    linear-gradient(160deg,var(--navy) 0%,#06182a 100%);
+    linear-gradient(180deg,rgba(13,34,51,.55) 0%,rgba(13,34,51,.78) 55%,rgba(13,34,51,.95) 100%);
 }
-.cover.no-photo::before{
+.a4.cover.no-photo .cover-bg{
+  background:
+    radial-gradient(circle at 18% 6%,rgba(226,104,54,.18) 0%,transparent 45%),
+    radial-gradient(circle at 90% 92%,rgba(31,79,111,.5) 0%,transparent 50%),
+    linear-gradient(160deg,var(--blue-deep) 0%,var(--blue-darkest) 100%);
+}
+.a4.cover.no-photo .cover-bg::before{
   content:'';position:absolute;inset:0;
   background-image:
     linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
     linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
   background-size:48px 48px;
   mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);
 }
-.cover-inner{position:relative;z-index:2;padding:40px 48px 44px;display:flex;flex-direction:column;height:100%;flex:1;}
-.cover-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:auto;padding-bottom:48px;}
+.a4.cover.no-photo .cover-bg::after{display:none;}
+
+.cover-inner{
+  position:relative;z-index:2;
+  height:100%;
+  padding:42px 50px 42px;
+  display:flex;flex-direction:column;
+  color:#fff;
+}
+.cover-rule-top{
+  position:absolute;top:24px;left:50px;right:50px;
+  height:1px;background:rgba(255,255,255,.22);
+}
+.cover-top{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding-top:14px;
+}
 .cover-brand{display:flex;align-items:center;gap:12px;}
 .cover-brand-mark{
-  width:46px;height:46px;border-radius:11px;
-  background:#fff;padding:4px;
+  width:46px;height:46px;border-radius:10px;background:#fff;padding:4px;
   display:flex;align-items:center;justify-content:center;
 }
 .cover-brand-mark img{width:100%;height:100%;object-fit:contain;display:block;}
-.cover-brand-name{font-family:var(--f-sans);font-size:17px;font-weight:700;letter-spacing:.1px;}
-.cover-brand-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;}
-.cover-stamp{
-  border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:7px 14px;
-  font-size:9.5px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;
-  color:rgba(255,255,255,.85);text-align:center;line-height:1.4;
+.cover-brand-name{font-size:15px;font-weight:700;letter-spacing:.1px;}
+.cover-brand-sub{font-size:10.5px;color:rgba(255,255,255,.6);margin-top:2px;letter-spacing:.2px;}
+.cover-date{
+  font-size:11px;color:rgba(255,255,255,.7);text-align:right;letter-spacing:.3px;
+  font-family:var(--f-sans);
 }
-.cover-stamp small{display:block;font-size:9px;color:rgba(255,255,255,.5);letter-spacing:1.4px;font-weight:500;margin-top:2px;}
 
-.cover-eyebrow{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;display:flex;align-items:center;gap:12px;}
-.cover-eyebrow::after{content:'';flex:1;max-width:60px;height:1px;background:var(--orange);}
+.cover-mid{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:18px;}
+.cover-eyebrow{
+  font-size:10.5px;font-weight:600;letter-spacing:3.4px;text-transform:uppercase;
+  color:var(--orange);margin-bottom:18px;
+  display:flex;align-items:center;gap:14px;
+}
+.cover-eyebrow::after{content:'';flex:0 0 60px;height:1px;background:var(--orange);}
 .cover-title{
   font-family:var(--f-serif);font-size:46px;font-weight:600;
-  line-height:1.08;letter-spacing:-1px;margin-bottom:14px;max-width:780px;
+  line-height:1.06;letter-spacing:-1px;color:#fff;margin-bottom:14px;
+  max-width:600px;
 }
-.cover-title em{font-style:italic;color:var(--orange);}
-.cover-address{font-size:14.5px;color:rgba(255,255,255,.78);margin-bottom:22px;max-width:680px;line-height:1.5;}
-.cover-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
-.cover-meta-item{
-  font-size:11px;color:rgba(255,255,255,.6);
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:99px;padding:5px 12px;
+.cover-sub{
+  font-size:13.5px;color:rgba(255,255,255,.78);max-width:560px;
+  line-height:1.55;margin-bottom:22px;
 }
-.cover-meta-item b{color:#fff;font-weight:600;margin-left:4px;}
+.cover-sub b{color:#fff;font-weight:600;}
+.cover-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.cover-badge{
+  font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  padding:6px 12px;border-radius:99px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.88);
+}
+.cover-badge.dark{background:rgba(226,104,54,.22);border-color:rgba(226,104,54,.4);color:#fff;}
 
 .cover-foot{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;
-  border-top:1px solid rgba(255,255,255,.12);padding-top:22px;margin-top:14px;
+  border-top:1px solid rgba(255,255,255,.18);padding-top:18px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:10.5px;color:rgba(255,255,255,.55);letter-spacing:.4px;
 }
-.cf-item{padding-right:18px;}
-.cf-item:not(:last-child){border-right:1px solid rgba(255,255,255,.1);}
-.cf-item:not(:first-child){padding-left:18px;}
-.cf-lbl{font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:7px;}
-.cf-val{font-family:var(--f-serif);font-size:18px;font-weight:600;color:#fff;line-height:1.15;}
-.cf-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;}
-.cf-labels{display:flex;align-items:center;gap:8px;}
-.cf-lbl-box{
-  min-width:34px;height:30px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;
-  padding:0 8px;font-size:13px;font-weight:700;color:#fff;
+.cover-foot b{color:#fff;font-weight:600;}
+
+/* ── CONTENT PAGE TOPBAR (mirrors PDF reference) ── */
+.page-top{
+  height:48px;background:var(--blue-deep);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;color:#fff;position:relative;
+}
+.page-top::after{
+  content:'';position:absolute;left:0;right:0;bottom:-3px;height:3px;
+  background:var(--orange);
+}
+.pt-brand{display:flex;align-items:center;gap:10px;}
+.pt-mark{width:28px;height:28px;border-radius:6px;background:#fff;padding:2px;display:flex;}
+.pt-mark img{width:100%;height:100%;object-fit:contain;}
+.pt-name{font-size:11.5px;font-weight:600;}
+.pt-name small{display:block;font-size:9.5px;color:rgba(255,255,255,.55);font-weight:400;letter-spacing:.3px;margin-top:1px;}
+.pt-mid{font-size:11.5px;font-weight:500;color:rgba(255,255,255,.85);letter-spacing:.4px;}
+.pt-right{font-size:9.5px;font-weight:700;letter-spacing:2.5px;color:rgba(255,255,255,.65);}
+
+.page-body{padding:30px 50px 0;}
+
+.page-eyebrow{
+  font-size:10px;font-weight:600;letter-spacing:5.5px;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:6px;
+}
+.page-title{
+  font-family:var(--f-serif);font-size:28px;font-weight:600;color:var(--blue-deep);
+  letter-spacing:-.4px;line-height:1.1;margin-bottom:6px;
+}
+.page-title-sub{font-size:12.5px;color:var(--ink-3);margin-bottom:24px;line-height:1.55;}
+.page-divider{height:1px;background:var(--rule);margin:14px 0 22px;}
+.page-thin-rule{height:2px;background:var(--blue-deep);width:48px;margin:8px 0 18px;}
+
+/* KPI strip — luxe rapport stijl */
+.kpi-rapport{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:#fff;
+  margin-bottom:18px;
+}
+.kpi-r-cell{padding:18px 20px 16px;position:relative;}
+.kpi-r-cell:not(:last-child){border-right:1px solid var(--rule);}
+.kpi-r-lbl{
+  font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--ink-4);margin-bottom:8px;
+}
+.kpi-r-val{
+  font-family:var(--f-serif);font-size:24px;font-weight:600;color:var(--blue-deep);
+  line-height:1.1;letter-spacing:-.4px;
+}
+.kpi-r-val.green{color:var(--green);}
+.kpi-r-val.orange{color:var(--orange);}
+.kpi-r-sub{font-size:10.5px;color:var(--ink-3);margin-top:5px;line-height:1.4;}
+
+/* Verdict block */
+.verdict{
+  border:1px solid var(--rule);border-radius:6px;padding:20px 22px;
+  background:linear-gradient(180deg,#fff 0%,var(--page) 100%);
+  margin-bottom:18px;
+}
+.verdict-eyebrow{
+  font-size:9.5px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;
+  color:var(--orange);margin-bottom:8px;
+}
+.verdict-title{
+  font-family:var(--f-serif);font-size:18px;font-weight:600;color:var(--blue-deep);
+  margin-bottom:8px;line-height:1.3;
+}
+.verdict-text{font-size:12px;color:var(--ink-2);line-height:1.65;}
+.verdict-text b{color:var(--blue-deep);}
+
+/* Bullets management summary */
+.mgt-bullets{display:flex;flex-direction:column;gap:7px;margin-top:12px;}
+.mgt-bullets div{display:flex;gap:10px;align-items:flex-start;font-size:11.5px;color:var(--ink-2);line-height:1.55;}
+.mgt-bullets div::before{
+  content:'';width:5px;height:5px;border-radius:50%;background:var(--orange);
+  flex-shrink:0;margin-top:7px;
 }
 
-/* ── DOC SECTIONS ── */
-.doc-body{padding:42px 48px 48px;}
-.doc-section{margin-top:42px;}
-.doc-section:first-child{margin-top:0;}
-.section-head{display:flex;align-items:flex-end;gap:14px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--rule);}
-.section-num{
-  font-family:var(--f-sans);font-size:11px;font-weight:700;color:var(--orange);
-  letter-spacing:2px;text-transform:uppercase;border-left:2px solid var(--orange);padding-left:8px;
+/* Tabel — luxe rapportstijl */
+.rpt-table{width:100%;border-collapse:collapse;font-size:11pt;margin:8px 0;}
+.rpt-table thead th{
+  font-size:9px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--ink-4);text-align:left;padding:0 10px 10px 0;
+  border-bottom:1.5px solid var(--blue-deep);
 }
-.section-title{font-family:var(--f-serif);font-size:24px;font-weight:600;color:var(--navy-3);letter-spacing:-.4px;line-height:1.15;}
-.section-sub{font-size:12px;color:var(--ink-3);margin-left:auto;letter-spacing:.4px;}
+.rpt-table tbody td{
+  padding:11px 10px 11px 0;vertical-align:top;line-height:1.5;
+  border-bottom:1px solid var(--rule);font-size:11pt;color:var(--ink-2);
+}
+.rpt-table tbody tr:last-child td{border-bottom:none;}
+.rpt-table .nm{font-weight:600;color:var(--ink);}
+.rpt-table .num{font-family:var(--f-serif);font-weight:600;color:var(--blue-deep);}
 
-/* ── EXEC SUMMARY ── */
-.exec-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;}
-.exec-card{
-  background:linear-gradient(145deg,var(--navy) 0%,var(--navy-2) 100%);
-  border-radius:14px;padding:26px 28px;color:#fff;position:relative;overflow:hidden;
+/* Status pills */
+.pill{
+  display:inline-block;padding:3px 9px;border-radius:99px;
+  font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
 }
-.exec-card::after{
+.p-good{background:var(--green-bg);color:var(--green);}
+.p-warn{background:var(--amber-bg);color:var(--amber);}
+.p-bad{background:var(--red-bg);color:var(--red);}
+.p-info{background:var(--blue-faint);color:var(--blue);}
+.p-mute{background:var(--page-2);color:var(--ink-3);}
+
+/* Score-bankscore visual */
+.score-row{
+  display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:18px;
+}
+.score-card{
+  background:linear-gradient(145deg,var(--blue-deep) 0%,var(--blue) 100%);
+  border-radius:6px;padding:20px 22px;color:#fff;position:relative;overflow:hidden;
+}
+.score-card::after{
   content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
   background:linear-gradient(90deg,var(--orange),#f09060);
 }
-.exec-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:11px;}
-.exec-headline{font-family:var(--f-serif);font-size:22px;font-weight:600;line-height:1.25;margin-bottom:14px;letter-spacing:-.3px;color:#fff;}
-.exec-text{font-size:13px;line-height:1.7;color:rgba(255,255,255,.82);}
-.exec-bullets{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
-.exec-bullet{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:rgba(255,255,255,.78);line-height:1.55;}
-.exec-bullet::before{
-  content:'';width:5px;height:5px;border-radius:50%;background:var(--orange);
+.sc-eyebrow{font-size:9.5px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:12px;}
+.sc-num{font-family:var(--f-serif);font-size:54px;font-weight:600;line-height:1;letter-spacing:-1.5px;}
+.sc-num small{font-size:18px;color:rgba(255,255,255,.5);font-weight:500;}
+.sc-bar{height:5px;background:rgba(255,255,255,.12);border-radius:99px;margin:14px 0 10px;overflow:hidden;}
+.sc-bar-fill{height:100%;background:linear-gradient(90deg,var(--orange),#f09060);border-radius:99px;}
+.sc-verdict{font-size:13px;font-weight:600;color:#fff;}
+.sc-text{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:5px;line-height:1.45;}
+
+.score-side{
+  background:#fff;border:1px solid var(--rule);border-radius:6px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.ss-row{display:flex;justify-content:space-between;align-items:center;font-size:11pt;padding:5px 0;border-bottom:1px solid var(--rule);}
+.ss-row:last-child{border-bottom:none;}
+.ss-l{font-size:11px;color:var(--ink-3);font-weight:500;}
+.ss-v{font-size:12px;color:var(--blue-deep);font-weight:600;font-family:var(--f-serif);}
+
+/* Risk matrix mini */
+.matrix{
+  display:grid;grid-template-columns:1.2fr repeat(3,1fr);
+  border:1px solid var(--rule);border-radius:6px;overflow:hidden;
+  background:#fff;font-size:10.5px;
+}
+.matrix > div{padding:9px 12px;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);}
+.matrix > div:nth-child(4n){border-right:none;}
+.matrix > div:nth-last-child(-n+4){border-bottom:none;}
+.matrix .mh{
+  background:var(--page);font-weight:700;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-3);
+}
+.matrix .ml{font-weight:600;color:var(--ink);}
+
+/* Two col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.col-card{
+  background:#fff;border:1px solid var(--rule);border-radius:6px;padding:16px 18px;
+}
+.col-h{
+  font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--orange);margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--rule);
+}
+.col-list{display:flex;flex-direction:column;gap:7px;}
+.col-list div{display:flex;gap:9px;align-items:flex-start;font-size:11pt;color:var(--ink-2);line-height:1.5;}
+.col-list div::before{
+  content:'';width:4px;height:4px;border-radius:50%;background:var(--blue);
   flex-shrink:0;margin-top:8px;
 }
 
-.score-card{
-  background:#fff;border:1px solid var(--rule);border-radius:14px;padding:24px 24px 22px;
-  display:flex;flex-direction:column;
-}
-.score-circle{
-  width:140px;height:140px;border-radius:50%;
-  background:conic-gradient(var(--green) calc(var(--score,70)*1%),var(--rule) 0);
-  display:flex;align-items:center;justify-content:center;
-  position:relative;margin:6px auto 14px;
-}
-.score-circle::after{content:'';position:absolute;inset:11px;background:#fff;border-radius:50%;}
-.score-num{position:relative;z-index:1;font-family:var(--f-serif);font-size:42px;font-weight:600;color:var(--navy-3);letter-spacing:-1px;line-height:1;}
-.score-num small{font-size:18px;color:var(--ink-3);font-weight:500;}
-.score-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:6px;}
-.score-verdict{font-family:var(--f-serif);font-size:15px;font-weight:600;color:var(--navy-3);text-align:center;margin-bottom:6px;line-height:1.3;}
-.score-sub{font-size:11.5px;color:var(--ink-3);line-height:1.55;text-align:center;}
-
-.advice-block{
-  margin-top:18px;
-  background:var(--orange-soft);border:1px solid rgba(216,106,44,.18);border-radius:11px;
-  padding:16px 20px;display:flex;gap:14px;align-items:flex-start;
-}
-.advice-icon{
-  width:36px;height:36px;border-radius:9px;background:#fff;color:var(--orange);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  border:1px solid rgba(216,106,44,.2);
-}
-.advice-eyebrow{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--orange);margin-bottom:5px;}
-.advice-text{font-size:13px;color:var(--ink-2);line-height:1.65;}
-.advice-text b{color:var(--navy);}
-
-/* ── KPI STRIP ── */
-.kpi-strip{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  border:1px solid var(--rule);border-radius:13px;overflow:hidden;
-  background:#fff;
-}
-.kpi-cell{padding:20px 22px 18px;position:relative;background:#fff;}
-.kpi-cell:not(:last-child){border-right:1px solid var(--rule);}
-.kpi-cell::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy);}
-.kpi-cell.k-orange::before{background:var(--orange);}
-.kpi-cell.k-green::before{background:var(--green);}
-.kpi-cell.k-purple::before{background:var(--purple);}
-.kpi-lbl{font-size:9.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink-4);margin-bottom:9px;}
-.kpi-val{font-family:var(--f-serif);font-size:24px;font-weight:600;color:var(--navy);line-height:1.05;letter-spacing:-.5px;}
-.kpi-val.green{color:var(--green);}
-.kpi-val.orange{color:var(--orange);}
-.kpi-sub{font-size:11px;color:var(--ink-3);margin-top:6px;line-height:1.4;}
-
-/* ── SCORE BREAKDOWN ── */
-.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.score-item{
-  background:#fff;border:1px solid var(--rule);border-radius:11px;
-  padding:14px 16px;
-}
-.score-item-lbl{font-size:10.5px;color:var(--ink-3);line-height:1.4;font-weight:500;}
-.score-item-val{font-family:var(--f-serif);font-size:17px;font-weight:600;color:var(--navy);margin-top:6px;line-height:1.15;}
-
-/* ── LABEL TRAJECT ── */
-.label-traject{
-  background:var(--paper);border:1px solid var(--rule);border-radius:13px;
-  padding:24px 28px;display:flex;align-items:center;gap:24px;
-}
-.lt-block{display:flex;flex-direction:column;align-items:center;gap:8px;}
-.lt-eyebrow{font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-4);}
-.lt-box{
-  width:64px;height:64px;border-radius:11px;display:flex;align-items:center;justify-content:center;
-  font-family:var(--f-serif);font-size:30px;font-weight:700;color:#fff;
-  box-shadow:0 4px 14px rgba(0,0,0,.12);
-}
-.lt-box.lG{background:#bf2d2d;}.lt-box.lF{background:#cc4422;}
-.lt-box.lE{background:#dd6611;}.lt-box.lD{background:#ee9911;}
-.lt-box.lC{background:#dba829;}.lt-box.lB{background:#5a8a20;}
-.lt-box.lA{background:#1a8a50;}.lt-box.lAplus{background:#0e7040;}
-.lt-arrow{flex:1;display:flex;align-items:center;gap:10px;color:var(--ink-3);}
-.lt-arrow-line{flex:1;height:2px;background:linear-gradient(90deg,var(--rule),var(--green));border-radius:99px;}
-.lt-arrow-text{font-size:11.5px;color:var(--ink-3);font-style:italic;white-space:nowrap;}
-
-/* ── TABLES ── */
-.lux-table{width:100%;border-collapse:collapse;font-size:12.5px;}
-.lux-table thead th{
-  font-size:9.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;
-  color:var(--ink-4);text-align:left;padding:0 14px 11px 0;
-  border-bottom:2px solid var(--navy);
-}
-.lux-table tbody td{padding:12px 14px 12px 0;vertical-align:top;line-height:1.5;border-bottom:1px solid var(--rule);}
-.lux-table tbody tr:last-child td{border-bottom:none;}
-.lux-table tbody tr:hover{background:var(--paper);}
-.lux-table .nm{font-weight:600;color:var(--ink);}
-.lux-table .num{font-family:var(--f-serif);font-weight:600;color:var(--navy);}
-
-/* Confidence pills */
-.conf{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.3px;}
-.conf-hoog{background:var(--green-bg);color:var(--green);}
-.conf-middel{background:var(--amber-bg);color:var(--amber);}
-.conf-laag{background:var(--red-bg);color:var(--red);}
-
-.prio{display:inline-block;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;}
-.prio-hoog{background:var(--red-bg);color:var(--red);}
-.prio-middel{background:var(--amber-bg);color:var(--amber);}
-.prio-laag{background:var(--green-bg);color:var(--green);}
-
-/* ── MAATREGELEN CARDS ── */
-.measures-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.measure-card{
-  background:#fff;border:1px solid var(--rule);border-radius:13px;overflow:hidden;
-  transition:all .15s ease;
-}
-.measure-card:hover{border-color:var(--rule-2);box-shadow:var(--shadow-sm);}
-.mc-head{padding:14px 18px 12px;border-bottom:1px solid var(--rule);background:var(--paper);}
-.mc-name{font-family:var(--f-serif);font-size:15px;font-weight:600;color:var(--navy);letter-spacing:-.2px;line-height:1.3;margin-bottom:7px;}
-.mc-tags{display:flex;gap:5px;flex-wrap:wrap;}
-.tag{font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:99px;letter-spacing:.3px;}
-.tag-blue{background:var(--navy-soft);color:var(--navy);}
-.tag-green{background:var(--green-bg);color:var(--green);}
-.tag-amber{background:var(--amber-bg);color:var(--amber);}
-.tag-red{background:var(--red-bg);color:var(--red);}
-.tag-purple{background:var(--purple-bg);color:var(--purple);}
-.mc-body{padding:14px 18px;}
-.mc-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-bottom:10px;}
-.mc-stat-lbl{font-size:9.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink-4);margin-bottom:2px;}
-.mc-stat-val{font-family:var(--f-serif);font-size:14px;font-weight:600;color:var(--navy);line-height:1.2;}
-.mc-stat-val.green{color:var(--green);}
-.mc-stat-val.orange{color:var(--orange);}
-.mc-desc{font-size:12px;color:var(--ink-3);line-height:1.6;padding-top:10px;border-top:1px solid var(--rule);margin-top:6px;}
-.mc-esrs{font-size:10.5px;color:var(--navy);background:var(--navy-soft);border-radius:6px;padding:5px 9px;margin-top:8px;display:inline-block;font-weight:500;}
-
-/* ── FASE PLAN ── */
-.phase-list{display:flex;flex-direction:column;gap:0;}
-.phase-row{display:grid;grid-template-columns:auto 1fr;gap:24px;padding:20px 0;border-bottom:1px solid var(--rule);}
-.phase-row:last-child{border-bottom:none;}
-.phase-num{
-  width:52px;height:52px;border-radius:13px;
-  background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;
-  font-family:var(--f-serif);font-size:21px;font-weight:600;flex-shrink:0;
-}
-.phase-num.p1{background:var(--orange);}
-.phase-num.p2{background:var(--navy);}
-.phase-num.p3{background:var(--navy-3);}
-.phase-num.p4{background:var(--green);}
-.phase-num.p5{background:var(--purple);}
-.phase-name{font-family:var(--f-serif);font-size:18px;font-weight:600;color:var(--navy);letter-spacing:-.2px;margin-bottom:4px;}
-.phase-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-3);margin-bottom:8px;}
-.phase-meta b{color:var(--navy);}
-.phase-desc{font-size:12.5px;color:var(--ink-2);line-height:1.65;margin-bottom:8px;}
-.phase-result{font-size:11.5px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:7px;}
-.phase-result::before{content:'✓';font-size:13px;}
-
-/* ── SDG ── */
-.sdg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.sdg-row{
-  background:#fff;border:1px solid var(--rule);border-radius:11px;
-  padding:14px 16px;display:flex;gap:14px;align-items:flex-start;
+/* SDG icons */
+.sdg-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.sdg-card{
+  display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:flex-start;
+  background:#fff;border:1px solid var(--rule);border-radius:6px;padding:12px 14px;
 }
 .sdg-num{
-  width:42px;height:42px;border-radius:9px;
-  display:flex;align-items:center;justify-content:center;color:#fff;
-  font-family:var(--f-serif);font-size:11px;font-weight:700;text-align:center;line-height:1.05;flex-shrink:0;
+  width:42px;height:42px;border-radius:6px;color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;line-height:1;letter-spacing:.3px;
 }
-.sdg-num small{font-size:9px;display:block;font-weight:500;}
-.sdg-7{background:#FCC30B;color:#0E1A24;}.sdg-9{background:#FD6925;}
-.sdg-11{background:#F99D26;}.sdg-12{background:#BF8B2E;}
-.sdg-13{background:#3F7E44;}.sdg-15{background:#56C02B;}
-.sdg-cnt{flex:1;}
-.sdg-name{font-family:var(--f-serif);font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:3px;}
-.sdg-target{font-size:10.5px;color:var(--ink-3);font-weight:500;margin-bottom:6px;}
-.sdg-text{font-size:11.5px;color:var(--ink-2);line-height:1.55;margin-bottom:7px;}
-.sdg-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.sdg-num strong{font-family:var(--f-serif);font-size:16px;font-weight:700;margin-top:1px;}
+.sdg-7{background:#FCC30B;color:#0E1A24;}
+.sdg-9{background:#FD6925;}
+.sdg-11{background:#F99D26;}
+.sdg-13{background:#3F7E44;}
+.sdg-cnt-name{font-family:var(--f-serif);font-size:13px;font-weight:600;color:var(--blue-deep);line-height:1.2;margin-bottom:3px;}
+.sdg-cnt-text{font-size:11pt;color:var(--ink-2);line-height:1.5;}
+.sdg-cnt-text small{display:block;color:var(--ink-3);font-size:10px;margin-top:4px;}
 
-/* ── ESG INFO BLOCKS (SFDR/Tax/TCFD) ── */
-.info-stack{display:flex;flex-direction:column;gap:14px;}
-.info-block{
-  background:#fff;border:1px solid var(--rule);border-radius:13px;padding:20px 22px;
+/* Closing block */
+.close-card{
+  background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue) 100%);
+  border-radius:6px;padding:24px 28px;color:#fff;position:relative;overflow:hidden;
+  margin-top:14px;
 }
-.info-block-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px;}
-.info-block-icon{
-  width:46px;height:46px;border-radius:11px;color:#fff;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  font-family:var(--f-serif);font-size:11px;font-weight:700;text-align:center;line-height:1.1;
+.close-card::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,var(--orange),#f09060);
 }
-.ib-sfdr{background:var(--navy);}
-.ib-tax{background:var(--green);}
-.ib-tcfd{background:var(--purple);}
-.ib-esrs{background:var(--teal);}
-.info-block-title{font-family:var(--f-serif);font-size:16px;font-weight:600;color:var(--navy);}
-.info-block-sub{font-size:12px;color:var(--ink-3);margin-top:2px;}
-.info-block-body{font-size:12.5px;color:var(--ink-2);line-height:1.65;}
-.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.close-eyebrow{font-size:9.5px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;color:var(--orange);margin-bottom:8px;}
+.close-title{font-family:var(--f-serif);font-size:18px;font-weight:600;line-height:1.25;margin-bottom:10px;}
+.close-text{font-size:11.5px;color:rgba(255,255,255,.8);line-height:1.65;}
 
-.dnsh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
-.dnsh-cell{
-  background:var(--paper);border:1px solid var(--rule);border-radius:9px;
-  padding:10px 12px;
+/* PAGE FOOTER (vaste positie binnen pagina, op scherm én in print) */
+.page-foot{
+  position:absolute;left:0;right:0;bottom:0;
+  height:62px;background:var(--blue-deep);color:#fff;
+  display:grid;grid-template-columns:1.2fr 1.4fr 1fr;align-items:center;
+  padding:0 24px;font-size:9.5px;line-height:1.45;
 }
-.dnsh-lbl{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-4);margin-bottom:4px;}
-.dnsh-val{font-size:11.5px;color:var(--ink-2);line-height:1.4;}
+.page-foot::before{
+  content:'';position:absolute;left:0;right:0;top:-2px;height:2px;background:var(--orange);
+}
+.pf-l{display:flex;align-items:center;gap:10px;}
+.pf-l-mark{width:26px;height:26px;border-radius:5px;background:#fff;padding:2px;}
+.pf-l-mark img{width:100%;height:100%;object-fit:contain;display:block;}
+.pf-l b{color:#fff;font-size:10px;font-weight:600;}
+.pf-l small{display:block;color:rgba(255,255,255,.5);letter-spacing:.3px;margin-top:1px;}
+.pf-m{color:rgba(255,255,255,.55);font-style:italic;text-align:center;padding:0 12px;}
+.pf-r{color:rgba(255,255,255,.7);text-align:right;}
+.pf-r b{display:block;color:#fff;font-weight:600;}
 
-/* ── TCFD ── */
-.tcfd-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.tcfd-card{background:#fff;border:1px solid var(--rule);border-radius:11px;padding:14px 16px;}
-.tcfd-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;}
-.tcfd-type{font-size:9.5px;font-weight:700;padding:2px 9px;border-radius:99px;letter-spacing:.3px;}
-.tt-fysiek{background:var(--teal-bg);color:var(--teal);}
-.tt-trans{background:var(--purple-bg);color:var(--purple);}
-.tt-kans{background:var(--green-bg);color:var(--green);}
-.tcfd-name{font-family:var(--f-serif);font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:4px;}
-.tcfd-meta{font-size:10.5px;color:var(--ink-4);margin-bottom:6px;}
-.tcfd-impact{font-size:11.5px;color:var(--orange);font-weight:500;margin-bottom:5px;}
-.tcfd-desc{font-size:11.5px;color:var(--ink-3);line-height:1.55;}
-
-/* ── ASSURANCE ── */
-.assurance{background:var(--paper);border:1px solid var(--rule);border-radius:13px;padding:22px 26px;}
-.assurance-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
-.assurance-title{font-family:var(--f-serif);font-size:18px;font-weight:600;color:var(--navy);}
-.assurance-level{
-  font-size:11px;font-weight:700;padding:5px 13px;border-radius:99px;
-  background:var(--green);color:#fff;letter-spacing:.6px;
+/* Page-number stamp top right of body content */
+.page-stamp{
+  position:absolute;top:60px;right:50px;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-4);
 }
-.assurance-bar{display:flex;gap:6px;margin-bottom:12px;}
-.as-step{flex:1;height:9px;border-radius:99px;background:var(--rule);position:relative;}
-.as-step.on{background:var(--green);}
-.as-step .as-tip{
-  position:absolute;top:-22px;left:0;font-size:9.5px;font-weight:600;color:var(--ink-4);letter-spacing:.6px;text-transform:uppercase;white-space:nowrap;
-}
-.as-step.on .as-tip{color:var(--green);}
-.assurance-text{font-size:12.5px;color:var(--ink-2);line-height:1.7;margin-top:18px;}
-
-/* ── CHECKLIST ── */
-.checklist{display:flex;flex-direction:column;gap:8px;}
-.cl-row{
-  display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:flex-start;
-  background:#fff;border:1px solid var(--rule);border-radius:11px;padding:14px 18px;
-}
-.cl-icon{
-  width:30px;height:30px;border-radius:8px;background:var(--amber-bg);color:var(--amber);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;
-}
-.cl-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;}
-.cl-desc{font-size:11.5px;color:var(--ink-3);line-height:1.55;}
-.cl-action{font-size:11px;color:var(--navy);margin-top:5px;font-weight:500;}
-
-/* ── CLOSING ── */
-.closing{
-  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);
-  border-radius:14px;padding:28px 32px;color:#fff;
-  display:grid;grid-template-columns:1fr 1fr;gap:30px;
-  position:relative;overflow:hidden;margin-top:42px;
-}
-.closing::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--orange),#f09060);}
-.closing-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;color:var(--orange);margin-bottom:10px;}
-.closing-title{font-family:var(--f-serif);font-size:22px;font-weight:500;line-height:1.25;margin-bottom:12px;}
-.closing-text{font-size:13px;color:rgba(255,255,255,.78);line-height:1.7;}
-.closing-contact{display:flex;flex-direction:column;gap:14px;}
-.cc-item{display:flex;gap:12px;align-items:flex-start;}
-.cc-ico{
-  width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.08);color:#fff;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.cc-lbl{font-size:9.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:2px;}
-.cc-val{font-size:13px;color:#fff;font-weight:500;}
-.cc-val a{color:#fff;text-decoration:none;}
-
-.disclaimer{
-  margin-top:18px;padding:14px 18px;background:var(--paper);border:1px dashed var(--rule-2);border-radius:9px;
-  font-size:10.5px;color:var(--ink-3);line-height:1.6;
-}
-.disclaimer b{color:var(--ink-2);}
 
 /* ══════════════════════════════════════════
-   PRINT (A4 LUX)
+   PRINT — A4 portrait, exact rapport-stijl
    ══════════════════════════════════════════ */
 @media print{
-  @page{size:A4;margin:14mm 12mm 18mm 12mm;}
-  body{background:#fff!important;padding:0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-  .app-topbar,.upload-page,.loading,.rpt-toolbar{display:none!important;}
-  .report-page{padding:0!important;max-width:100%!important;}
-  .report-doc{box-shadow:none!important;border:none!important;border-radius:0!important;}
-  .cover{min-height:230mm;page-break-after:always;break-after:page;}
-  .cover-inner{padding:24mm 22mm;}
-  .doc-body{padding:14mm 16mm 6mm;}
-  .doc-section{margin-top:12mm;page-break-inside:avoid;}
-  .section-head{page-break-after:avoid;break-after:avoid;}
-  .measure-card,.phase-row,.sdg-row,.tcfd-card,.score-item,.cl-row,.info-block{page-break-inside:avoid;break-inside:avoid;}
-  .closing{page-break-inside:avoid;}
-  /* page break helpers */
-  .pb-before{page-break-before:always;break-before:page;}
-  /* footer */
-  .print-footer{
-    display:flex!important;position:fixed;bottom:6mm;left:12mm;right:12mm;
-    justify-content:space-between;align-items:center;
-    font-size:8.5pt;color:#5A6B7A;
-    border-top:1px solid #E2DBCF;padding-top:3mm;
+  @page{size:A4 portrait;margin:0;}
+  html,body{background:#fff!important;padding:0!important;margin:0!important;
+    -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  .trust-bar,.page-wrap,.rpt-toolbar{display:none!important;}
+  .rpt-stage{padding:0!important;background:#fff!important;min-height:0!important;}
+  .a4{
+    width:210mm!important;height:297mm!important;min-height:297mm!important;
+    margin:0!important;box-shadow:none!important;page-break-after:always;
+    break-after:page;
+    overflow:hidden;
   }
+  .a4:last-child{page-break-after:auto;break-after:auto;}
+  .a4.cover{height:297mm!important;}
+  .a4.content{height:297mm!important;}
 }
-.print-footer{display:none;}
 
 /* ══════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE (preview-only)
    ══════════════════════════════════════════ */
-@media(max-width:900px){
-  .up-hero{grid-template-columns:1fr;}
+@media(max-width:840px){
   .up-grid{grid-template-columns:1fr;}
-  .exec-grid{grid-template-columns:1fr;}
-  .kpi-strip{grid-template-columns:1fr 1fr;}
-  .kpi-cell:nth-child(2n)::before{}
-  .kpi-cell:not(:last-child){border-right:1px solid var(--rule);}
-  .kpi-cell:nth-child(2n){border-right:none;}
-  .kpi-cell:nth-child(n+3){border-top:1px solid var(--rule);}
-  .score-grid{grid-template-columns:1fr 1fr;}
-  .measures-grid,.sdg-grid,.tcfd-grid,.dnsh-grid{grid-template-columns:1fr;}
-  .closing{grid-template-columns:1fr;}
-  .cover-foot{grid-template-columns:1fr;gap:14px;}
-  .cf-item{padding:0!important;border:none!important;border-bottom:1px solid rgba(255,255,255,.1)!important;padding-bottom:14px!important;}
-  .cf-item:last-child{border-bottom:none!important;padding-bottom:0!important;}
-  .cover-title{font-size:34px;}
-  .up-title{font-size:38px;}
-  .doc-body{padding:30px 24px;}
-  .cover-inner{padding:32px 24px;}
+  .bullets{grid-template-columns:1fr;}
+  .body{padding:30px 24px 30px;}
+  .h1{font-size:26px;}
+  .a4{transform:scale(.42);transform-origin:top center;margin-bottom:-580px;}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ TRUST BAR ═══ -->
+<!-- ═══ TRUST BAR (web only) ═══ -->
 <div class="trust-bar">
   <div class="trust-item">
     <svg class="trust-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14V7l5-4 5 4v7"/><path d="M6 14v-4h4v4"/></svg>
@@ -735,127 +626,111 @@ body.report-mode .report-shell{display:block;}
   </div>
   <div class="trust-item">
     <svg class="trust-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4"/></svg>
-    <span>ESRS · SFDR · EU Taxonomie · TCFD</span>
+    <span>ESG · ESRS · SFDR · Pillar 3 · EU Taxonomie</span>
   </div>
   <div class="trust-item">
     <svg class="trust-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12"/></svg>
-    <span>Direct als bankdossier inzetbaar</span>
+    <span>Geschikt als concept-bankdossier</span>
   </div>
 </div>
 
-<!-- ═══ APP TOPBAR ═══ -->
-<div class="app-topbar">
-  <div class="atb-brand">
-    <div class="atb-mark"><img src="assets/mb-logo.png" alt="MB Adviesgroep"></div>
-    <div>
-      <div class="atb-name">MB Adviesgroep</div>
-      <div class="atb-sub">ESG Bridge · Bankdossier-generator</div>
-    </div>
-  </div>
-  <div class="atb-chips">
-    <span class="atb-chip">ESRS</span>
-    <span class="atb-chip">SFDR</span>
-    <span class="atb-chip">EU Taxonomie</span>
-    <span class="atb-chip">TCFD</span>
-    <span class="atb-chip">SDG</span>
-    <span class="atb-chip">CSRD 2026</span>
-  </div>
-  <div class="atb-meta">
-    <span class="atb-dot"></span>
-    <span>Lokale verwerking · &lt; 30 sec</span>
-  </div>
-</div>
-
-<!-- ═══ UPLOAD PAGE ═══ -->
-<div class="upload-page" id="uploadPage">
-
-  <div class="up-hero">
-    <div>
-      <div class="up-eyebrow">ESG bankdossier · concept</div>
-      <h1 class="up-title">Van verduurzamings­rapport naar <em>bankwaardig</em> ESG-dossier.</h1>
-      <p class="up-lead">Upload een verduurzamingsrapport en optioneel een pandsfoto. ESG Bridge stelt automatisch een luxe, A4-rapport op met managementsamenvatting, ESG-bankscore, ESRS/SFDR-mapping, EU Taxonomie, klimaatrisico's en gefaseerd uitvoeringsplan — geschikt voor kredietcommissie en green-loan toets.</p>
-    </div>
-    <aside class="up-side">
-      <div class="up-side-head">Wat het rapport bevat</div>
-      <div class="up-side-list">
-        <div class="up-side-item"><span class="up-side-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg></span>Managementsamenvatting kredietcommissie</div>
-        <div class="up-side-item"><span class="up-side-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg></span>ESG-bankscore 0–100 met onderbouwing</div>
-        <div class="up-side-item"><span class="up-side-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg></span>Bewijs- en bronmatrix met zekerheid</div>
-        <div class="up-side-item"><span class="up-side-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg></span>CO₂-/energie-KPI's en businesscase scenario's</div>
-        <div class="up-side-item"><span class="up-side-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg></span>Gefaseerd uitvoeringsplan (5 fases)</div>
-        <div class="up-side-item"><span class="up-side-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg></span>SDG-mapping, ESRS-readiness, EU Taxonomie/DNSH</div>
-        <div class="up-side-item"><span class="up-side-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg></span>Klimaatrisicoanalyse + assurance niveau</div>
-      </div>
-    </aside>
-  </div>
-
-  <div class="up-card">
-    <div class="up-card-head">
-      <div class="up-card-title">Bestanden uploaden</div>
-      <div class="up-card-step"><b>Stap 1</b> · Verduurzamingsrapport (verplicht) · Pandsfoto (optioneel)</div>
-    </div>
-
-    <div class="up-grid">
-      <div class="dropzone" id="zonePdf">
-        <input type="file" accept=".pdf" class="dz-input" id="filePdf">
-        <div class="dz-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13l3 3 3-3"/><path d="M12 16V9"/></svg>
-        </div>
-        <div class="dz-title" id="pdfTitle">Verduurzamingsrapport (PDF)</div>
-        <div class="dz-sub" id="pdfSub">Sleep hier of klik · <strong>PDF</strong> · alle bank-scans</div>
-        <div class="dz-pill" id="pdfPill">
-          <div><div class="fp-name" id="pdfName">—</div><div class="fp-size" id="pdfSize">—</div></div>
-          <div class="fp-ok"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></div>
+<!-- ═══ APP / UPLOAD CARD (compact) ═══ -->
+<div class="page-wrap" id="appPage">
+  <div class="card">
+    <div class="hdr">
+      <div class="hdr-logo">
+        <img src="assets/mb-logo.png" alt="MB Adviesgroep">
+        <div>
+          <div class="hdr-name">MB Adviesgroep</div>
+          <div class="hdr-sub">Verduurzamings- &amp; vastgoedadvies</div>
         </div>
       </div>
-
-      <div class="dropzone" id="zonePhoto">
-        <input type="file" accept="image/*" class="dz-input" id="filePhoto">
-        <div class="dz-icon" id="photoIcon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </div>
-        <div class="dz-title" id="photoTitle">Pandsfoto (optioneel)</div>
-        <div class="dz-sub" id="photoSub">JPG / PNG — wordt coverbeeld in het rapport</div>
-        <div class="dz-pill" id="photoPill">
-          <div><div class="fp-name" id="photoName">—</div><div class="fp-size" id="photoSize">—</div></div>
-          <div class="fp-ok"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></div>
-        </div>
+      <div class="hdr-right">
+        <div class="hdr-tag">ESG Bridge</div>
+        <div class="hdr-title">Bankdossier-generator</div>
       </div>
     </div>
 
-    <div class="progress" id="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <div class="up-error" id="errorBox">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      <span id="errorText"></span>
+    <div class="body" id="uploadBody">
+      <div class="eyebrow">ESG-bankdossier · concept</div>
+      <h1 class="h1">Van verduurzamings­rapport naar <em>bankwaardig</em> ESG-dossier.</h1>
+      <p class="lead">Upload het verduurzamingsrapport en optioneel een pandsfoto. ESG Bridge stelt automatisch een aanvullend ESG-/SDG-/CSRD-/SFDR-/Taxonomie-bankdossier op — geschikt voor kredietcommissie en green-loan toets.</p>
+
+      <div class="sec-head">
+        <div class="sec-label">Stap 1 · Bestanden</div>
+        <div class="sec-line"></div>
+      </div>
+
+      <div class="up-grid">
+        <div class="dropzone" id="zonePdf">
+          <input type="file" accept=".pdf" class="dz-input" id="filePdf">
+          <div class="dz-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13l3 3 3-3"/><path d="M12 16V9"/></svg>
+          </div>
+          <div class="dz-title" id="pdfTitle">Verduurzamingsrapport</div>
+          <div class="dz-sub" id="pdfSub">Sleep hier of klik · <strong>PDF</strong></div>
+          <div class="dz-pill" id="pdfPill">
+            <div><div class="fp-name" id="pdfName">—</div><div class="fp-size" id="pdfSize">—</div></div>
+            <div class="fp-ok"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </div>
+        </div>
+
+        <div class="dropzone" id="zonePhoto">
+          <input type="file" accept="image/*" class="dz-input" id="filePhoto">
+          <div class="dz-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="dz-title" id="photoTitle">Pandsfoto (optioneel)</div>
+          <div class="dz-sub" id="photoSub">JPG / PNG — coverbeeld</div>
+          <div class="dz-pill" id="photoPill">
+            <div><div class="fp-name" id="photoName">—</div><div class="fp-size" id="photoSize">—</div></div>
+            <div class="fp-ok"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress" id="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="up-error" id="errorBox">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span id="errorText"></span>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="generateBtn" disabled>
+          <span>Genereer ESG-bankdossier</span>
+          <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9h12M9 3l6 6-6 6"/></svg>
+        </button>
+      </div>
+
+      <div class="bullets">
+        <div><svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg>Managementsamenvatting kredietcommissie</div>
+        <div><svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg>ESG-bankscore en risico-matrix</div>
+        <div><svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg>SDG / ESRS / CSRD readiness</div>
+        <div><svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg>SFDR / Pillar 3 / EU Taxonomie / DNSH</div>
+        <div><svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg>Bewijs- en bronmatrix met datakwaliteit</div>
+        <div><svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2 6.5 5 9 10 3.5"/></svg>Vervolgstappen voor green-loan toets</div>
+      </div>
     </div>
 
-    <div class="up-card-foot">
-      <button class="btn-primary" id="generateBtn" disabled>
-        <span>Genereer ESG-bankdossier</span>
-        <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9h12M9 3l6 6-6 6"/></svg>
-      </button>
+    <!-- LOADING -->
+    <div class="body loading" id="loading">
+      <div class="loading-orb"></div>
+      <div class="loading-title">Het ESG-bankdossier wordt opgesteld</div>
+      <div class="loading-sub">Bron-rapport wordt vertaald naar bankwaardige ESG-, SDG-, ESRS-, SFDR-, Pillar 3- en Taxonomie-onderdelen.</div>
+      <div class="loading-steps">
+        <div class="loading-step" id="ls1"><div class="step-dot"></div>Bron-PDF inlezen &amp; signalen extraheren</div>
+        <div class="loading-step" id="ls2"><div class="step-dot"></div>Object- en bewijsindicatoren afleiden</div>
+        <div class="loading-step" id="ls3"><div class="step-dot"></div>ESG-bankscore &amp; risicomatrix opbouwen</div>
+        <div class="loading-step" id="ls4"><div class="step-dot"></div>SDG / ESRS / CSRD mappen</div>
+        <div class="loading-step" id="ls5"><div class="step-dot"></div>SFDR / Pillar 3 / EU Taxonomie classificeren</div>
+        <div class="loading-step" id="ls6"><div class="step-dot"></div>A4-rapport opmaken</div>
+      </div>
     </div>
-  </div>
-</div>
-
-<!-- ═══ LOADING ═══ -->
-<div class="loading" id="loading">
-  <div class="loading-orb"></div>
-  <div class="loading-title">Het ESG-bankdossier wordt opgesteld</div>
-  <div class="loading-sub">PDF wordt gelezen en vertaald naar bankwaardige ESG-, ESRS-, SFDR-, Taxonomie- en TCFD-onderdelen.</div>
-  <div class="loading-steps">
-    <div class="loading-step" id="ls1"><div class="step-dot"></div>PDF inlezen &amp; data extraheren</div>
-    <div class="loading-step" id="ls2"><div class="step-dot"></div>Object, energie- en maatregelprofiel analyseren</div>
-    <div class="loading-step" id="ls3"><div class="step-dot"></div>ESG-bankscore en bewijsmatrix samenstellen</div>
-    <div class="loading-step" id="ls4"><div class="step-dot"></div>ESRS / SFDR / EU Taxonomie mappen</div>
-    <div class="loading-step" id="ls5"><div class="step-dot"></div>TCFD klimaatrisico &amp; SDG-onderbouwing</div>
-    <div class="loading-step" id="ls6"><div class="step-dot"></div>Businesscase &amp; gefaseerd uitvoeringsplan</div>
-    <div class="loading-step" id="ls7"><div class="step-dot"></div>A4-rapport luxe layout opmaken</div>
   </div>
 </div>
 
 <!-- ═══ REPORT SHELL ═══ -->
-<div class="report-shell" id="reportShell">
+<div class="rpt-mode" id="rptShell">
   <div class="rpt-toolbar">
     <div class="rpt-tb-brand">
       <div class="rpt-tb-mark"><img src="assets/mb-logo.png" alt="MB"></div>
@@ -875,19 +750,7 @@ body.report-mode .report-shell{display:block;}
       </button>
     </div>
   </div>
-
-  <div class="report-page">
-    <article class="report-doc" id="reportDoc">
-      <!-- COVER will be injected -->
-      <div id="rptCover"></div>
-      <!-- BODY will be injected -->
-      <div class="doc-body" id="rptBody"></div>
-      <div class="print-footer">
-        <span>MB Adviesgroep · ESG Bridge — Vertrouwelijk concept-bankdossier</span>
-        <span id="printFooterDate"></span>
-      </div>
-    </article>
-  </div>
+  <div class="rpt-stage" id="rptStage"></div>
 </div>
 
 <script>
@@ -899,26 +762,17 @@ if (typeof pdfjsLib !== 'undefined') {
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-let pdfText = '';
-let photoDataUrl = '';
-let photoName = '';
-let currentData = null;
+let pdfText='';
+let photoDataUrl='';
+let currentData=null;
 
-/* ═══════════════════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════════════════ */
+/* HELPERS */
 function esc(v){if(v===null||v===undefined)return '';return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtBytes(b){if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(0)+' KB';return (b/1048576).toFixed(1)+' MB';}
-function num(v){if(v===null||v===undefined)return null;const s=String(v).replace(/\./g,'').replace(',','.');const m=s.match(/\d+(?:\.\d+)?/g);if(!m)return null;return m.map(Number).reduce((a,b)=>a+b,0)/m.length;}
-function money(n){if(n===null||isNaN(n))return 'n.t.b.';return '€ '+Math.round(n).toLocaleString('nl-NL');}
-function labelClass(l){if(!l)return 'lC';const u=l.toUpperCase();if(u.includes('A+'))return 'lAplus';if(u==='A')return 'lA';if(u==='B')return 'lB';if(u==='C')return 'lC';if(u==='D')return 'lD';if(u==='E')return 'lE';if(u==='F')return 'lF';return 'lG';}
-function labelScore(l){const u=String(l||'').toUpperCase();if(u.includes('A+++'))return 100;if(u.includes('A++'))return 96;if(u.includes('A+'))return 92;if(u==='A')return 88;if(u==='B')return 75;if(u==='C')return 62;if(u==='D')return 48;if(u==='E')return 35;if(u==='F')return 22;return 12;}
-function safePct(v,fb){const n=num(v);return n===null?fb:Math.max(0,Math.min(100,n));}
 function arr(x){return Array.isArray(x)?x:[];}
+function findFirst(t,pats,fb=''){for(const re of pats){const m=t.match(re);if(m&&m[1])return m[1].replace(/\s{2,}/g,' ').trim().replace(/[|•]+$/,'').trim();}return fb;}
 
-/* ═══════════════════════════════════════════════════════════
-   FILE HANDLING
-   ═══════════════════════════════════════════════════════════ */
+/* FILES */
 const zonePdf=document.getElementById('zonePdf');
 const filePdf=document.getElementById('filePdf');
 filePdf.addEventListener('change',e=>{if(e.target.files[0])processPdf(e.target.files[0]);});
@@ -941,7 +795,7 @@ async function processPdf(file){
   document.getElementById('pdfPill').classList.add('on');
   zonePdf.classList.add('has-file');
   document.getElementById('pdfTitle').textContent='Rapport geselecteerd';
-  document.getElementById('pdfSub').textContent='Klaar voor analyse — klik op Genereer ESG-bankdossier';
+  document.getElementById('pdfSub').innerHTML='Klaar voor analyse · klik op <strong>Genereer</strong>';
 
   const pw=document.getElementById('progress');
   const pf=document.getElementById('progressFill');
@@ -963,8 +817,7 @@ async function processPdf(file){
     document.getElementById('generateBtn').disabled=false;
   }catch(err){
     pw.classList.remove('on');
-    showError('PDF kon niet worden ingelezen: '+err.message);
-    /* Toch genereren toestaan met fallback data */
+    showError('PDF kon niet worden ingelezen: '+err.message+' — fallback-analyse beschikbaar.');
     document.getElementById('generateBtn').disabled=false;
   }
 }
@@ -972,7 +825,6 @@ async function processPdf(file){
 function processPhoto(file){
   if(!/^image\//.test(file.type)){showError('Foto moet een afbeelding zijn (JPG/PNG).');return;}
   hideError();
-  photoName=file.name;
   document.getElementById('photoName').textContent=file.name;
   document.getElementById('photoSize').textContent=fmtBytes(file.size);
   document.getElementById('photoPill').classList.add('on');
@@ -987,24 +839,20 @@ function processPhoto(file){
 function showError(m){const e=document.getElementById('errorBox');document.getElementById('errorText').textContent=m;e.classList.add('on');}
 function hideError(){document.getElementById('errorBox').classList.remove('on');}
 
-/* ═══════════════════════════════════════════════════════════
-   GENERATE
-   ═══════════════════════════════════════════════════════════ */
+/* GENERATE */
 document.getElementById('generateBtn').addEventListener('click',startGenerate);
 
-async function startGenerate(){
+function startGenerate(){
   hideError();
-  // Hide upload, show loading
-  document.getElementById('uploadPage').style.display='none';
+  document.getElementById('uploadBody').style.display='none';
   document.getElementById('loading').classList.add('on');
-  window.scrollTo({top:0,behavior:'instant'});
 
-  const steps=['ls1','ls2','ls3','ls4','ls5','ls6','ls7'];
+  const steps=['ls1','ls2','ls3','ls4','ls5','ls6'];
   let si=0;
   const iv=setInterval(()=>{
     if(si>0){const p=document.getElementById(steps[si-1]);if(p){p.classList.remove('active');p.classList.add('done');}}
     if(si<steps.length){const c=document.getElementById(steps[si]);if(c)c.classList.add('active');si++;}
-  },420);
+  },350);
 
   setTimeout(()=>{
     clearInterval(iv);
@@ -1012,65 +860,54 @@ async function startGenerate(){
     try{
       currentData=buildLocalReport(pdfText||'');
       renderReport(currentData);
-      document.getElementById('loading').classList.remove('on');
+      document.getElementById('appPage').style.display='none';
       document.body.classList.add('report-mode');
       window.scrollTo({top:0,behavior:'instant'});
     }catch(err){
       console.error(err);
-      showError('Er ging iets mis bij het opstellen van het rapport: '+err.message);
-      document.getElementById('uploadPage').style.display='block';
+      showError('Er ging iets mis: '+err.message);
+      document.getElementById('uploadBody').style.display='block';
       document.getElementById('loading').classList.remove('on');
     }
-  },2200);
+  },1900);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   LOCAL REPORT BUILDER (extractie uit PDF-tekst, met fallback)
+   DATA EXTRACTION
    ═══════════════════════════════════════════════════════════ */
 function buildLocalReport(text){
   const t=String(text||'').replace(/\s+/g,' ').trim();
   const lower=t.toLowerCase();
-  const today=new Date().toLocaleDateString('nl-NL',{day:'2-digit',month:'long',year:'numeric'});
+  const today=new Date().toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
   const has=(...w)=>w.some(x=>lower.includes(x.toLowerCase()));
-
-  const findFirst=(pats,fb='')=>{for(const re of pats){const m=t.match(re);if(m&&m[1])return m[1].replace(/\s{2,}/g,' ').trim().replace(/[|•]+$/,'').trim();}return fb;};
 
   const labelMatch=t.match(/(?:energielabel|label)\s*(?:is|:)?\s*([A-G](?:\+{1,3})?)/i);
   const huidigLabel=labelMatch?labelMatch[1].toUpperCase():(has('label c')?'C':'C');
   const streefLabel=has('a+++')?'A+++':has('a++')?'A++':(has('a+')?'A+':'A');
 
-  const objectNaam=findFirst([
+  const objectNaam=findFirst(t,[
     /(?:object|gebouw|pand|project)\s*[:\-]\s*([^\n]{3,80})/i,
     /(?:verduurzamingsrapport|rapportage)\s+(?:voor\s+)?([^\n]{3,80})/i,
-    /\b(De\s+[A-ZÀ-Ü][A-Za-zÀ-ÿ' \-]{3,60})\b/
+    /\b(De\s+[A-ZÀ-Ü][A-Za-zÀ-ÿ' \-]{3,40})\b/
   ],'De Gouden Reaal');
 
-  const adres=findFirst([
+  const adres=findFirst(t,[
     /(?:adres|locatie)\s*[:\-]\s*([^\n]{6,120})/i,
     /(Diek\s+34[^\n]{0,80})/i
   ],'Diek 34, 34a-d, 1797 AB Den Hoorn');
 
-  const bouwjaar=findFirst([/bouwjaar\s*[:\-]?\s*(\d{4})/i,/gebouwd\s+in\s+(\d{4})/i],'1742');
-  const opp=findFirst([/(\d{2,5}\s?m²\s?(?:BVO|GBO|VVO|WO)?)/i,/(\d{2,5}\s?m2\s?(?:BVO|GBO|VVO|WO)?)/i],'344 m² VVO');
-  const functie=findFirst([/functie\s*[:\-]\s*([^\n]{3,80})/i,/(Commercieel,?\s*recreatieappartementen\s*en\s*bedrijfswoning)/i],'Commercieel · recreatieappartementen · bedrijfswoning');
+  const bouwjaar=findFirst(t,[/bouwjaar\s*[:\-]?\s*(\d{4})/i,/gebouwd\s+in\s+(\d{4})/i,/uit\s+(\d{4})/i],'1742');
+  const opp=findFirst(t,[/(\d{2,5}\s?m²\s?(?:BVO|GBO|VVO|WO))/i,/(\d{2,5}\s?m²\s?VVO)/i],'344 m² VVO');
+  const functie=findFirst(t,[
+    /functie\s*[:\-]\s*([^\n]{3,80})/i,
+    /(Commercieel,?\s*recreatieappartementen[^\n]{0,80})/i
+  ],'Commercieel · recreatieappartementen · bedrijfswoning');
 
-  const investering=findFirst([/(?:investering|kosten)\D{0,20}(€\s?[\d\.]+(?:,\d{2})?)/i],'')||'€ 95.000 – € 135.000';
-  const besparing=findFirst([/(?:besparing)\D{0,20}(€\s?[\d\.]+(?:,\d{2})?)/i],'')||'€ 9.500 – € 14.000';
-
-  // Maatregelen — afgeleid uit tekst, anders default set
-  const maatregelen=[];
-  if(has('isolatie','dakisolatie','gevelisolatie','vloerisolatie'))maatregelen.push({naam:'Schilisolatie verbeteren',fase:'Fase 2 · Isolatie',prio:'hoog',scope:'Scope 1',inv:'€ 28.000 – € 48.000',bes:'8 – 15 %',co2:'middel',tvt:'7 – 10 jr',omschrijving:'Verbeter dak-, gevel- en vloerisolatie binnen monumentale randvoorwaarden. Verlaagt warmtevraag en verhoogt comfort.',esrs:'ESRS E1-3 / E1-5',bewijs:'middel'});
-  if(has('warmtepomp','hybride'))maatregelen.push({naam:'Hybride warmtepomp',fase:'Fase 3 · Installaties',prio:'hoog',scope:'Scope 1',inv:'€ 18.000 – € 38.000',bes:'20 – 40 %',co2:'hoog',tvt:'8 – 12 jr',omschrijving:'Vervang of ondersteun gasgestookte warmteopwekking met een hybride warmtepompoplossing.',esrs:'ESRS E1-3 / E1-6',bewijs:'middel'});
-  if(has('led','verlichting'))maatregelen.push({naam:'LED-verlichting + sturing',fase:'Fase 1 · Quick wins',prio:'middel',scope:'Scope 2',inv:'€ 3.000 – € 8.000',bes:'5 – 10 %',co2:'laag',tvt:'2 – 4 jr',omschrijving:'Vervang resterende conventionele verlichting door LED met aanwezigheids- en tijdsturing.',esrs:'ESRS E1-5',bewijs:'hoog'});
-  if(has('zonnepanelen','pv','zonnepaneel'))maatregelen.push({naam:'PV-installatie / zonnepanelen',fase:'Fase 4 · Opwek',prio:'middel',scope:'Scope 2',inv:'€ 18.000 – € 32.000',bes:'15 – 25 %',co2:'middel',tvt:'6 – 9 jr',omschrijving:'Onderzoek dakvlak, monumentstatus en netcapaciteit voor lokale duurzame opwek.',esrs:'ESRS E1-5 / EU Tax.',bewijs:'middel'});
-  if(!maatregelen.length){
-    maatregelen.push(
-      {naam:'LED-verlichting + sturing',fase:'Fase 1 · Quick wins',prio:'middel',scope:'Scope 2',inv:'€ 3.500 – € 7.500',bes:'5 – 10 %',co2:'laag',tvt:'2 – 4 jr',omschrijving:'Vervang resterende conventionele verlichting door LED en voeg aanwezigheids- en daglichtsturing toe.',esrs:'ESRS E1-5',bewijs:'hoog'},
-      {naam:'Schilisolatie (dak / vloer)',fase:'Fase 2 · Isolatie',prio:'hoog',scope:'Scope 1',inv:'€ 28.000 – € 48.000',bes:'10 – 18 %',co2:'middel',tvt:'7 – 10 jr',omschrijving:'Verbeter isolatie waar bouwkundig mogelijk binnen monumentale randvoorwaarden.',esrs:'ESRS E1-3 / E1-5',bewijs:'middel'},
-      {naam:'Hybride warmtepomp',fase:'Fase 3 · Installaties',prio:'hoog',scope:'Scope 1',inv:'€ 18.000 – € 38.000',bes:'20 – 40 %',co2:'hoog',tvt:'8 – 12 jr',omschrijving:'Combineer met bestaande CV om gasverbruik substantieel te verlagen en CO₂-reductie te realiseren.',esrs:'ESRS E1-3 / E1-6',bewijs:'middel'},
-      {naam:'PV-panelen op bijgebouw',fase:'Fase 4 · Opwek',prio:'middel',scope:'Scope 2',inv:'€ 18.000 – € 28.000',bes:'15 – 22 %',co2:'middel',tvt:'6 – 9 jr',omschrijving:'Plaats zonnepanelen op niet-monumentaal dakdeel of bijgebouw; toets vergunningstraject en netcongestie.',esrs:'ESRS E1-5 / EU Tax.',bewijs:'middel'}
-    );
-  }
+  // Indicators
+  const hasIsolatie=has('isolatie','dakisolatie','glas','beglazing');
+  const hasInstall=has('warmtepomp','hybride','cv','ketel');
+  const hasOpwek=has('zonnepanelen','pv','panelen');
+  const hasMonitor=has('thermostaat','monitoring');
 
   return {
     object_naam:objectNaam,
@@ -1081,734 +918,495 @@ function buildLocalReport(text){
     datum_rapport:today,
     huidig_label:huidigLabel,
     streef_label:streefLabel,
-    samenvatting:'Op basis van het aangeleverde verduurzamingsrapport is het object indicatief financierbaar vanuit ESG-perspectief, mits de uitvoering van de maatregelen aantoonbaar wordt geborgd. Het labeltraject van '+huidigLabel+' naar '+streefLabel+' verlaagt het transitierisico, ondersteunt verhuurbaarheid en versterkt het onderpandprofiel als groen vastgoed. Voor harde kredietacceptatie blijven offertes, jaarverbruiken, subsidiebevestiging en bewijs na uitvoering de bepalende voorwaarden.',
+
+    // Page 2 — Bank summary
+    bankscore:62,
+    bankscore_oordeel:'Positief, onder voorwaarden',
+    samenvatting:'Op basis van het aangeleverde verduurzamingsrapport is het object indicatief geschikt als concept-bankdossier. Het transitierisico wordt verlaagd door het labeltraject van '+huidigLabel+' naar '+streefLabel+'. Voor harde kredietacceptatie en green-loan kwalificatie zijn aanvullende bewijsstukken vereist. Definitieve ESRS/SFDR/Taxonomie-classificatie is nader te valideren.',
     samenvatting_punten:[
-      'Energielabeltraject van '+huidigLabel+' naar '+streefLabel+' versterkt onderpandprofiel.',
-      'Indicatieve CO₂-reductie van 25 – 45 % na uitvoering maatregelenpakket.',
-      'Capex '+investering+' indicatief; offertes en subsidiepositie nog te valideren.',
-      'Geschikt als concept-bankdossier; voor green-loan toetsing aanvullend bewijs vereist.'
+      'Bewijsindicatoren uit aangeleverd verduurzamingsrapport: '+huidigLabel+' → '+streefLabel+' labeltraject, maatregelen aanwezig.',
+      'Datakwaliteit indicatief — jaarverbruiken, offertes en uitvoeringsplanning zijn nader te valideren.',
+      'Geschikt als concept-bankdossier; niet als finale ESG-rapportage richting toezichthouder.',
+      'Vervolg: bewijsmatrix afronden, DNSH toetsen en assurance-niveau verhogen.'
     ],
-    advies_kredietcommissie:'Geadviseerd wordt het dossier in behandeling te nemen als concept-financieringsvoorstel met opschortende voorwaarden: harde offertes per maatregel, vaste uitvoeringsplanning, subsidiebevestiging en oplevering met nieuw energielabel. Bij voldoening hieraan kwalificeert het dossier voor groene financiering / rentekorting.',
-    bankscore:60,
-    bankscore_oordeel:'Positief, met aanvullend bewijs',
-    bankscore_uitleg:'Score gewogen op label, CO₂, maatregelkwaliteit, datavolledigheid en governance.',
     bankscore_componenten:[
-      {l:'Energielabel na maatregelen',v:streefLabel},
-      {l:'CO₂-reductie indicatief',v:'25 – 45 %'},
-      {l:'Capex / TVT',v:investering+' · 7 – 10 jr'},
-      {l:'Datavolledigheid',v:'62 %'},
+      {l:'ESG-bankscore (gewogen)',v:'62 / 100'},
       {l:'Bewijsniveau',v:'Niveau 2 / 4'},
-      {l:'Green-loan geschikt',v:'Voorwaardelijk'},
+      {l:'Datakwaliteit',v:'Beperkt — bron PDF'},
+      {l:'Transitierisico',v:'Middel · dalend'},
       {l:'Klimaatrisico onderpand',v:'Middel'},
-      {l:'Subsidiekansen',v:'Indicatief positief'}
+      {l:'Rapportagegereedheid',v:'Concept · indicatief'}
     ],
-    huidige_energiekosten:'n.t.b. — jaarafrekening nodig',
-    besparing_jaar:besparing,
-    co2_reductie_pct:'25 – 45 %',
-    co2_reductie_abs:'minder uitstoot na maatregelen',
-    netto_investering:investering,
-    totaal_investering:investering,
-    gemiddelde_tvt:'7 – 10 jaar',
-    scope1:'Indicatief — gasdata aanvullen',
-    scope2:'Indicatief — elektradata aanvullen',
-    energie_kpis:[
-      {l:'Huidig energieverbruik',v:'n.t.b.',sub:'jaarafrekening vereist',z:'laag'},
-      {l:'Verwachte besparing',v:besparing,sub:'per jaar, indicatief',z:'middel'},
-      {l:'CO₂-reductie',v:'25 – 45 %',sub:'na uitvoering pakket',z:'middel'},
-      {l:'Energie-intensiteit /m²',v:'n.t.b.',sub:'kWh + m² nodig',z:'laag'},
-      {l:'Labelverbetering',v:huidigLabel+' → '+streefLabel,sub:'na uitvoering',z:'hoog'},
-      {l:'Hernieuwbaar aandeel',v:'< 10 % → 30 – 60 %',sub:'huidig → na opwek',z:'middel'}
+
+    // Page 3 — Risico/Kredietcommissie
+    risicos:[
+      {risk:'Energielabel-/transitiebeleid',ernst:'Middel',horizon:'Kort',action:'Labelverbetering aantonen vóór herfinanciering'},
+      {risk:'Uitvoering- en bouwrisico',ernst:'Middel',horizon:'Kort',action:'Offertes en planning als opschortende voorwaarde'},
+      {risk:'Datakwaliteit ESG-rapportage',ernst:'Hoog',horizon:'Kort',action:'Jaarverbruiken &amp; meterdata aanleveren'},
+      {risk:'Klimaatadaptatie locatie',ernst:'Middel',horizon:'Lang',action:'Klimaatatlas-toets uitvoeren'},
+      {risk:'Subsidie- en fiscaal voordeel',ernst:'Laag',horizon:'Kort',action:'EIA / ISDE / SVOH-positie bevestigen'}
     ],
-    businesscase:[
-      {scen:'Voorzichtig',capex:'€ 110k – € 155k',besp:'€ 7,6k – € 11,2k',tvt:'10 – 14 jr',duiding:'Alleen bij harde offertes en ruime buffer'},
-      {scen:'Basis',capex:investering,besp:besparing,tvt:'7 – 10 jr',duiding:'Geschikt als ESG-capex tranche / duurzaamheidslening'},
-      {scen:'Optimistisch',capex:'€ 86k – € 122k',besp:'€ 11k – € 16k',tvt:'5 – 8 jr',duiding:'Ruimte voor rentekorting / green-loan toets na bewijs'}
+    voorwaarden:[
+      'Harde offertes per maatregel (binnen 90 dagen na akkoord).',
+      'Bevestigde uitvoeringsplanning met mijlpalen en trekkingsschema.',
+      'Subsidiebeschikking of indicatieve toezegging RVO.',
+      'Oplevering met nieuw energielabel en facturen-dossier.',
+      'Bevestiging DNSH-toets en sociale waarborgen.'
     ],
-    maatregelen:maatregelen,
-    fasen:[
-      {n:1,naam:'Quick wins',termijn:'0 – 3 maanden',verant:'Eigenaar / installateur',acties:'LED, kierdichting, slimme thermostaat, verbruiksmonitoring',resultaat:'Direct besparing 5 – 10 %, geen vergunningen'},
-      {n:2,naam:'Isolatie',termijn:'3 – 9 maanden',verant:'Aannemer + monumentenadviseur',acties:'Dak- en/of vloerisolatie, kierdichting bouwkundig',resultaat:'Lagere warmtevraag, comfortverbetering'},
-      {n:3,naam:'Installaties',termijn:'9 – 15 maanden',verant:'Installateur',acties:'Hybride warmtepomp, ventilatie WTW',resultaat:'CO₂-reductie 20 – 40 %, gasvermindering'},
-      {n:4,naam:'Opwek',termijn:'12 – 18 maanden',verant:'PV-installateur + netbeheerder',acties:'Zonnepanelen op bijgebouw, batterij optioneel',resultaat:'Hernieuwbaar aandeel 30 – 60 %'},
-      {n:5,naam:'Validatie',termijn:'na oplevering',verant:'EP-adviseur + bank',acties:'Nieuw energielabel, eindafrekening, foto/factuur dossier',resultaat:'Bewijs voor green-loan en assurance niveau 4'}
+    monitoring:[
+      'Kwartaalrapportage uitvoering door eigenaar / aannemer.',
+      'Jaarlijkse meterdata-overlegging (gas, elektra, opwek).',
+      'Update ESG-bankscore na oplevering en na 12 maanden gebruik.',
+      'Heroverweging green-loan condities bij assurance-niveau 4.'
     ],
-    evidence:[
-      {ond:'Object, functie en bouwjaar',w:objectNaam+' · '+functie+' · '+bouwjaar,bron:'PDF-extractie',z:'hoog',actie:'Toetsen tegen taxatie en BAG/Kadaster'},
-      {ond:'Energielabel huidig → na',w:huidigLabel+' → '+streefLabel,bron:'Verduurzamingsrapport',z:'hoog',actie:'Nieuw label registreren na uitvoering'},
-      {ond:'Capex / besparing',w:investering+' · '+besparing,bron:'PDF / indicatief',z:'middel',actie:'Offertes en jaarafrekening toevoegen'},
-      {ond:'CO₂-reductie',w:'25 – 45 %',bron:'Afgeleid uit maatregelenpakket',z:'middel',actie:'Meterdata en conversiefactoren vastleggen'},
-      {ond:'Subsidies (EIA / ISDE)',w:'Indicatief positief',bron:'Automatische toets',z:'laag',actie:'RVO-check en aanvraag tijdig indienen'},
-      {ond:'Taxonomie / DNSH',w:'Eligible · niet aangetoond aligned',bron:'ESG Bridge toets',z:'middel',actie:'DNSH-bewijs per milieudoel toevoegen'}
-    ],
-    missing:[
-      {stuk:'Jaarverbruik gas en elektra',belang:'Basis voor Scope 1/2 en kg CO₂/m²',prio:'Hoog',actie:'Jaarafrekening of meterdata uploaden'},
-      {stuk:'Offertes per maatregel',belang:'Onderbouwing capex en financieringsbedrag',prio:'Hoog',actie:'Offertes installateur/aannemer toevoegen'},
-      {stuk:'Uitvoeringsplanning',belang:'Voor kredietvoorwaarde, bouwrisico, trekkingsschema',prio:'Hoog',actie:'Planning met mijlpalen vastleggen'},
-      {stuk:'Subsidiebevestiging (EIA/ISDE/SVOH)',belang:'Onderbouwing netto-investering',prio:'Middel',actie:'RVO-aanvraag en beschikking opnemen'},
-      {stuk:'Nieuw energielabel na uitvoering',belang:'Bewijs voor green loan en onderpandverbetering',prio:'Middel',actie:'Voorwaarde na realisatie'},
-      {stuk:'Foto voor/na + opleverfacturen',belang:'Audit trail en assurance-niveau 4',prio:'Middel',actie:'Bewijsdossier samenstellen bij oplevering'}
-    ],
+
+    // Page 4 — SDG / ESRS / CSRD readiness
     sdg:[
-      {nr:'7',cls:'sdg-7',naam:'Betaalbare en duurzame energie',target:'Target 7.3 — Energie-efficiëntie',text:'Labelverbetering, energiebesparing en lokale opwek dragen aantoonbaar bij aan target 7.3.',impact:'hoog',z:'middel'},
-      {nr:'9',cls:'sdg-9',naam:'Industrie, innovatie & infrastructuur',target:'Target 9.4 — Duurzame infrastructuur',text:'Renovatie met efficiënte technologie ondersteunt verduurzaming van bestaande gebouwde infrastructuur.',impact:'middel',z:'middel'},
-      {nr:'11',cls:'sdg-11',naam:'Duurzame steden & gemeenschappen',target:'Target 11.6 — Stedelijke milieu-impact',text:'Verduurzaming bestaand vastgoed verlaagt CO₂-uitstoot van de gebouwde omgeving.',impact:'middel',z:'hoog'},
-      {nr:'12',cls:'sdg-12',naam:'Verantwoorde consumptie & productie',target:'Target 12.5 — Hergebruik & circulariteit',text:'Renovatie van bestaand bezit boven sloop-/nieuwbouw is materiaal-efficiënt; circulariteit nog niet gekwantificeerd.',impact:'laag',z:'laag'},
-      {nr:'13',cls:'sdg-13',naam:'Klimaatactie',target:'Target 13.2 — Klimaat in beleid',text:'CO₂-reductiepad scope 1 en 2 met meetbaar bewijsniveau na uitvoering.',impact:'hoog',z:'middel'}
+      {nr:'7',cls:'sdg-7',naam:'Betaalbare en duurzame energie',target:'Target 7.3 — Energie-efficiëntie',text:'Aangetoond via labeltraject en maatregelen in bron-rapport.'},
+      {nr:'9',cls:'sdg-9',naam:'Industrie, innovatie & infrastructuur',target:'Target 9.4 — Duurzame infrastructuur',text:'Renovatie ondersteunt verduurzaming gebouwde infrastructuur.'},
+      {nr:'11',cls:'sdg-11',naam:'Duurzame steden & gemeenschappen',target:'Target 11.6 — Stedelijke milieu-impact',text:'CO₂-impact gebouwde omgeving wordt verlaagd.'},
+      {nr:'13',cls:'sdg-13',naam:'Klimaatactie',target:'Target 13.2 — Klimaat in beleid',text:'Reductiepad scope 1/2 met meetbaar bewijs na uitvoering.'}
     ],
-    sfdr:{artikel:'8',toelichting:'Het dossier promoot ecologische kenmerken via energiebesparing, CO₂-reductie en verduurzamingsmaatregelen. Artikel 9 vereist een expliciete duurzame beleggingsdoelstelling met volledige meetmethodiek.',pai:['GHG-emissies (PAI 1-3)','Energieverbruik vastgoed (PAI 17)','Inefficiënte vastgoedactiva (PAI 18)']},
+    esrs:[
+      {code:'ESRS E1-1',punt:'Transitieplan klimaatverandering',status:'afgeleid',bron:'Maatregelenpakket bron-rapport'},
+      {code:'ESRS E1-3',punt:'Acties &amp; middelen klimaattransitie',status:'beschikbaar',bron:'Verduurzamingsadvies'},
+      {code:'ESRS E1-5',punt:'Energieverbruik &amp; energiemix',status:'afgeleid',bron:'Indicatief — meterdata vereist'},
+      {code:'ESRS E1-6',punt:'Bruto Scope 1 / 2 GHG-emissies',status:'ontbreekt',bron:'Aanvullende bewijsstukken vereist'},
+      {code:'ESRS E5-1',punt:'Hulpbronnenstromen / circulariteit',status:'ontbreekt',bron:'Materiaal-/afvalplan toevoegen'},
+      {code:'ESRS S4-1',punt:'Comfort &amp; gebruikersimpact',status:'afgeleid',bron:'Kwalitatief uit maatregelen'},
+      {code:'ESRS G1-1',punt:'Governance &amp; datakwaliteit',status:'ontbreekt',bron:'Bankwaardig dossier samenstellen'}
+    ],
+
+    // Page 5 — SFDR / Pillar 3 / Taxonomie / DNSH
+    sfdr:'Indicatief Artikel 8: het dossier promoot ecologische kenmerken via energiebesparing en CO₂-reductie. Artikel 9 vereist een expliciete duurzame beleggingsdoelstelling en is nader te valideren.',
+    pai:[
+      'PAI 1 — GHG-emissies (afgeleid)',
+      'PAI 17 — Energieverbruik vastgoed (indicatief)',
+      'PAI 18 — Inefficiënte vastgoedactiva (afgeleid)'
+    ],
+    pillar3:'Relevant voor Pillar 3 ESG-templates van de bank wat betreft transitierisico onderpand en energieprestatie. Klassering definitief na assurance-niveau 3.',
     taxonomie:{
-      activiteit:'7.2 Renovatie van bestaande gebouwen (NACE F.41/F.43)',
-      eligible:true,aligned:false,
-      contribution:'Eligible onder klimaatmitigatie wanneer renovatie ≥ 30 % primaire-energiereductie of twee labelstappen aantoonbaar oplevert.',
+      activiteit:'7.2 Renovatie van bestaande gebouwen',
+      eligibility:'Eligible',
+      alignment:'Alignment nog niet vastgesteld',
+      contribution:'Klimaatmitigatie via primaire-energiereductie en/of twee labelstappen — bewijsstuk vereist.',
       dnsh:[
         {l:'Klimaatadaptatie',v:'Risicoscan vereist'},
         {l:'Water',v:'Geen bijzonderheden bekend'},
         {l:'Circulair',v:'Materiaal-/afvalplan toevoegen'},
-        {l:'Biodiversiteit',v:'Locatiecheck toevoegen'},
         {l:'Vervuiling',v:'Asbest-/stoffencheck toevoegen'},
-        {l:'Sociale waarborgen',v:'N.v.t. / te bevestigen'}
-      ],
-      conclusie:'Taxonomie-eligible; alignment vereist energieberekening, DNSH-bewijs en sociale-waarborgentoets.'
-    },
-    esrs:[
-      {std:'E1',code:'E1-5',veld:'Energieverbruik en energiemix',w:'Indicatief',wn:'Lager na maatregelen',bron:'PDF + meterdata',status:'indicatief'},
-      {std:'E1',code:'E1-6',veld:'Bruto Scope 1 / 2 GHG-emissies',w:'Indicatief',wn:'25 – 45 % reductie',bron:'PDF + emissiefactoren',status:'indicatief'},
-      {std:'E1',code:'E1-3',veld:'Acties en middelen klimaattransitie',w:maatregelen.length+' maatregelen',wn:'Uitvoeringsplan 5 fases',bron:'Maatregelenlijst',status:'gevuld'},
-      {std:'E5',code:'E5-1',veld:'Hulpbronnenstromen / circulariteit',w:'Niet gerapporteerd',wn:'Materiaal-/afvalplan',bron:'Aanvulling vereist',status:'ontbreekt'},
-      {std:'S4',code:'S4-1',veld:'Comfort en gebruikersimpact',w:'Kwalitatief',wn:'Comfortverbetering',bron:'Maatregelen',status:'indicatief'},
-      {std:'G1',code:'G1-1',veld:'Governance en datakwaliteit',w:'Aanvullen',wn:'Bankwaardig dossier',bron:'MB Adviesgroep checklist',status:'indicatief'}
-    ],
-    tcfd:{
-      fysiek:[
-        {r:'Hittestress en comfortverlies',ernst:'middel',h:'middellang',imp:'Hogere koellast / gebruiksrisico',d:'Relevant bij recreatief en commercieel gebruik; ventilatie en koeling toetsen.'},
-        {r:'Wateroverlast / weersinvloeden',ernst:'middel',h:'kort – middellang',imp:'Onderhoud en verzekerbaarheid',d:'Toets klimaatatlas, fundering, dakwater en bouwkundige kwetsbaarheden.'},
-        {r:'Funderings- / paalrot',ernst:'laag',h:'lang',imp:'Onderpandwaarde',d:'Bij oude objecten in waterrijk gebied: inspectie aanbevolen.'}
-      ],
-      transitie:[
-        {r:'Strengere labeleisen vastgoed',ernst:'hoog',h:'kort',imp:'Financierbaarheid en waarde',d:'Labeltraject ondersteunt acceptatie en mitigeert dit risico.'},
-        {r:'Stijgende energie- / CO₂-prijzen',ernst:'middel',h:'kort',imp:'Exploitatiekosten',d:'Maatregelen verlagen exposure; impact mitigerend.'}
-      ],
-      kansen:[
-        {k:'ESG-linked / green-loan financiering',d:'Aantoonbare maatregelen openen rentekorting of soepelere acceptatie.'},
-        {k:'Subsidie & fiscaal voordeel',d:'EIA / ISDE / SVOH bij tijdige aanvraag mogelijk substantieel.'}
+        {l:'Biodiversiteit',v:'Locatiecheck toevoegen'},
+        {l:'Sociale waarborgen',v:'Te bevestigen'}
       ]
     },
-    assurance:{
-      huidig:2,
-      naam:'Niveau 2 — PDF + afgeleide analyse',
-      tekst:'Conclusies zijn gebaseerd op de PDF-extractie en automatische afleiding. Voor hardere assurance zijn offertes, jaarverbruiken, subsidiebeschikking, facturen en het nieuwe energielabel na uitvoering nodig.'
-    },
-    materialiteit:{
-      impact:['CO₂-reductie en energiegebruik: hoog','Comfort en verhuurbaarheid: middel','Circulariteit materialen: laag/middel — bewijs ontbreekt','Klimaatadaptatie locatie: middel/hoog bij water- of kustgevoelig gebied'],
-      financieel:['Transitierisico energielabel: hoog','Capex- en uitvoeringsrisico: hoog','Onderpandwaarde en verhuurbaarheid: middel/hoog','Subsidie- en rentekortingpotentieel: middel']
-    },
-    green_loan:'Potentieel geschikt voor groene financiering zodra capex, energielabelverbetering, uitvoeringsplanning en meetbare CO₂/energiebesparing met bewijsstukken zijn vastgelegd.'
+
+    // Page 6 — Bewijs / Datagaps / Vervolg
+    evidence:[
+      {ond:'Object, functie, bouwjaar',w:objectNaam+' · '+bouwjaar,bron:'PDF-extractie',z:'Hoog',actie:'Toets BAG/Kadaster'},
+      {ond:'Energielabel huidig → na',w:huidigLabel+' → '+streefLabel,bron:'Bron-rapport',z:'Hoog',actie:'Nieuw label registreren'},
+      {ond:'Maatregelenpakket',w:'Aanwezig in bron',bron:'Bron-rapport',z:'Middel',actie:'Offertes en planning'},
+      {ond:'Energieverbruik gas/elektra',w:'Niet aangeleverd',bron:'—',z:'Laag',actie:'Jaarafrekening uploaden'},
+      {ond:'Subsidiepositie',w:'Indicatief',bron:'ESG Bridge toets',z:'Laag',actie:'RVO-bevestiging'},
+      {ond:'Taxonomie-eligibility',w:'Eligible · niet aligned',bron:'ESG Bridge',z:'Middel',actie:'DNSH-bewijs per doel'}
+    ],
+    missing:[
+      {stuk:'Jaarverbruik gas en elektra',prio:'Hoog',actie:'Jaarafrekening of meterdata'},
+      {stuk:'Offertes per maatregel',prio:'Hoog',actie:'Onderbouwing capex'},
+      {stuk:'Uitvoeringsplanning',prio:'Hoog',actie:'Mijlpalen + trekkingsschema'},
+      {stuk:'Subsidiebeschikking',prio:'Middel',actie:'EIA / ISDE / SVOH'},
+      {stuk:'Nieuw energielabel na uitvoering',prio:'Middel',actie:'Bewijs voor green-loan'},
+      {stuk:'DNSH-bewijs &amp; sociale waarborgen',prio:'Middel',actie:'Per milieudoel onderbouwen'}
+    ],
+    assurance_niveau:2,
+    assurance_tekst:'Conclusies zijn gebaseerd op PDF-extractie en automatische afleiding (niveau 2 / 4). Voor hardere assurance zijn offertes, jaarverbruiken, subsidiebeschikkingen, facturen en het nieuwe energielabel na uitvoering vereist. Dit verhoogt de score richting niveau 3 (data-validatie) en uiteindelijk niveau 4 (assurance na oplevering).',
+    vervolg:[
+      'Bewijsstukken aanleveren conform bewijsmatrix — binnen 30 dagen.',
+      'DNSH- en sociale-waarborgen-toets afronden voor Taxonomie-alignment.',
+      'Definitieve kredietcommissie-aanvraag op basis van assurance niveau 3.',
+      'MB Adviesgroep begeleidt validatie, monitoring en green-loan toets.'
+    ]
   };
 }
 
 /* ═══════════════════════════════════════════════════════════
-   RENDER REPORT
+   RENDER REPORT — 6 A4 pagina's
    ═══════════════════════════════════════════════════════════ */
 function renderReport(d){
-  // ── COVER ──
-  const cover=document.getElementById('rptCover');
-  const photoHtml=photoDataUrl
-    ? `<div class="cover-photo"><img src="${photoDataUrl}" alt=""></div>`
-    : '';
-  cover.innerHTML=`
-    <div class="cover ${photoDataUrl?'has-photo':'no-photo'}">
-      ${photoHtml}
-      <div class="cover-inner">
-        <div class="cover-top">
-          <div class="cover-brand">
-            <div class="cover-brand-mark"><img src="assets/mb-logo.png" alt="MB Adviesgroep"></div>
-            <div>
-              <div class="cover-brand-name">MB Adviesgroep</div>
-              <div class="cover-brand-sub">Verduurzamings- &amp; vastgoedadvies</div>
-            </div>
-          </div>
-          <div class="cover-stamp">Vertrouwelijk<small>Concept-bankdossier</small></div>
-        </div>
-
-        <div class="cover-eyebrow">ESG-bankdossier · Concept</div>
-        <h1 class="cover-title">${esc(d.object_naam)} <em>—</em><br>ESG-onderbouwing voor <em>krediet- &amp; green-loan toets</em></h1>
-        <div class="cover-address">${esc(d.object_adres)}</div>
-        <div class="cover-meta">
-          ${d.functie?`<span class="cover-meta-item">Functie<b>${esc(d.functie)}</b></span>`:''}
-          ${d.bouwjaar?`<span class="cover-meta-item">Bouwjaar<b>${esc(d.bouwjaar)}</b></span>`:''}
-          ${d.oppervlakte?`<span class="cover-meta-item">Oppervlak<b>${esc(d.oppervlakte)}</b></span>`:''}
-        </div>
-
-        <div class="cover-foot">
-          <div class="cf-item">
-            <div class="cf-lbl">Rapportdatum</div>
-            <div class="cf-val">${esc(d.datum_rapport)}</div>
-            <div class="cf-sub">ESG Bridge · v2026.05</div>
-          </div>
-          <div class="cf-item">
-            <div class="cf-lbl">Energielabel-traject</div>
-            <div class="cf-labels">
-              <span class="cf-lbl-box ${labelClass(d.huidig_label)}">${esc(d.huidig_label)}</span>
-              <span style="color:rgba(255,255,255,.4);font-size:18px;">→</span>
-              <span class="cf-lbl-box ${labelClass(d.streef_label)}">${esc(d.streef_label)}</span>
-            </div>
-            <div class="cf-sub">huidig → na maatregelen</div>
-          </div>
-          <div class="cf-item">
-            <div class="cf-lbl">ESG-bankscore</div>
-            <div class="cf-val">${esc(d.bankscore)} / 100</div>
-            <div class="cf-sub">${esc(d.bankscore_oordeel)}</div>
-          </div>
-        </div>
-      </div>
-    </div>`;
-
-  // ── BODY ──
-  const body=document.getElementById('rptBody');
-  body.innerHTML=`
-    ${renderExecSection(d)}
-    ${renderKpiSection(d)}
-    ${renderEvidenceSection(d)}
-    ${renderEnergySection(d)}
-    ${renderBusinessSection(d)}
-    ${renderMeasuresSection(d)}
-    ${renderPhasesSection(d)}
-    ${renderSdgSection(d)}
-    ${renderEsrsSection(d)}
-    ${renderTaxonomySection(d)}
-    ${renderTcfdSection(d)}
-    ${renderAssuranceSection(d)}
-    ${renderMissingSection(d)}
-    ${renderClosingSection(d)}
-  `;
-
-  document.getElementById('printFooterDate').textContent=d.datum_rapport;
+  const stage=document.getElementById('rptStage');
+  stage.innerHTML=
+    pageCover(d)+
+    pageBanksamenvatting(d)+
+    pageRisico(d)+
+    pageSdgEsrs(d)+
+    pageSfdrTax(d)+
+    pageBewijsVervolg(d);
 }
 
-/* ── 01 EXEC SUMMARY ── */
-function renderExecSection(d){
+/* ── Vaste topbar voor inhoudspagina's ── */
+function pageTop(d){
   return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">01 ·</span>
-      <h2 class="section-title">Managementsamenvatting voor kredietcommissie</h2>
-      <span class="section-sub">conclusie · ESG-bankscore · advies</span>
+  <div class="page-top">
+    <div class="pt-brand">
+      <div class="pt-mark"><img src="assets/mb-logo.png" alt=""></div>
+      <div class="pt-name">MB Adviesgroep<small>Verduurzamings- &amp; vastgoedadvies</small></div>
     </div>
-    <div class="exec-grid">
-      <div class="exec-card">
-        <div class="exec-eyebrow">Conclusie</div>
-        <div class="exec-headline">${esc(d.bankscore_oordeel)} — geschikt als concept-bankdossier mits aanvullend bewijs.</div>
-        <div class="exec-text">${esc(d.samenvatting)}</div>
-        <div class="exec-bullets">
-          ${arr(d.samenvatting_punten).map(p=>`<div class="exec-bullet">${esc(p)}</div>`).join('')}
-        </div>
-      </div>
-      <div class="score-card" style="--score:${esc(d.bankscore)}">
-        <div class="score-label">ESG-bankscore</div>
-        <div class="score-circle"><div class="score-num">${esc(d.bankscore)}<small>/100</small></div></div>
-        <div class="score-verdict">${esc(d.bankscore_oordeel)}</div>
-        <div class="score-sub">${esc(d.bankscore_uitleg)}</div>
-      </div>
-    </div>
-    <div class="advice-block">
-      <div class="advice-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-      </div>
-      <div>
-        <div class="advice-eyebrow">Advies aan kredietcommissie</div>
-        <div class="advice-text">${esc(d.advies_kredietcommissie)}</div>
-      </div>
-    </div>
-    <div class="score-grid" style="margin-top:18px;">
-      ${arr(d.bankscore_componenten).map(c=>`
-        <div class="score-item">
-          <div class="score-item-lbl">${esc(c.l)}</div>
-          <div class="score-item-val">${esc(c.v)}</div>
-        </div>`).join('')}
-    </div>
-  </section>`;
+    <div class="pt-mid">${esc(d.object_naam)}</div>
+    <div class="pt-right">VERTROUWELIJK</div>
+  </div>`;
 }
 
-/* ── 02 KPI / LABEL TRAJECT ── */
-function renderKpiSection(d){
+/* ── Vaste footer ── */
+function pageFoot(){
   return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">02 ·</span>
-      <h2 class="section-title">Energie- &amp; CO₂-kerncijfers</h2>
-      <span class="section-sub">scope · besparing · labelpad</span>
+  <div class="page-foot">
+    <div class="pf-l">
+      <div class="pf-l-mark"><img src="assets/mb-logo.png" alt=""></div>
+      <div><b>MB Adviesgroep</b><small>Verduurzamings- &amp; vastgoedadvies</small></div>
     </div>
-    <div class="kpi-strip" style="margin-bottom:18px;">
-      <div class="kpi-cell">
-        <div class="kpi-lbl">Huidige energiekosten</div>
-        <div class="kpi-val">${esc(d.huidige_energiekosten)}</div>
-        <div class="kpi-sub">per jaar — afhankelijk van facturen</div>
-      </div>
-      <div class="kpi-cell k-orange">
-        <div class="kpi-lbl">Jaarlijkse besparing</div>
-        <div class="kpi-val orange">${esc(d.besparing_jaar)}</div>
-        <div class="kpi-sub">na uitvoering maatregelen</div>
-      </div>
-      <div class="kpi-cell k-green">
-        <div class="kpi-lbl">CO₂-reductie</div>
-        <div class="kpi-val green">${esc(d.co2_reductie_pct)}</div>
-        <div class="kpi-sub">${esc(d.co2_reductie_abs)}</div>
-      </div>
-      <div class="kpi-cell k-purple">
-        <div class="kpi-lbl">Bruto investering</div>
-        <div class="kpi-val">${esc(d.totaal_investering)}</div>
-        <div class="kpi-sub">indicatief · TVT ${esc(d.gemiddelde_tvt)}</div>
-      </div>
-    </div>
-    <div class="label-traject">
-      <div class="lt-block">
-        <div class="lt-eyebrow">Huidig label</div>
-        <div class="lt-box ${labelClass(d.huidig_label)}">${esc(d.huidig_label)}</div>
-      </div>
-      <div class="lt-arrow">
-        <div class="lt-arrow-line"></div>
-        <div class="lt-arrow-text">na uitvoering pakket — ${esc(d.gemiddelde_tvt)} terugverdientijd</div>
-        <div class="lt-arrow-line"></div>
-      </div>
-      <div class="lt-block">
-        <div class="lt-eyebrow">Streeflabel</div>
-        <div class="lt-box ${labelClass(d.streef_label)}">${esc(d.streef_label)}</div>
-      </div>
-    </div>
-  </section>`;
+    <div class="pf-m">Indicatief concept-bankdossier · definitieve toetsing volgt na bewijsstukken en assurance-niveau 3.</div>
+    <div class="pf-r"><b>info@mbadviesgroep.nl</b>mbadviesgroep.nl</div>
+  </div>`;
 }
 
-/* ── 03 EVIDENCE / BRONMATRIX ── */
-function renderEvidenceSection(d){
+/* ─── PAGINA 1 — COVER ─── */
+function pageCover(d){
+  const photo=photoDataUrl
+    ? `<div class="cover-bg"><img src="${photoDataUrl}" alt=""></div>`
+    : `<div class="cover-bg"></div>`;
   return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">03 ·</span>
-      <h2 class="section-title">Bewijs- en bronmatrix</h2>
-      <span class="section-sub">datapunt · waarde · zekerheid</span>
-    </div>
-    <table class="lux-table">
-      <thead><tr>
-        <th style="width:24%">Datapunt</th>
-        <th style="width:28%">Waarde</th>
-        <th style="width:18%">Bron</th>
-        <th style="width:10%">Zekerheid</th>
-        <th>Vervolgactie</th>
-      </tr></thead>
-      <tbody>
-        ${arr(d.evidence).map(r=>`<tr>
-          <td class="nm">${esc(r.ond)}</td>
-          <td>${esc(r.w)}</td>
-          <td style="color:var(--ink-3);">${esc(r.bron)}</td>
-          <td><span class="conf conf-${esc(r.z)}">${r.z==='hoog'?'Hoog':r.z==='middel'?'Middel':'Laag'}</span></td>
-          <td style="color:var(--ink-3);">${esc(r.actie)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-  </section>`;
-}
-
-/* ── 04 ENERGIE-KPI's ── */
-function renderEnergySection(d){
-  return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">04 ·</span>
-      <h2 class="section-title">Energie- &amp; CO₂-prestatie­indicatoren</h2>
-      <span class="section-sub">ESRS E1-5 / E1-6 · indicatief</span>
-    </div>
-    <div class="score-grid" style="grid-template-columns:repeat(3,1fr);gap:12px;">
-      ${arr(d.energie_kpis).map(k=>`
-        <div class="score-item">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
-            <span class="score-item-lbl" style="font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:9.5px;color:var(--ink-4);">${esc(k.l)}</span>
-            <span class="conf conf-${esc(k.z)}">${k.z==='hoog'?'Hoog':k.z==='middel'?'Middel':'Laag'}</span>
-          </div>
-          <div class="score-item-val">${esc(k.v)}</div>
-          <div style="font-size:11px;color:var(--ink-3);margin-top:4px;line-height:1.5;">${esc(k.sub)}</div>
-        </div>
-      `).join('')}
-    </div>
-  </section>`;
-}
-
-/* ── 05 BUSINESSCASE ── */
-function renderBusinessSection(d){
-  return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">05 ·</span>
-      <h2 class="section-title">Investerings- &amp; terugverdienanalyse</h2>
-      <span class="section-sub">scenario's · bankduiding · green-loan</span>
-    </div>
-    <table class="lux-table">
-      <thead><tr>
-        <th style="width:18%">Scenario</th>
-        <th style="width:18%">Capex</th>
-        <th style="width:18%">Besparing / jr</th>
-        <th style="width:14%">Terugverdientijd</th>
-        <th>Bankduiding</th>
-      </tr></thead>
-      <tbody>
-        ${arr(d.businesscase).map(s=>`<tr>
-          <td class="nm">${esc(s.scen)}</td>
-          <td class="num">${esc(s.capex)}</td>
-          <td class="num" style="color:var(--green);">${esc(s.besp)}</td>
-          <td class="num">${esc(s.tvt)}</td>
-          <td style="color:var(--ink-3);">${esc(s.duiding)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    <div class="advice-block" style="margin-top:18px;">
-      <div class="advice-icon" style="color:var(--green);background:#fff;border-color:rgba(31,107,69,.2);">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5-3 8-7 8-13V5l-8-3-8 3v4c0 6 3 10 8 13z"/><path d="M9 12l2 2 4-4"/></svg>
-      </div>
-      <div>
-        <div class="advice-eyebrow">Green loan / duurzame financiering</div>
-        <div class="advice-text">${esc(d.green_loan)}</div>
-      </div>
-    </div>
-  </section>`;
-}
-
-/* ── 06 MAATREGELEN ── */
-function renderMeasuresSection(d){
-  return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">06 ·</span>
-      <h2 class="section-title">Maatregelenoverzicht</h2>
-      <span class="section-sub">prioriteit · capex · TVT · ESRS</span>
-    </div>
-    <div class="measures-grid">
-      ${arr(d.maatregelen).map(m=>`
-        <div class="measure-card">
-          <div class="mc-head">
-            <div class="mc-name">${esc(m.naam)}</div>
-            <div class="mc-tags">
-              <span class="tag tag-blue">${esc(m.fase)}</span>
-              <span class="tag ${m.prio==='hoog'?'tag-red':m.prio==='middel'?'tag-amber':'tag-green'}">prioriteit ${esc(m.prio)}</span>
-              <span class="tag tag-purple">${esc(m.scope)}</span>
-            </div>
-          </div>
-          <div class="mc-body">
-            <div class="mc-stat-grid">
-              <div><div class="mc-stat-lbl">Investering</div><div class="mc-stat-val orange">${esc(m.inv)}</div></div>
-              <div><div class="mc-stat-lbl">Besparing /jr</div><div class="mc-stat-val green">${esc(m.bes)}</div></div>
-              <div><div class="mc-stat-lbl">Terugverdientijd</div><div class="mc-stat-val">${esc(m.tvt)}</div></div>
-              <div><div class="mc-stat-lbl">CO₂-impact</div><div class="mc-stat-val">${esc(m.co2)}</div></div>
-            </div>
-            <div class="mc-desc">${esc(m.omschrijving)}</div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center;">
-              <span class="mc-esrs">🔗 ${esc(m.esrs)}</span>
-              <span class="conf conf-${esc(m.bewijs)}">Bewijs ${m.bewijs==='hoog'?'hoog':m.bewijs==='middel'?'middel':'laag'}</span>
-            </div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  </section>`;
-}
-
-/* ── 07 GEFASEERD UITVOERINGSPLAN ── */
-function renderPhasesSection(d){
-  return `
-  <section class="doc-section pb-before">
-    <div class="section-head">
-      <span class="section-num">07 ·</span>
-      <h2 class="section-title">Gefaseerd uitvoeringsplan</h2>
-      <span class="section-sub">5 fases · termijn · bewijsstukken</span>
-    </div>
-    <div class="phase-list">
-      ${arr(d.fasen).map(f=>`
-        <div class="phase-row">
-          <div class="phase-num p${f.n}">${f.n}</div>
+  <article class="a4 cover ${photoDataUrl?'':'no-photo'}">
+    ${photo}
+    <div class="cover-rule-top"></div>
+    <div class="cover-inner">
+      <div class="cover-top">
+        <div class="cover-brand">
+          <div class="cover-brand-mark"><img src="assets/mb-logo.png" alt="MB Adviesgroep"></div>
           <div>
-            <div class="phase-name">${esc(f.naam)}</div>
-            <div class="phase-meta">
-              <span><b>Termijn:</b> ${esc(f.termijn)}</span>
-              <span><b>Verantwoordelijk:</b> ${esc(f.verant)}</span>
-            </div>
-            <div class="phase-desc">${esc(f.acties)}</div>
-            <div class="phase-result">${esc(f.resultaat)}</div>
+            <div class="cover-brand-name">MB Adviesgroep</div>
+            <div class="cover-brand-sub">Verduurzamings- &amp; vastgoedadvies</div>
           </div>
         </div>
-      `).join('')}
+        <div class="cover-date">${esc(d.datum_rapport)}</div>
+      </div>
+
+      <div class="cover-mid">
+        <div class="cover-eyebrow">ESG-Bankdossier</div>
+        <h1 class="cover-title">${esc(d.object_naam)}</h1>
+        <div class="cover-sub">
+          ${esc(d.object_adres)} · Bouwjaar ${esc(d.bouwjaar)} · ${esc(d.oppervlakte)}<br>
+          <b>${esc(d.functie)}</b>
+        </div>
+        <div class="cover-badges">
+          <span class="cover-badge dark">ESG Bridge</span>
+          <span class="cover-badge">Concept-bankdossier</span>
+          <span class="cover-badge">Vertrouwelijk</span>
+        </div>
+      </div>
+
+      <div class="cover-foot">
+        <span>Vertrouwelijk · Opgesteld door <b>MB Adviesgroep</b></span>
+        <span><b>mbadviesgroep.nl</b></span>
+      </div>
     </div>
-  </section>`;
+  </article>`;
 }
 
-/* ── 08 SDG ── */
-function renderSdgSection(d){
+/* ─── PAGINA 2 — BANKSAMENVATTING ─── */
+function pageBanksamenvatting(d){
   return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">08 ·</span>
-      <h2 class="section-title">SDG-mapping &amp; targetonderbouwing</h2>
-      <span class="section-sub">UN Sustainable Development Goals</span>
-    </div>
-    <div class="sdg-grid">
-      ${arr(d.sdg).map(s=>`
-        <div class="sdg-row">
-          <div class="sdg-num ${esc(s.cls)}">SDG<small>${esc(s.nr)}</small></div>
-          <div class="sdg-cnt">
-            <div class="sdg-name">${esc(s.naam)}</div>
-            <div class="sdg-target">${esc(s.target)}</div>
-            <div class="sdg-text">${esc(s.text)}</div>
-            <div class="sdg-meta">
-              <span class="tag ${s.impact==='hoog'?'tag-red':s.impact==='middel'?'tag-amber':'tag-green'}">Impact ${esc(s.impact)}</span>
-              <span class="conf conf-${esc(s.z)}">Zekerheid ${s.z==='hoog'?'hoog':s.z==='middel'?'middel':'laag'}</span>
-            </div>
-          </div>
+  <article class="a4 content">
+    ${pageTop(d)}
+    <div class="page-stamp">02 · 06</div>
+    <div class="page-body">
+      <div class="page-eyebrow">E S G &nbsp; B A N K S A M E N V A T T I N G</div>
+      <div class="page-title">Indicatieve ESG-bankbeoordeling</div>
+      <div class="page-title-sub">Op basis van het aangeleverde verduurzamingsrapport — geschikt als concept-bankdossier voor kredietcommissie.</div>
+      <div class="page-thin-rule"></div>
+
+      <div class="kpi-rapport">
+        <div class="kpi-r-cell">
+          <div class="kpi-r-lbl">ESG-bankscore</div>
+          <div class="kpi-r-val">${esc(d.bankscore)} <small style="font-size:14px;color:var(--ink-3);font-weight:500;">/ 100</small></div>
+          <div class="kpi-r-sub">${esc(d.bankscore_oordeel)}</div>
         </div>
-      `).join('')}
+        <div class="kpi-r-cell">
+          <div class="kpi-r-lbl">Bewijsniveau</div>
+          <div class="kpi-r-val orange">Niveau 2<small style="font-size:14px;color:var(--ink-3);font-weight:500;">/ 4</small></div>
+          <div class="kpi-r-sub">PDF + afgeleide analyse</div>
+        </div>
+        <div class="kpi-r-cell">
+          <div class="kpi-r-lbl">Rapportagegereedheid</div>
+          <div class="kpi-r-val green">Concept</div>
+          <div class="kpi-r-sub">Niet voor finale ESG-rapportage</div>
+        </div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-card">
+          <div class="sc-eyebrow">Bankscore-onderbouwing</div>
+          <div class="sc-num">${esc(d.bankscore)}<small> / 100</small></div>
+          <div class="sc-bar"><div class="sc-bar-fill" style="width:${esc(d.bankscore)}%"></div></div>
+          <div class="sc-verdict">${esc(d.bankscore_oordeel)}</div>
+          <div class="sc-text">Score gewogen op transitierisico, datakwaliteit, bewijsniveau en rapportagegereedheid.</div>
+        </div>
+        <div class="score-side">
+          ${arr(d.bankscore_componenten).map(c=>`<div class="ss-row"><div class="ss-l">${esc(c.l)}</div><div class="ss-v">${esc(c.v)}</div></div>`).join('')}
+        </div>
+      </div>
+
+      <div class="verdict">
+        <div class="verdict-eyebrow">Managementsamenvatting voor kredietcommissie</div>
+        <div class="verdict-title">${esc(d.bankscore_oordeel)} — geschikt als concept-bankdossier mits aanvullend bewijs.</div>
+        <div class="verdict-text">${esc(d.samenvatting)}</div>
+        <div class="mgt-bullets">
+          ${arr(d.samenvatting_punten).map(p=>`<div>${esc(p)}</div>`).join('')}
+        </div>
+      </div>
+
     </div>
-  </section>`;
+    ${pageFoot()}
+  </article>`;
 }
 
-/* ── 09 ESRS ── */
-function renderEsrsSection(d){
-  const stHtml=s=>{
-    if(s==='gevuld')return `<span class="conf conf-hoog">Gevuld</span>`;
-    if(s==='indicatief')return `<span class="conf conf-middel">Indicatief</span>`;
-    return `<span class="conf conf-laag">Ontbreekt</span>`;
+/* ─── PAGINA 3 — RISICO &amp; KREDIETCOMMISSIE ─── */
+function pageRisico(d){
+  return `
+  <article class="a4 content">
+    ${pageTop(d)}
+    <div class="page-stamp">03 · 06</div>
+    <div class="page-body">
+      <div class="page-eyebrow">E S G &nbsp; R I S I C O &nbsp; &amp; &nbsp; K R E D I E T C O M M I S S I E</div>
+      <div class="page-title">Risicomatrix &amp; financieringsvoorwaarden</div>
+      <div class="page-title-sub">Compacte risicobeoordeling, voorwaarden bij financiering en monitoring tijdens looptijd.</div>
+      <div class="page-thin-rule"></div>
+
+      <div class="matrix" style="margin-bottom:18px;">
+        <div class="mh">Risico</div><div class="mh">Ernst</div><div class="mh">Horizon</div><div class="mh">Bankactie</div>
+        ${arr(d.risicos).map(r=>`
+          <div class="ml">${esc(r.risk)}</div>
+          <div><span class="pill ${r.ernst==='Hoog'?'p-bad':r.ernst==='Middel'?'p-warn':'p-good'}">${esc(r.ernst)}</span></div>
+          <div><span class="pill p-info">${esc(r.horizon)}</span></div>
+          <div>${r.action}</div>
+        `).join('')}
+      </div>
+
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-h">Voorwaarden voor financiering</div>
+          <div class="col-list">
+            ${arr(d.voorwaarden).map(v=>`<div>${esc(v)}</div>`).join('')}
+          </div>
+        </div>
+        <div class="col-card">
+          <div class="col-h">Monitoring tijdens looptijd</div>
+          <div class="col-list">
+            ${arr(d.monitoring).map(v=>`<div>${esc(v)}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="verdict" style="margin-top:18px;">
+        <div class="verdict-eyebrow">Advies aan kredietcommissie</div>
+        <div class="verdict-text">Geadviseerd wordt het dossier in behandeling te nemen als <b>concept-financieringsvoorstel met opschortende voorwaarden</b>: harde offertes per maatregel, vaste uitvoeringsplanning, subsidiebevestiging en oplevering met nieuw energielabel. Bij voldoening hieraan kwalificeert het dossier voor groene financiering en/of rentekorting — <b>nader te valideren</b> tegen het bankspecifieke green-loan kader.</div>
+      </div>
+
+    </div>
+    ${pageFoot()}
+  </article>`;
+}
+
+/* ─── PAGINA 4 — SDG / ESRS / CSRD READINESS ─── */
+function pageSdgEsrs(d){
+  const stPill=s=>{
+    if(s==='beschikbaar')return `<span class="pill p-good">Beschikbaar</span>`;
+    if(s==='afgeleid')return `<span class="pill p-warn">Afgeleid</span>`;
+    if(s==='ontbreekt')return `<span class="pill p-bad">Ontbreekt</span>`;
+    return `<span class="pill p-mute">N.v.t.</span>`;
   };
   return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">09 ·</span>
-      <h2 class="section-title">ESRS / CSRD readiness</h2>
-      <span class="section-sub">datapunt · status · bron</span>
+  <article class="a4 content">
+    ${pageTop(d)}
+    <div class="page-stamp">04 · 06</div>
+    <div class="page-body">
+      <div class="page-eyebrow">S D G &nbsp; · &nbsp; E S R S &nbsp; · &nbsp; C S R D &nbsp; R E A D I N E S S</div>
+      <div class="page-title">Bewijsbare SDG-mapping en ESRS-datapunten</div>
+      <div class="page-title-sub">Geen marketing-SDG's: alleen onderbouwing op basis van bewijsindicatoren uit het bron-rapport.</div>
+      <div class="page-thin-rule"></div>
+
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--orange);margin-bottom:10px;">SDG-mapping</div>
+      <div class="sdg-list" style="margin-bottom:20px;">
+        ${arr(d.sdg).map(s=>`
+          <div class="sdg-card">
+            <div class="sdg-num ${esc(s.cls)}">SDG<strong>${esc(s.nr)}</strong></div>
+            <div>
+              <div class="sdg-cnt-name">${esc(s.naam)}</div>
+              <div class="sdg-cnt-text">${esc(s.text)}<small>${esc(s.target)}</small></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--orange);margin:8px 0 8px;">ESRS / CSRD datapunt-readiness</div>
+      <table class="rpt-table">
+        <thead><tr>
+          <th style="width:18%">Code</th>
+          <th style="width:36%">Datapunt</th>
+          <th style="width:18%">Status</th>
+          <th>Bron / opmerking</th>
+        </tr></thead>
+        <tbody>
+          ${arr(d.esrs).map(r=>`<tr>
+            <td class="num">${esc(r.code)}</td>
+            <td class="nm">${r.punt}</td>
+            <td>${stPill(r.status)}</td>
+            <td style="color:var(--ink-3);">${r.bron}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+
     </div>
-    <table class="lux-table">
-      <thead><tr>
-        <th style="width:10%">Standaard</th>
-        <th style="width:11%">Code</th>
-        <th style="width:24%">Datapunt</th>
-        <th style="width:16%">Huidig</th>
-        <th style="width:16%">Na uitvoering</th>
-        <th style="width:12%">Bron</th>
-        <th>Status</th>
-      </tr></thead>
-      <tbody>
-        ${arr(d.esrs).map(r=>`<tr>
-          <td><span class="tag tag-blue">${esc(r.std)}</span></td>
-          <td style="font-family:var(--f-serif);font-weight:600;color:var(--navy);">${esc(r.code)}</td>
-          <td class="nm">${esc(r.veld)}</td>
-          <td>${esc(r.w)}</td>
-          <td style="color:var(--green);">${esc(r.wn)}</td>
-          <td style="color:var(--ink-3);font-size:11.5px;">${esc(r.bron)}</td>
-          <td>${stHtml(r.status)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-  </section>`;
+    ${pageFoot()}
+  </article>`;
 }
 
-/* ── 10 SFDR + TAXONOMIE ── */
-function renderTaxonomySection(d){
-  const sfdr=d.sfdr||{};
+/* ─── PAGINA 5 — SFDR / PILLAR 3 / TAXONOMIE / DNSH ─── */
+function pageSfdrTax(d){
   const tax=d.taxonomie||{};
   return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">10 ·</span>
-      <h2 class="section-title">SFDR &amp; EU Taxonomie</h2>
-      <span class="section-sub">classificatie · DNSH · sociale waarborgen</span>
-    </div>
-    <div class="info-stack">
-      <div class="info-block">
-        <div class="info-block-head">
-          <div class="info-block-icon ib-sfdr">SFDR<br>Art ${esc(sfdr.artikel)}</div>
-          <div>
-            <div class="info-block-title">Artikel ${esc(sfdr.artikel)} — milieu/sociaal promoverend</div>
-            <div class="info-block-sub">Sustainable Finance Disclosure Regulation</div>
+  <article class="a4 content">
+    ${pageTop(d)}
+    <div class="page-stamp">05 · 06</div>
+    <div class="page-body">
+      <div class="page-eyebrow">S F D R &nbsp; · &nbsp; P I L L A R &nbsp; 3 &nbsp; · &nbsp; E U &nbsp; T A X O N O M I E</div>
+      <div class="page-title">Indicatieve bankrapportage-classificatie</div>
+      <div class="page-title-sub">Classificatie is indicatief en nader te valideren tegen het bankspecifieke ESG-/green-loan kader.</div>
+      <div class="page-thin-rule"></div>
+
+      <div class="two-col" style="margin-bottom:14px;">
+        <div class="col-card">
+          <div class="col-h">SFDR — Sustainable Finance Disclosure</div>
+          <div style="font-size:11pt;color:var(--ink-2);line-height:1.6;margin-bottom:10px;">${esc(d.sfdr)}</div>
+          <div style="font-size:9.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-4);margin-bottom:6px;">Relevante PAI-indicatoren</div>
+          <div class="col-list">
+            ${arr(d.pai).map(p=>`<div>${esc(p)}</div>`).join('')}
           </div>
         </div>
-        <div class="info-block-body">${esc(sfdr.toelichting)}</div>
-        <div class="tag-row">
-          ${arr(sfdr.pai).map(p=>`<span class="tag tag-blue">${esc(p)}</span>`).join('')}
-        </div>
-      </div>
-
-      <div class="info-block">
-        <div class="info-block-head">
-          <div class="info-block-icon ib-tax">EU<br>Tax.</div>
-          <div>
-            <div class="info-block-title">${esc(tax.activiteit)}</div>
-            <div class="info-block-sub">${tax.eligible?'Eligible':'Niet eligible'} · ${tax.aligned?'Aligned':'Nog niet aligned'} · DNSH-toets vereist</div>
+        <div class="col-card">
+          <div class="col-h">Pillar 3 — Bank ESG-rapportage</div>
+          <div style="font-size:11pt;color:var(--ink-2);line-height:1.6;">${esc(d.pillar3)}</div>
+          <div style="font-size:9.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-4);margin:14px 0 6px;">Relevantie</div>
+          <div class="col-list">
+            <div>Transitierisico onderpand — energieprestatie</div>
+            <div>Onderpand-LTV-impact bij labelverbetering</div>
+            <div>Klimaatadaptatie — locatiekenmerken</div>
           </div>
         </div>
-        <div class="info-block-body">${esc(tax.contribution)}</div>
-        <div class="dnsh-grid">
-          ${arr(tax.dnsh).map(x=>`<div class="dnsh-cell"><div class="dnsh-lbl">${esc(x.l)}</div><div class="dnsh-val">${esc(x.v)}</div></div>`).join('')}
-        </div>
-        <div style="font-size:11.5px;color:var(--ink-3);line-height:1.6;font-style:italic;margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);">${esc(tax.conclusie)}</div>
       </div>
+
+      <div class="col-card">
+        <div class="col-h">EU Taxonomie — ${esc(tax.activiteit)}</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <span class="pill p-good">${esc(tax.eligibility)}</span>
+          <span class="pill p-warn">${esc(tax.alignment)}</span>
+          <span class="pill p-info">DNSH-toets vereist</span>
+          <span class="pill p-info">Sociale waarborgen — te bevestigen</span>
+        </div>
+        <div style="font-size:11pt;color:var(--ink-2);line-height:1.6;margin-bottom:14px;">${esc(tax.contribution)}</div>
+        <div style="font-size:9.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px;">DNSH — Do No Significant Harm</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          ${arr(tax.dnsh).map(x=>`
+            <div style="background:var(--page);border:1px solid var(--rule);border-radius:5px;padding:9px 11px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-4);margin-bottom:3px;">${esc(x.l)}</div>
+              <div style="font-size:11pt;color:var(--ink-2);line-height:1.4;">${esc(x.v)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
     </div>
-  </section>`;
+    ${pageFoot()}
+  </article>`;
 }
 
-/* ── 11 TCFD ── */
-function renderTcfdSection(d){
-  const t=d.tcfd||{};
+/* ─── PAGINA 6 — BEWIJS, DATAGAPS, VERVOLG ─── */
+function pageBewijsVervolg(d){
+  const lvl=d.assurance_niveau||2;
+  const labels=['1 · PDF-scan','2 · PDF + afgeleid','3 · Data-validatie','4 · Assurance'];
   return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">11 ·</span>
-      <h2 class="section-title">Klimaatrisico-analyse (TCFD)</h2>
-      <span class="section-sub">fysiek · transitie · kansen</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div>
-        <div style="font-family:var(--f-serif);font-size:14px;font-weight:600;color:var(--navy);margin-bottom:10px;">Fysieke risico's</div>
-        <div class="tcfd-grid" style="grid-template-columns:1fr;">
-          ${arr(t.fysiek).map(r=>`
-            <div class="tcfd-card">
-              <div class="tcfd-head">
-                <span class="tcfd-type tt-fysiek">Fysiek</span>
-                <span class="tag ${r.ernst==='hoog'?'tag-red':r.ernst==='middel'?'tag-amber':'tag-green'}">${esc(r.ernst)}</span>
-              </div>
-              <div class="tcfd-name">${esc(r.r)}</div>
-              <div class="tcfd-meta">Horizon: ${esc(r.h)}</div>
-              <div class="tcfd-impact">Impact: ${esc(r.imp)}</div>
-              <div class="tcfd-desc">${esc(r.d)}</div>
-            </div>`).join('')}
-        </div>
-      </div>
-      <div>
-        <div style="font-family:var(--f-serif);font-size:14px;font-weight:600;color:var(--navy);margin-bottom:10px;">Transitierisico's</div>
-        <div class="tcfd-grid" style="grid-template-columns:1fr;">
-          ${arr(t.transitie).map(r=>`
-            <div class="tcfd-card">
-              <div class="tcfd-head">
-                <span class="tcfd-type tt-trans">Transitie</span>
-                <span class="tag ${r.ernst==='hoog'?'tag-red':r.ernst==='middel'?'tag-amber':'tag-green'}">${esc(r.ernst)}</span>
-              </div>
-              <div class="tcfd-name">${esc(r.r)}</div>
-              <div class="tcfd-meta">Horizon: ${esc(r.h)}</div>
-              <div class="tcfd-impact">Impact: ${esc(r.imp)}</div>
-              <div class="tcfd-desc">${esc(r.d)}</div>
-            </div>`).join('')}
-        </div>
-      </div>
-    </div>
-    ${arr(t.kansen).length?`
-      <div style="margin-top:14px;">
-        <div style="font-family:var(--f-serif);font-size:14px;font-weight:600;color:var(--navy);margin-bottom:10px;">Kansen</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          ${arr(t.kansen).map(k=>`
-            <div class="tcfd-card" style="background:var(--green-bg);border-color:rgba(31,107,69,.18);">
-              <div class="tcfd-head">
-                <span class="tcfd-type tt-kans">Kans</span>
-              </div>
-              <div class="tcfd-name" style="color:var(--green-dark);">${esc(k.k)}</div>
-              <div class="tcfd-desc">${esc(k.d)}</div>
-            </div>`).join('')}
-        </div>
-      </div>`:''}
-  </section>`;
-}
+  <article class="a4 content">
+    ${pageTop(d)}
+    <div class="page-stamp">06 · 06</div>
+    <div class="page-body">
+      <div class="page-eyebrow">B E W I J S &nbsp; · &nbsp; D A T A G A P S &nbsp; · &nbsp; V E R V O L G</div>
+      <div class="page-title">Bron- en bewijsmatrix met vervolgstappen</div>
+      <div class="page-title-sub">Wat is reeds bewezen, wat ontbreekt en hoe verhoogt het dossier het assurance-niveau richting niveau 4.</div>
+      <div class="page-thin-rule"></div>
 
-/* ── 12 ASSURANCE ── */
-function renderAssuranceSection(d){
-  const a=d.assurance||{huidig:2};
-  const labels=['Niveau 1','Niveau 2','Niveau 3','Niveau 4'];
-  const subs=['PDF-scan','PDF + foto','+ offertes/data','+ oplevering'];
-  return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">12 ·</span>
-      <h2 class="section-title">Assurance &amp; betrouwbaarheidsniveau</h2>
-      <span class="section-sub">huidige zekerheid · pad naar niveau 4</span>
-    </div>
-    <div class="assurance">
-      <div class="assurance-head">
-        <div class="assurance-title">${esc(a.naam)}</div>
-        <span class="assurance-level">Huidig: niveau ${esc(a.huidig)} / 4</span>
-      </div>
-      <div class="assurance-bar" style="margin-top:32px;">
-        ${[1,2,3,4].map((i,idx)=>`<div class="as-step ${i<=a.huidig?'on':''}"><span class="as-tip">${labels[idx]} · ${subs[idx]}</span></div>`).join('')}
-      </div>
-      <div class="assurance-text">${esc(a.tekst)}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;">
-      <div class="info-block" style="padding:18px 20px;">
-        <div style="font-family:var(--f-serif);font-size:14px;font-weight:600;color:var(--navy);margin-bottom:10px;">Impact materialiteit</div>
-        ${arr(d.materialiteit&&d.materialiteit.impact).map(x=>`<div style="font-size:11.5px;color:var(--ink-2);line-height:1.6;margin:4px 0;display:flex;gap:8px;"><span style="color:var(--orange);">●</span><span>${esc(x)}</span></div>`).join('')}
-      </div>
-      <div class="info-block" style="padding:18px 20px;">
-        <div style="font-family:var(--f-serif);font-size:14px;font-weight:600;color:var(--navy);margin-bottom:10px;">Financiële materialiteit</div>
-        ${arr(d.materialiteit&&d.materialiteit.financieel).map(x=>`<div style="font-size:11.5px;color:var(--ink-2);line-height:1.6;margin:4px 0;display:flex;gap:8px;"><span style="color:var(--navy);">●</span><span>${esc(x)}</span></div>`).join('')}
-      </div>
-    </div>
-  </section>`;
-}
+      <table class="rpt-table">
+        <thead><tr>
+          <th style="width:24%">Datapunt</th>
+          <th style="width:24%">Waarde</th>
+          <th style="width:16%">Bron</th>
+          <th style="width:10%">Zekerheid</th>
+          <th>Vervolgactie</th>
+        </tr></thead>
+        <tbody>
+          ${arr(d.evidence).map(r=>`<tr>
+            <td class="nm">${esc(r.ond)}</td>
+            <td>${esc(r.w)}</td>
+            <td style="color:var(--ink-3);">${esc(r.bron)}</td>
+            <td><span class="pill ${r.z==='Hoog'?'p-good':r.z==='Middel'?'p-warn':'p-bad'}">${esc(r.z)}</span></td>
+            <td style="color:var(--ink-3);">${esc(r.actie)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
 
-/* ── 13 ONTBREKENDE STUKKEN ── */
-function renderMissingSection(d){
-  return `
-  <section class="doc-section">
-    <div class="section-head">
-      <span class="section-num">13 ·</span>
-      <h2 class="section-title">Ontbrekende stukken &amp; actiepunten</h2>
-      <span class="section-sub">checklist voor kredietcommissie</span>
-    </div>
-    <div class="checklist">
-      ${arr(d.missing).map(r=>`
-        <div class="cl-row">
-          <div class="cl-icon">!</div>
-          <div>
-            <div class="cl-title">${esc(r.stuk)}</div>
-            <div class="cl-desc">${esc(r.belang)}</div>
-            <div class="cl-action">→ ${esc(r.actie)}</div>
+      <div class="two-col" style="margin:16px 0 16px;">
+        <div class="col-card">
+          <div class="col-h">Ontbrekende bewijsstukken</div>
+          <table class="rpt-table" style="margin:-4px 0 0;">
+            <tbody>
+              ${arr(d.missing).map(m=>`<tr>
+                <td class="nm" style="width:55%;">${m.stuk}</td>
+                <td style="width:22%;"><span class="pill ${m.prio==='Hoog'?'p-bad':m.prio==='Middel'?'p-warn':'p-good'}">${esc(m.prio)}</span></td>
+                <td style="color:var(--ink-3);">${esc(m.actie)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="col-card">
+          <div class="col-h">Aanbevolen vervolgstappen</div>
+          <div class="col-list">
+            ${arr(d.vervolg).map(v=>`<div>${esc(v)}</div>`).join('')}
           </div>
-          <span class="prio prio-${r.prio.toLowerCase()==='hoog'?'hoog':r.prio.toLowerCase()==='laag'?'laag':'middel'}">${esc(r.prio)}</span>
-        </div>
-      `).join('')}
-    </div>
-  </section>`;
-}
-
-/* ── 14 CLOSING ── */
-function renderClosingSection(d){
-  return `
-  <section class="doc-section">
-    <div class="closing">
-      <div>
-        <div class="closing-eyebrow">Volgende stap</div>
-        <div class="closing-title">Klaar voor een bankwaardig groen-financieringsdossier?</div>
-        <div class="closing-text">MB Adviesgroep begeleidt het volledige traject — van offertestraject en subsidieaanvraag tot oplevering met nieuw energielabel en finale impactrapportage. Plan een vrijblijvend adviesgesprek voor de finale slag richting niveau 4.</div>
-      </div>
-      <div class="closing-contact">
-        <div class="cc-item">
-          <div class="cc-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3c-2.5 2.5-4 6-4 9s1.5 6.5 4 9M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9M3 12h18"/></svg></div>
-          <div><div class="cc-lbl">Web</div><div class="cc-val"><a href="https://mbadviesgroep.nl" target="_blank" rel="noopener">mbadviesgroep.nl</a></div></div>
-        </div>
-        <div class="cc-item">
-          <div class="cc-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 7 10-7"/></svg></div>
-          <div><div class="cc-lbl">E-mail</div><div class="cc-val"><a href="mailto:info@mbadviesgroep.nl">info@mbadviesgroep.nl</a></div></div>
-        </div>
-        <div class="cc-item">
-          <div class="cc-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92V21a1 1 0 0 1-1.1 1A19 19 0 0 1 2 4.1 1 1 0 0 1 3 3h4.09a1 1 0 0 1 1 .75l1 4a1 1 0 0 1-.27 1L7 10.5a16 16 0 0 0 6.5 6.5l1.74-1.84a1 1 0 0 1 1-.27l4 1a1 1 0 0 1 .76 1z"/></svg></div>
-          <div><div class="cc-lbl">Telefonisch</div><div class="cc-val">+31 (0)85 — op aanvraag</div></div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);">
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px;">Assurance-pad</div>
+            <div style="display:flex;gap:5px;margin-bottom:10px;">
+              ${[1,2,3,4].map(i=>`<div style="flex:1;height:7px;border-radius:99px;background:${i<=lvl?'var(--green)':'var(--rule)'};"></div>`).join('')}
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-4);font-weight:600;letter-spacing:.5px;">
+              ${labels.map((l,i)=>`<span style="${i+1===lvl?'color:var(--green);':''}">${esc(l)}</span>`).join('')}
+            </div>
+          </div>
         </div>
       </div>
+
+      <div class="close-card">
+        <div class="close-eyebrow">MB Adviesgroep — afsluiting</div>
+        <div class="close-title">Klaar voor een bankwaardig green-loan dossier?</div>
+        <div class="close-text">${esc(d.assurance_tekst)}</div>
+      </div>
+
     </div>
-    <div class="disclaimer">
-      <b>Disclaimer ·</b> Dit ESG-bankdossier is op basis van het aangeleverde verduurzamingsrapport automatisch opgesteld door ESG Bridge van MB Adviesgroep. De analyse is <b>indicatief</b> en bedoeld als <b>concept-bankdossier</b>. Er worden geen garanties verstrekt over taxonomie-alignment, subsidies of certificering. Definitieve toetsing vereist offertes, jaarverbruiken, subsidiebeschikkingen en — na uitvoering — een gevalideerd energielabel. Vertrouwelijk · niet voor distributie zonder toestemming van MB Adviesgroep. Rapportdatum: ${esc(d.datum_rapport)}.
-    </div>
-  </section>`;
+    ${pageFoot()}
+  </article>`;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   PRINT / RESET
-   ═══════════════════════════════════════════════════════════ */
+/* PRINT / RESET */
 function printReport(){
   const orig=document.title;
   const t=currentData?.object_naam||'MB Adviesgroep';
   document.title='ESG-bankdossier — '+t;
-  /* Wacht kort zodat fonts/foto klaar zijn */
   setTimeout(()=>{
     window.print();
     setTimeout(()=>{document.title=orig;},800);
@@ -1816,23 +1414,24 @@ function printReport(){
 }
 
 function resetTool(){
-  pdfText='';photoDataUrl='';photoName='';currentData=null;
+  pdfText='';photoDataUrl='';currentData=null;
   filePdf.value='';filePhoto.value='';
   document.getElementById('pdfPill').classList.remove('on');
   document.getElementById('photoPill').classList.remove('on');
   zonePdf.classList.remove('has-file');
   zonePhoto.classList.remove('has-file');
-  document.getElementById('pdfTitle').textContent='Verduurzamingsrapport (PDF)';
-  document.getElementById('pdfSub').innerHTML='Sleep hier of klik · <strong>PDF</strong> · alle bank-scans';
+  document.getElementById('pdfTitle').textContent='Verduurzamingsrapport';
+  document.getElementById('pdfSub').innerHTML='Sleep hier of klik · <strong>PDF</strong>';
   document.getElementById('photoTitle').textContent='Pandsfoto (optioneel)';
-  document.getElementById('photoSub').textContent='JPG / PNG — wordt coverbeeld in het rapport';
+  document.getElementById('photoSub').textContent='JPG / PNG — coverbeeld';
   document.getElementById('generateBtn').disabled=true;
-  document.getElementById('rptCover').innerHTML='';
-  document.getElementById('rptBody').innerHTML='';
+  document.getElementById('rptStage').innerHTML='';
   document.body.classList.remove('report-mode');
-  document.getElementById('uploadPage').style.display='block';
+  document.getElementById('appPage').style.display='block';
+  document.getElementById('uploadBody').style.display='block';
+  document.getElementById('loading').classList.remove('on');
   hideError();
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top:0,behavior:'instant'});
 }
 </script>
 </body>
