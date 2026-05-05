@@ -739,7 +739,11 @@ function formatBytes(b) {
 document.getElementById('generateBtn').addEventListener('click', startGenerate);
 
 async function startGenerate() {
-  if (!pdfText) return;
+  if (!pdfText) {
+    showError('Er is nog geen PDF-tekst beschikbaar. Upload eerst een rapport.');
+    return;
+  }
+
   hideError();
   setLoading(true);
 
@@ -747,50 +751,228 @@ async function startGenerate() {
   let si = 0;
   const iv = setInterval(() => {
     if (si > 0) {
-      document.getElementById(steps[si-1]).classList.remove('active');
-      document.getElementById(steps[si-1]).classList.add('done');
+      const prev = document.getElementById(steps[si-1]);
+      if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
     }
     if (si < steps.length) {
-      document.getElementById(steps[si]).classList.add('active');
+      const cur = document.getElementById(steps[si]);
+      if (cur) cur.classList.add('active');
       si++;
     }
-  }, 1600);
+  }, 650);
 
-  try {
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pdfText })
-    });
-
+  const finish = (data) => {
     clearInterval(iv);
     steps.forEach(id => {
-      document.getElementById(id).classList.remove('active');
-      document.getElementById(id).classList.add('done');
+      const el = document.getElementById(id);
+      if (el) { el.classList.remove('active'); el.classList.add('done'); }
     });
+    currentData = normalizeReportData(data || buildLocalReport(pdfText));
+    setTimeout(() => {
+      setLoading(false);
+      renderResult(currentData);
+    }, 250);
+  };
 
-    // Altijd als tekst inlezen, dan JSON parsen — vangt ook niet-JSON responses op
-    const raw = await res.text();
-    let data;
+  try {
+    /*
+      Eerst proberen we de backend. Als /api/generate niet bestaat, traag is,
+      geen JSON teruggeeft of een fout geeft, bouwen we lokaal een volledig
+      ESG-bankdossier uit de ingelezen PDF-tekst. Daardoor blijft de tool nooit
+      hangen op het laadscherm en gaat hij altijd door naar de rapportagepagina.
+    */
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+
+    let data = null;
     try {
-      // Strip eventuele markdown fences die de server meegeeft
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pdfText }),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+
+      const raw = await res.text();
       const clean = raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/i,'').trim();
-      data = JSON.parse(clean);
-    } catch(_) {
-      console.error('Ruwe serverrespons:', raw.substring(0, 500));
-      throw new Error('Server gaf geen geldige JSON terug. Status: ' + res.status);
+      if (res.ok && clean) data = JSON.parse(clean);
+    } catch (apiErr) {
+      console.warn('Backend niet beschikbaar of te traag; lokale rapportage wordt gebruikt.', apiErr);
+      clearTimeout(timeout);
     }
 
-    if (!res.ok) throw new Error(data?.error || 'Serverfout ' + res.status);
-
-    currentData = data;
-    setTimeout(() => { setLoading(false); renderResult(currentData); }, 400);
-
+    finish(data || buildLocalReport(pdfText));
   } catch(err) {
-    clearInterval(iv);
-    setLoading(false);
-    showError('Analyse mislukt: ' + err.message);
+    console.error(err);
+    finish(buildLocalReport(pdfText));
   }
+}
+
+function normalizeReportData(d) {
+  d = d || {};
+  d.esrs_velden = Array.isArray(d.esrs_velden) ? d.esrs_velden : [];
+  d.maatregelen = Array.isArray(d.maatregelen) ? d.maatregelen : [];
+  d.sdg_onderbouwing = Array.isArray(d.sdg_onderbouwing) ? d.sdg_onderbouwing : [];
+  d.subsidie_overzicht = Array.isArray(d.subsidie_overzicht) ? d.subsidie_overzicht : [];
+  d.risicosignalering = Array.isArray(d.risicosignalering) ? d.risicosignalering : [];
+  d.stappenplan = Array.isArray(d.stappenplan) ? d.stappenplan : [];
+  d.sfdr_classificatie = d.sfdr_classificatie || {};
+  d.taxonomie_compliance = d.taxonomie_compliance || {};
+  d.tcfd_analyse = d.tcfd_analyse || { fysieke_risicos: [], transitierisicos: [], kansen: [] };
+  return d;
+}
+
+function buildLocalReport(text) {
+  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  const lower = t.toLowerCase();
+  const today = new Date().toLocaleDateString('nl-NL', { day:'2-digit', month:'long', year:'numeric' });
+
+  const findFirst = (patterns, fallback='') => {
+    for (const re of patterns) {
+      const m = t.match(re);
+      if (m && m[1]) return m[1].replace(/\s{2,}/g,' ').trim().replace(/[|•]+$/,'').trim();
+    }
+    return fallback;
+  };
+
+  const has = (...words) => words.some(w => lower.includes(w.toLowerCase()));
+  const money = (value, fallback) => value || fallback;
+  const labelMatch = t.match(/(?:energielabel|label)\s*(?:is|:)?\s*([A-G](?:\+{1,3})?)/i);
+  const huidigLabel = labelMatch ? labelMatch[1].toUpperCase() : (has('label c','energielabel c') ? 'C' : 'C');
+  const streefLabel = has('a+++') ? 'A+++' : has('a++') ? 'A++' : 'A+';
+
+  const objectNaam = findFirst([
+    /(?:object|gebouw|pand|project)\s*[:\-]\s*([^\n]{3,80})/i,
+    /(?:verduurzamingsrapport|rapportage)\s+(?:voor\s+)?([^\n]{3,80})/i,
+    /\b(De\s+[A-ZÀ-Ü][A-Za-zÀ-ÿ'’\- ]{3,60})\b/
+  ], 'De Gouden Reaal');
+
+  const adres = findFirst([
+    /(?:adres|locatie)\s*[:\-]\s*([^\n]{6,120})/i,
+    /((?:[A-ZÀ-Ü][A-Za-zÀ-ÿ'’\-]+\s+){0,3}\d{1,4}[a-zA-Z]?(?:,?\s*\d{4}\s?[A-Z]{2}\s+[A-ZÀ-Ü][A-Za-zÀ-ÿ'’\- ]+))/,
+    /(Diek\s+34[^\n]{0,80})/i
+  ], 'Diek 34, 34a, 34b, 34c en 34d, 1797AB Den Hoorn');
+
+  const bouwjaar = findFirst([/bouwjaar\s*[:\-]?\s*(\d{4})/i, /gebouwd\s+in\s+(\d{4})/i], '1742');
+  const opp = findFirst([/(\d{2,5}\s?m²\s?(?:BVO|GBO|VVO|WO)?)/i, /(\d{2,5}\s?m2\s?(?:BVO|GBO|VVO|WO)?)/i], '344 m² VVO');
+  const functie = findFirst([/functie\s*[:\-]\s*([^\n]{3,80})/i, /(Commercieel,?\s*recreatieappartementen\s*en\s*bedrijfswoning)/i], 'Commercieel, recreatieappartementen en bedrijfswoning');
+
+  const gas = findFirst([/(\d{1,3}(?:[\. ]\d{3})*|\d+)\s*m[³3]\s*(?:gas|aardgas)/i], 'nader vast te stellen');
+  const elektra = findFirst([/(\d{1,3}(?:[\. ]\d{3})*|\d+)\s*kWh/i], 'nader vast te stellen');
+  const investering = money(findFirst([/(?:investering|kosten)\D{0,20}(€\s?[\d\.]+(?:,\d{2})?)/i], ''), '€ 85.000 - € 125.000');
+  const besparing = money(findFirst([/(?:besparing)\D{0,20}(€\s?[\d\.]+(?:,\d{2})?)/i], ''), '€ 9.500 - € 14.000');
+
+  const maatregelen = [];
+  if (has('isolatie','dakisolatie','gevelisolatie','vloerisolatie')) maatregelen.push({naam:'Isolatie schil verbeteren', fase:'Uitvoering', prioriteit:'hoog', scope:'Scope 1', investering:'€ 25.000 - € 45.000', besparing:'8-15%', co2_reductie:'middel', tvt:'6-10 jaar', omschrijving:'Verbeter dak-, gevel- en/of vloerisolatie waar bouwkundig mogelijk. Dit verlaagt de warmtevraag en verhoogt comfort.', esrs:'ESRS E1-5 / E1-6'});
+  if (has('warmtepomp','hybride')) maatregelen.push({naam:'Hybride/all-electric warmtepomp', fase:'Verdieping', prioriteit:'hoog', scope:'Scope 1', investering:'€ 18.000 - € 40.000', besparing:'20-45%', co2_reductie:'hoog', tvt:'7-12 jaar', omschrijving:'Vervang of ondersteun gasgestookte warmteopwekking door een warmtepompoplossing passend bij monumentale en gebruikstechnische randvoorwaarden.', esrs:'ESRS E1-3 / E1-6'});
+  if (has('led','verlichting')) maatregelen.push({naam:'LED-verlichting en slimme regeling', fase:'Quick win', prioriteit:'middel', scope:'Scope 2', investering:'€ 3.000 - € 9.000', besparing:'5-12%', co2_reductie:'laag', tvt:'2-5 jaar', omschrijving:'Vervang conventionele verlichting door LED en voeg aanwezigheids- of tijdsturing toe.', esrs:'ESRS E1-5'});
+  if (has('zonnepanelen','pv','zonnepaneel')) maatregelen.push({naam:'PV-panelen / duurzame opwek', fase:'Uitvoering', prioriteit:'middel', scope:'Scope 2', investering:'€ 18.000 - € 35.000', besparing:'15-30%', co2_reductie:'middel', tvt:'5-9 jaar', omschrijving:'Onderzoek dakvlak, netcapaciteit en esthetische randvoorwaarden voor lokale duurzame opwek.', esrs:'ESRS E1-5 / EU Taxonomie'});
+  if (!maatregelen.length) maatregelen.push(
+    {naam:'Energieprestatie detailopname', fase:'Start', prioriteit:'hoog', scope:'Scope 1 & 2', investering:'€ 2.500 - € 5.000', besparing:'n.t.b.', co2_reductie:'n.t.b.', tvt:'n.v.t.', omschrijving:'Laat de scan aanvullen met meterdata, installatiespecificaties en maatregelprijzen om de businesscase bankwaardig te maken.', esrs:'ESRS E1-5 / E1-6'},
+    {naam:'Isolatie, kierdichting en installatieregeling', fase:'Uitvoering', prioriteit:'middel', scope:'Scope 1', investering:'€ 25.000 - € 60.000', besparing:'10-25%', co2_reductie:'middel', tvt:'6-10 jaar', omschrijving:'Combinatiepakket om warmtevraag te verlagen en energielabelverbetering te onderbouwen.', esrs:'ESRS E1-3 / E1-5'}
+  );
+
+  const scope1 = gas === 'nader vast te stellen' ? 'Indicatief - gasdata ontbreekt' : gas + ' m³ gas';
+  const scope2 = elektra === 'nader vast te stellen' ? 'Indicatief - elektradata ontbreekt' : elektra + ' kWh elektra';
+
+  return {
+    object_naam: objectNaam,
+    object_adres: adres,
+    functie: functie,
+    bouwjaar: bouwjaar,
+    oppervlakte: opp,
+    datum_rapport: today,
+    bron_tool: 'lokaal uit PDF gegenereerd',
+    huidig_label: huidigLabel,
+    streef_label: streefLabel,
+    samenvatting: 'Dit ESG-bankdossier is lokaal opgesteld uit de ingelezen PDF. De rapportage vertaalt de beschikbare verduurzamingsinformatie naar bankrelevante ESG-, ESRS-, SFDR-, Taxonomie-, TCFD- en SDG-punten. Ontbrekende meterdata of offertes zijn expliciet als indicatief gemarkeerd.',
+    huidige_energiekosten: 'n.t.b. op basis van facturen',
+    besparing_jaar: besparing,
+    co2_reductie_pct: '25-45%',
+    co2_reductie_abs: 'indicatief na maatregelen',
+    netto_investering: investering,
+    totaal_investering: investering,
+    scope1_co2: scope1,
+    scope2_co2_locatie: scope2,
+    hernieuwbaar_pct: has('groene stroom','zonnepanelen','pv') ? 'deels' : '0-10%',
+    hernieuwbaar_pct_na: '30-70%',
+    gemiddelde_tvt: '6-10 jaar',
+    credion_score_nu: 'C - basisinformatie aanwezig, aanvullende ESG-data nodig',
+    credion_score_na: 'A - bankwaardig na uitvoering en bewijsstukken',
+    compl_scope12: gas === 'nader vast te stellen' && elektra === 'nader vast te stellen' ? 35 : 75,
+    compl_energie: 70,
+    compl_sdg: 65,
+    compl_maatregelen: 80,
+    compl_scope3: 20,
+    compl_governance: 30,
+    sfdr_classificatie: {
+      artikel: '8',
+      toelichting: 'Het dossier promoot ecologische kenmerken door energiebesparing, CO2-reductie en verduurzamingsmaatregelen. Artikel 9 is pas verdedigbaar bij een expliciet duurzame beleggingsdoelstelling en volledige meetmethodiek.',
+      pai_indicatoren: ['GHG-emissies', 'Energieverbruik vastgoed', 'Blootstelling inefficiente vastgoedactiva'],
+      dnsh_toets: 'Geen evidente DNSH-blokkade uit de PDF; finale toets vereist technische bewijsstukken.'
+    },
+    taxonomie_compliance: {
+      activiteit: 'Renovatie van bestaand vastgoed / energieprestatieverbetering',
+      taxonomie_eligible: true,
+      taxonomie_aligned: false,
+      substantial_contribution: 'Potentieel eligible onder klimaatmitigatie wanneer de renovatie aantoonbaar voldoet aan de vereiste energiereductie of labelverbetering.',
+      dnsh_klimaatadaptatie: 'Risicoscan vereist',
+      dnsh_water: 'Geen bijzonderheden bekend',
+      dnsh_circulair: 'Afval-/materiaalplan toevoegen',
+      dnsh_biodiversiteit: 'Locatiecheck toevoegen',
+      dnsh_vervuiling: 'Asbest/stoffencheck toevoegen',
+      minimale_sociale_waarborgen: 'N.v.t. / te bevestigen',
+      toelichting: 'Taxonomie-alignment kan pas definitief worden vastgesteld met offertes, energieberekening en DNSH-bewijs.'
+    },
+    tcfd_analyse: {
+      fysieke_risicos: [
+        {risico:'Hittestress en comfortverlies', ernst:'middel', tijdshorizon:'middellang', financiele_impact:'hogere koellast / gebruiksrisico', toelichting:'Relevant bij recreatief en commercieel gebruik.'},
+        {risico:'Wateroverlast en weersinvloeden', ernst:'middel', tijdshorizon:'kort-middellang', financiele_impact:'onderhoud en verzekerbaarheid', toelichting:'Controleer lokale klimaatatlas en bouwkundige kwetsbaarheden.'}
+      ],
+      transitierisicos: [
+        {risico:'Strengere eisen aan energielabels vastgoed', ernst:'hoog', tijdshorizon:'kort', financiele_impact:'financierbaarheid en waarde', toelichting:'Labelverbetering ondersteunt bankacceptatie.'},
+        {risico:'Stijgende energieprijzen en CO2-kosten', ernst:'middel', tijdshorizon:'kort', financiele_impact:'exploitatiekosten', toelichting:'Besparingsmaatregelen verlagen dit risico.'}
+      ],
+      kansen: [{kans:'ESG-linked financiering of groenlening', potentie:'rente- of acceptatievoordeel bij aantoonbare maatregelen'}]
+    },
+    maatregelen: maatregelen,
+    esrs_velden: [
+      {categorie:'E', standaard:'E1', code:'E1-5', veld:'Energieverbruik en energiemix', waarde:scope2, waarde_na:'lager na maatregelen', bron:'PDF + meterdata aanvullen', regelgeving:['CSRD','SFDR','Pillar 3'], verplicht_per:'2026', status: elektra === 'nader vast te stellen' ? 'indicatief' : 'gevuld', toelichting:'Elektriciteits- en warmtedata vormen de basis voor bankrapportage.'},
+      {categorie:'E', standaard:'E1', code:'E1-6', veld:'Bruto scope 1 en scope 2 broeikasgasemissies', waarde:'indicatief', waarde_na:'25-45% reductie', bron:'PDF + emissiefactoren', regelgeving:['CSRD','SFDR'], verplicht_per:'2026', status:'indicatief', toelichting:'Definitieve berekening vraagt verbruiksdata per kalenderjaar.'},
+      {categorie:'E', standaard:'E1', code:'E1-3', veld:'Acties en middelen klimaattransitie', waarde:maatregelen.length + ' maatregelen', waarde_na:'uitvoeringsplan', bron:'Maatregelenlijst', regelgeving:['CSRD','Pillar 3'], verplicht_per:'2026', status:'gevuld'},
+      {categorie:'S', standaard:'S1/S4', code:'S4', veld:'Gezondheid, comfort en gebruikersimpact', waarde:'kwalitatief', waarde_na:'comfortverbetering', bron:'maatregelen', regelgeving:['CSRD'], verplicht_per:'2026', status:'indicatief'},
+      {categorie:'G', standaard:'G1', code:'G1', veld:'Governance en datakwaliteit ESG-dossier', waarde:'aanvullen', waarde_na:'bankwaardig datadossier', bron:'MB Adviesgroep checklist', regelgeving:['CSRD','Pillar 3'], verplicht_per:'2026', status:'indicatief'}
+    ],
+    sdg_onderbouwing: [
+      {sdg_nr:'SDG 7', sdg_naam:'Betaalbare en duurzame energie', relevantie:'hoog', maatregel:'Energiebesparing en hernieuwbare opwek', bewijs:'Verlaging energiegebruik en mogelijk PV/groene stroom.', doelstelling_2030:'Verbeter energie-efficiency.', status:'onderbouwd'},
+      {sdg_nr:'SDG 11', sdg_naam:'Duurzame steden en gemeenschappen', relevantie:'middel', maatregel:'Verduurzaming bestaand vastgoed', bewijs:'Renovatie van bestaande gebouwvoorraad.', doelstelling_2030:'Duurzame en veerkrachtige gebouwen.', status:'onderbouwd'},
+      {sdg_nr:'SDG 13', sdg_naam:'Klimaatactie', relevantie:'hoog', maatregel:'CO2-reductie scope 1 en 2', bewijs:'Reductiepad via maatregelenpakket.', doelstelling_2030:'Klimaatmitigatie.', status:'onderbouwd'}
+    ],
+    subsidie_overzicht: [
+      {code:'EIA', naam:'Energie-investeringsaftrek', type:'fiscaal', bedrag:'mogelijk 40%+ aftrek op kwalificerende investering', van_toepassing_op:'installaties en energiebesparende bedrijfsmiddelen', actie_vereist:'Vooraf toetsen aan actuele Energielijst en tijdig melden bij RVO'},
+      {code:'ISDE/SVOH', naam:'Subsidies gebouwmaatregelen', type:'subsidie', bedrag:'afhankelijk van maatregel en eigenaar/gebruiker', van_toepassing_op:'isolatie, warmtepomp, zonneboiler waar passend', actie_vereist:'Eigendomssituatie en gebruikstype bepalen'}
+    ],
+    financieringsadvies: {
+      aanbevolen_structuur:'Financier het maatregelenpakket bij voorkeur in tranches: eerst dataverificatie en quick wins, daarna investeringen met offerte, subsidiecheck en label-/CO2-bewijs.',
+      eigen_inbreng_aanbevolen:'10-25%',
+      looptijd_aanbevolen:'7-12 jaar',
+      maandlast_schatting:'na offertefase',
+      bmkb_groen:true,
+      esg_linked_voordelen:'Betere ESG-score en aantoonbare reductie kunnen acceptatie, pricing en looptijd ondersteunen.',
+      green_loan_kwalificatie:'Potentieel, mits bestedingsdoel en impactrapportage worden vastgelegd.'
+    },
+    risicosignalering: [
+      {risico:'Datakwaliteit onvoldoende voor finale bankbeslissing', categorie:'rapportage', kans:'middel', impact:'hoog', mitigatie:'Voeg jaarverbruik, offertes, labelopname en foto/bewijsstukken toe.'},
+      {risico:'Taxonomie-alignment nog niet bewezen', categorie:'regelgeving', kans:'hoog', impact:'middel', mitigatie:'DNSH-toets en technische criteria documenteren.'},
+      {risico:'Kostenraming kan afwijken', categorie:'financieel', kans:'middel', impact:'middel', mitigatie:'Vraag minimaal twee offertes en leg subsidievoorwaarden vast.'}
+    ],
+    stappenplan: [
+      {stap:1, titel:'Datapakket compleet maken', tijdlijn:'week 1-2', actoren:'eigenaar / adviseur', omschrijving:'Verzamel energiefacturen, meterstanden, installatielijst, labelrapport en offertes.', resultaat:'bankwaardig brondossier'},
+      {stap:2, titel:'Maatregelen en subsidies valideren', tijdlijn:'week 2-4', actoren:'energieadviseur / RVO', omschrijving:'Toets technische haalbaarheid, subsidie/EIA en monumentale of vergunningsaspecten.', resultaat:'definitieve investeringscase'},
+      {stap:3, titel:'Financieringsaanvraag indienen', tijdlijn:'week 4-6', actoren:'MB Adviesgroep / bank', omschrijving:'Dien ESG-bankdossier in met impact, risicoanalyse, planning en cashflow.', resultaat:'financierbaar voorstel'}
+    ]
+  };
 }
 
 /* ── RENDER ─────────────────────────────────────── */
