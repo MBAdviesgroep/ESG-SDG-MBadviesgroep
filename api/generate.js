@@ -53,37 +53,43 @@ geen samenvatting, maar een financieel/regelgevend dossier voor bank en investee
 ════════════════════════════════════════
 SDG KOPPELINGSREGEL (VERPLICHT)
 ════════════════════════════════════════
-Hieronder staan ALLE 17 officiële VN Sustainable Development Goals.
-Gebruik UITSLUITEND de nummers en namen uit deze lijst.
+ALLE 17 VN-DUURZAAMHEIDSDOELEN (gebruik uitsluitend deze nummers):
 
-VERPLICHTE SDG-ANALYSE — BEOORDELINGSMATRIX PER MAATREGEL:
-Doorloop voor ELKE maatregel ALLE 17 SDGs met JA of NEE.
-Voeg alleen SDGs met JA toe aan sdg_koppelingen.
-Verwacht minimum: 3 SDGs per maatregel. Sla nooit SDG 8, 15, 16 over zonder expliciete afweging.
+SDG-KOPPELINGSREGEL — DIFFERENTIEER PER MAATREGEL:
+Elke maatregel heeft een ANDERE set SDGs. Gebruik de aard van de maatregel als uitgangspunt.
 
-SDG 1  JA als maatregel energiekosten verlaagt voor bewoners/gebruikers (lagere woonlasten)
-SDG 2  NEE — gebouwrenovaties raken geen voedselproductie
-SDG 3  JA als maatregel binnenklimaat, luchtkwaliteit, vochtniveau of thermisch comfort verbetert
-SDG 4  JA als maatregel bewustwording of kennisoverdracht over duurzaamheid bevordert
-SDG 5  NEE — tenzij maatregel expliciet gelijke toegang voor vrouwen vergroot
-SDG 6  JA als maatregel waterverbruik vermindert of waterkwaliteit beschermt
-SDG 7  JA VERPLICHT bij isolatie, beglazing, installatie of opwek — altijd van toepassing
-SDG 8  JA VERPLICHT — elke maatregel creëert lokale werkgelegenheid bij uitvoering (aannemers, installateurs)
-SDG 9  JA als maatregel innovatieve of schone technologie introduceert (warmtepomp, PV, smart controls)
-SDG 10 JA als maatregel energie of woonkwaliteit toegankelijker maakt voor alle inkomensgroepen
-SDG 11 JA als maatregel leefbaarheid of kwaliteit bebouwde omgeving verbetert
-SDG 12 JA als maatregel energieverspilling of materialenverspilling vermindert
-SDG 13 JA VERPLICHT bij elke maatregel met CO₂-reductie — altijd van toepassing bij renovatie
-SDG 14 NEE — gebouwrenovaties raken geen waterlichamen, tenzij locatie aan kust
-SDG 15 JA VERPLICHT als locatie buiten Natura 2000 en geen impact op natuur — altijd controleren
-SDG 16 JA VERPLICHT als uitvoering transparant en conform OECD/ILO — bij professionele uitvoering altijd JA
-SDG 17 JA als maatregel samenwerking bevordert tussen eigenaar, adviseur, financier en overheid
+ISOLATIEMAATREGELEN (dak, gevel, vloer, glas):
+→ Sterke kandidaten: SDG 3 (gezondheid: minder tocht/vocht), SDG 7 (energiebesparing), SDG 11 (betere woonomgeving), SDG 12 (minder energieverspilling), SDG 13 (CO₂-reductie)
+→ Overweeg ook: SDG 1 (lagere energierekening bewoners), SDG 8 (lokale uitvoerder)
+→ Minder relevant: SDG 9 (geen innovatieve technologie), SDG 17
 
-UITLEG-VEREISTE: gebruik altijd specifieke cijfers in de uitleg.
-Schrijf NOOIT alleen "verlaagt energieverbruik" — schrijf "verlaagt energieverbruik met X kWh/jr door [reden]".
-Schrijf NOOIT alleen "creëert werkgelegenheid" — schrijf "uitvoering door lokale installateur/aannemer, investering € X".
-Minimale uitleglengte: 1 volzin met cijfer of concrete handeling.
+INSTALLATIEMAATREGELEN (warmtepomp, HR-ketel, ventilatie):
+→ Sterke kandidaten: SDG 7 (efficiëntere energie), SDG 9 (innovatieve technologie), SDG 13 (CO₂-reductie scope 1)
+→ Overweeg ook: SDG 3 (betere luchtkwaliteit), SDG 8 (gespecialiseerde installateur), SDG 11 (minder uitstoot in omgeving)
+→ Minder relevant: SDG 12, SDG 15
 
+OPWEKKINGSMAATREGELEN (zonnepanelen, WKK):
+→ Sterke kandidaten: SDG 7 (hernieuwbare opwek), SDG 9 (technologie-innovatie), SDG 13 (CO₂-reductie scope 2)
+→ Overweeg ook: SDG 10 (betaalbare energie voor iedereen), SDG 12 (eigen opwek vervangt fossiel)
+→ Minder relevant: SDG 3, SDG 11
+
+MONITORING/GEDRAGSMAATREGELEN (thermostaat, energiemanagementsysteem):
+→ Sterke kandidaten: SDG 12 (bewust verbruik, geen verspilling), SDG 9 (slimme technologie), SDG 17 (data delen met adviseur/financier)
+→ Overweeg ook: SDG 4 (bewustwording gebruikers), SDG 7 (efficiënter energiegebruik)
+→ Minder relevant: SDG 13 (kleine directe CO₂-impact), SDG 15
+
+ALGEMENE REGELS:
+- SDG 8 (werkgelegenheid): JA bij grote maatregelen met significante uitvoeringskosten (>€2.000), NEE bij kleine maatregelen
+- SDG 15 (natuur): JA alleen als het rapport expliciet vermeldt dat de locatie buiten Natura 2000 ligt
+- SDG 16 (instituties): JA alleen als het rapport vermeldt dat uitvoering conform OECD/ILO plaatsvindt
+
+UITLEG-VEREISTE: gebruik altijd maatregel-specifieke cijfers.
+- Isolatie: "bespaart X kWh/jr door Rc-waarde van Y"
+- Installatie: "reduceert gasverbruik met X m³/jr, besparing € Y/jr"
+- Opwek: "wekt X kWh/jr op, vervangt X% van netafname"
+- Monitoring: "reduceert verspilling met X%, besparing € Y/jr"
+
+VARIEER DE UITLEG: elke maatregel heeft unieke uitleg, ook al deelt hij een SDG met een andere maatregel.
 ${sdgLijst}
 
 ════════════════════════════════════════
