@@ -1895,90 +1895,103 @@ function pageSfdrTax(d){
 }
 
 
-/* ─── PAGINA 6 — MAATREGELEN & FINANCIERINGSSTRUCTUUR ─── */
+/* ─── PAGINA 7 — FINANCIERINGSSTRUCTUUR ─── */
 function pageMaatregelen(d){
-  const eur=v=>'€ '+(v||0).toLocaleString('nl-NL');
+  const eur=v=>'€ '+(v||0).toLocaleString('nl-NL');
   const totCo2=arr(d.maatregelen).reduce((a,m)=>a+(m.co2||0),0);
   const totBes=arr(d.maatregelen).reduce((a,m)=>a+(m.bes||0),0);
-  const totSubs=arr(d.maatregelen).reduce((a,m)=>a+(m.subs||0),0);
+
   return `
   <article class="a4 content">
     ${pageTop(d)}
     <div class="page-stamp">07 · 08</div>
     <div class="page-body">
-      <div class="page-eyebrow">Maatregelen &middot; Financiering &middot; Terugverdientijd</div>
-      <div class="page-title">Maatregelenstack &amp; financieringsstructuur</div>
-      <div class="page-title-sub">Vijf concrete maatregelen vormen de basis voor de groene financiering. Hieronder staan de kosten, jaarlijkse besparing, CO₂-effect en de terugverdientijd per maatregel. De totale investering is €&nbsp;29.900. Met subsidie (€&nbsp;5.205) en green-loan rentekorting is het break-even punt jaar&nbsp;11.</div>
+      <div class="page-eyebrow">Financiering &middot; Terugverdientijd</div>
+      <div class="page-title">Hoe is de investering gefinancierd?</div>
+      <div class="page-title-sub">De verduurzaming is gefinancierd via een combinatie van subsidie, eigen inbreng en een green loan met rentekorting. Hieronder de structuur en het terugverdienpad.</div>
       <div class="page-thin-rule"></div>
 
-      <div class="fin-strip">
-        <div class="fin-cell">
-          <div class="fin-l">Capex totaal</div>
-          <div class="fin-v">${eur(d.capex_totaal)}</div>
-          <div class="fin-s">5 maatregelen · excl. btw</div>
+      <!-- Financieringsblokken -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:16px;">
+        ${[
+          {l:'Totale investering',v:eur(d.capex_totaal),s:'Alle maatregelen · excl. btw',accent:false},
+          {l:'Subsidie',v:eur(d.capex_subsidie),s:'EIA / ISDE / SVOH',accent:false},
+          {l:'Eigen inbreng',v:eur(d.capex_eigen),s:'≈ '+Math.round((d.capex_eigen/d.capex_totaal)*100)+'% van investering',accent:false},
+          {l:'Green loan',v:eur(d.capex_lening),s:d.looptijd_jr+' jr · '+esc(d.rente_referentie)+' · −'+esc(String(d.rentekorting_bps))+' bps rentekorting',accent:true}
+        ].map((c,i)=>`
+          <div style="background:${c.accent?'var(--blue-deep)':'#fff'};padding:16px 18px;${i>0?'border-left:1px solid var(--blue-faint);':''}">
+            <div style="font-size:7.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:${c.accent?'rgba(255,255,255,.55)':'var(--ink-4)'};margin-bottom:6px;">${c.l}</div>
+            <div style="font-size:22px;font-weight:700;color:${c.accent?'#fff':'var(--blue-deep)'};line-height:1;margin-bottom:4px;">${c.v}</div>
+            <div style="font-size:8px;color:${c.accent?'rgba(255,255,255,.6)':'var(--ink-3)'};">${c.s}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Wat betekent de rentekorting -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
+          <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">Break-even</div>
+          <div style="font-size:28px;font-weight:700;color:var(--blue-deep);line-height:1;margin-bottom:4px;">Jaar 11</div>
+          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Met subsidie en rentekorting is de volledige investering terugverdiend in jaar 11. Daarna puur positief rendement.</div>
         </div>
-        <div class="fin-cell">
-          <div class="fin-l">Subsidie</div>
-          <div class="fin-v">${eur(d.capex_subsidie)}</div>
-          <div class="fin-s">EIA / ISDE / SVOH-positie</div>
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
+          <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">Jaarlijkse besparing</div>
+          <div style="font-size:28px;font-weight:700;color:var(--green);line-height:1;margin-bottom:4px;">${eur(d.bes_jaar||totBes)}</div>
+          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Structurele verlaging van de energiekosten per jaar na uitvoering van alle maatregelen.</div>
         </div>
-        <div class="fin-cell">
-          <div class="fin-l">Eigen inbreng</div>
-          <div class="fin-v">${eur(d.capex_eigen)}</div>
-          <div class="fin-s">≈ ${Math.round((d.capex_eigen/d.capex_totaal)*100)}% van capex</div>
-        </div>
-        <div class="fin-cell">
-          <div class="fin-l">Green loan</div>
-          <div class="fin-v">${eur(d.capex_lening)}</div>
-          <div class="fin-s">${esc(d.looptijd_jr)} jr · rente ${esc(d.rente_referentie)} · <b>&minus;${esc(d.rentekorting_bps)} bps rentekorting</b></div>
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
+          <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">CO₂-reductie</div>
+          <div style="font-size:28px;font-weight:700;color:var(--blue-deep);line-height:1;margin-bottom:4px;">${esc(String(d.co2_reductie_pct||35))}%</div>
+          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Ca. ${esc(String(d.co2_reductie_ton||totCo2.toFixed(1)))} ton CO₂ minder per jaar op scope 1+2. Onderbouwt EU Taxonomie 7.2 alignment.</div>
         </div>
       </div>
 
-      <table class="rpt-table" style="margin-bottom:14px;">
-        <thead><tr>
-          <th style="width:5%">#</th>
-          <th style="width:30%">Maatregel</th>
-          <th style="width:11%">Capex</th>
-          <th style="width:11%">Bes./jr</th>
-          <th style="width:11%">CO₂ t/jr</th>
-          <th style="width:9%">TVT</th>
-          <th style="width:11%">Subsidie</th>
-          <th style="width:8%">Label</th>
-        </tr></thead>
-        <tbody>
-          ${arr(d.maatregelen).map(m=>`<tr>
-            <td class="num">${esc(m.nr)}</td>
-            <td class="nm">${esc(m.naam)}</td>
-            <td>${eur(m.capex)}</td>
-            <td>${eur(m.bes)}</td>
-            <td>${(m.co2||0).toFixed(2)}</td>
-            <td>${(m.tvt||0).toFixed(1)} jr</td>
-            <td>${eur(m.subs)}</td>
-            <td><span class="pill p-info">${esc(m.label)}</span></td>
-          </tr>`).join('')}
-          <tr style="background:#faf6ee;font-weight:700;">
-            <td></td>
-            <td class="nm" style="color:var(--blue-deep);">Totaal pakket</td>
-            <td style="color:var(--blue-deep);">${eur(d.capex_totaal)}</td>
-            <td style="color:var(--blue-deep);">${eur(totBes)}</td>
-            <td style="color:var(--blue-deep);">${totCo2.toFixed(2)}</td>
-            <td style="color:var(--blue-deep);">${(d.capex_totaal/totBes).toFixed(1)} jr</td>
-            <td style="color:var(--blue-deep);">${eur(totSubs)}</td>
-            <td><span class="pill p-good">+3</span></td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Maatregelen compact overzicht -->
+      <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:10px;">Maatregelenoverzicht</div>
+        <table style="width:100%;border-collapse:collapse;font-size:8.5pt;">
+          <thead>
+            <tr style="border-bottom:1.5px solid var(--blue-faint);">
+              <th style="text-align:left;font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-4);padding:0 8px 6px 0;width:38%;">Maatregel</th>
+              <th style="text-align:right;font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-4);padding:0 8px 6px 0;">Investering</th>
+              <th style="text-align:right;font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-4);padding:0 8px 6px 0;">Besparing/jr</th>
+              <th style="text-align:right;font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-4);padding:0 8px 6px 0;">CO₂ t/jr</th>
+              <th style="text-align:right;font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-4);padding:0 0 6px 0;">TVT</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${arr(d.maatregelen).map(m=>`
+              <tr style="border-bottom:1px solid var(--blue-faint);">
+                <td style="padding:7px 8px 7px 0;font-weight:600;color:var(--ink);font-size:8.5pt;">${esc(m.naam||'')}</td>
+                <td style="padding:7px 8px 7px 0;text-align:right;color:var(--ink-2);font-size:8.5pt;">${eur(m.capex)}</td>
+                <td style="padding:7px 8px 7px 0;text-align:right;color:var(--green);font-weight:600;font-size:8.5pt;">${eur(m.bes)}</td>
+                <td style="padding:7px 8px 7px 0;text-align:right;color:var(--ink-3);font-size:8.5pt;">${(m.co2||0).toFixed(2)}</td>
+                <td style="padding:7px 0;text-align:right;color:var(--ink-3);font-size:8.5pt;">${(m.tvt||0).toFixed(1)} jr</td>
+              </tr>
+            `).join('')}
+            <tr style="background:#f8f6f2;font-weight:700;">
+              <td style="padding:8px 8px 8px 0;color:var(--blue-deep);font-size:8.5pt;">Totaal pakket</td>
+              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${eur(d.capex_totaal)}</td>
+              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--green);font-size:8.5pt;">${eur(totBes)}</td>
+              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${totCo2.toFixed(2)}</td>
+              <td style="padding:8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${(d.capex_totaal/totBes).toFixed(1)} jr</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <div class="chart-card">
-        <div class="chart-card-h">Cumulatieve cashflow over 15 jaar</div>
-        <div class="chart-card-t">Na subsidie (€ 5.205) en rentekorting is de investering volledig terugverdiend in jaar 11. Daarna puur winst.</div>
-        ${chartLine(d.cashflow,{w:540,h:160,xstep:3,xlabels:['Y0','Y1','Y2','Y3','Y4','Y5','Y6','Y7','Y8','Y9','Y10','Y11','Y12','Y13','Y14','Y15'],fmt:v=>(v>=0?'+':'')+'€'+(Math.round(v/1000))+'k',color:'#c45c2e'})}
+      <!-- Cashflow grafiek -->
+      <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
+        <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:2px;">Cumulatieve cashflow over 15 jaar</div>
+        <div style="font-size:8.5pt;color:var(--ink-3);margin-bottom:10px;">Na subsidie (${eur(d.capex_subsidie)}) en rentekorting is de investering volledig terugverdiend in jaar 11. Daarna puur winst.</div>
+        ${chartLine(d.cashflow,{w:660,h:140,xstep:3,xlabels:['Y0','Y1','Y2','Y3','Y4','Y5','Y6','Y7','Y8','Y9','Y10','Y11','Y12','Y13','Y14','Y15'],fmt:v=>(v>=0?'+':'')+'€'+(Math.round(v/1000))+'k',color:'var(--orange)'})}
       </div>
 
     </div>
     ${pageFoot()}
   </article>`;
 }
+
 
 /* ─── PAGINA 7 — BEWIJS, DATAGAPS, VERVOLG ─── */
 function pageBewijsVervolg(d){
