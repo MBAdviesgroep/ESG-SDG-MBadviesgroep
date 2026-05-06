@@ -959,7 +959,7 @@ function hideError(){document.getElementById('errorBox').classList.remove('on');
 /* GENERATE */
 document.getElementById('generateBtn').addEventListener('click',startGenerate);
 
-function startGenerate(){
+async function startGenerate(){
   hideError();
   document.getElementById('uploadBody').style.display='none';
   document.getElementById('loading').classList.add('on');
@@ -969,24 +969,49 @@ function startGenerate(){
   const iv=setInterval(()=>{
     if(si>0){const p=document.getElementById(steps[si-1]);if(p){p.classList.remove('active');p.classList.add('done');}}
     if(si<steps.length){const c=document.getElementById(steps[si]);if(c)c.classList.add('active');si++;}
-  },350);
+  },600);
 
-  setTimeout(()=>{
+  try{
+    // ── Roep generate.js API aan met de PDF-tekst ──
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({pdfText: pdfText||''})
+    });
+
     clearInterval(iv);
     steps.forEach(id=>{const e=document.getElementById(id);if(e){e.classList.remove('active');e.classList.add('done');}});
-    try{
-      currentData=buildLocalReport(pdfText||'');
-      renderReport(currentData);
-      document.getElementById('appPage').style.display='none';
-      document.body.classList.add('report-mode');
-      window.scrollTo({top:0,behavior:'instant'});
-    }catch(err){
-      console.error(err);
-      showError('Er ging iets mis: '+err.message);
-      document.getElementById('uploadBody').style.display='block';
-      document.getElementById('loading').classList.remove('on');
+
+    if(!response.ok){
+      const err=await response.json().catch(()=>({error:'Serverfout'}));
+      throw new Error(err.error||'API-fout ('+response.status+')');
     }
-  },1900);
+
+    const apiData = await response.json();
+
+    // ── Combineer API-data met lokale berekeningen ──
+    const localBase = buildLocalReport(pdfText||'');
+    // API-data overschrijft lokale data waar aanwezig
+    currentData = Object.assign({}, localBase, apiData);
+
+    // Zorg dat datum altijd gevuld is
+    if(!currentData.datum_rapport){
+      currentData.datum_rapport = new Date().toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
+    }
+
+    renderReport(currentData);
+    document.getElementById('appPage').style.display='none';
+    document.body.classList.add('report-mode');
+    window.scrollTo({top:0,behavior:'instant'});
+
+  }catch(err){
+    clearInterval(iv);
+    steps.forEach(id=>{const e=document.getElementById(id);if(e){e.classList.remove('active');}});
+    console.error('Generate error:',err);
+    showError('Er ging iets mis: '+err.message+' — Controleer of de API bereikbaar is.');
+    document.getElementById('uploadBody').style.display='block';
+    document.getElementById('loading').classList.remove('on');
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1008,15 +1033,15 @@ function buildLocalReport(text){
   // Primaire-energie reductie: ~10% per labelstap; cap 50%
   const primEnergieRed=Math.min(50,labelStappen*10+10);
 
+  // Objectnaam: pak de naam zoals die in de PDF staat, strip daarna bedrijfsnaam
   const objectNaamRaw=findFirst(t,[
     /(?:object|gebouw|pand|project)\s*[:\-]\s*([^\n]{3,80})/i,
     /(?:verduurzamingsrapport|rapportage)\s+(?:voor\s+)?([^\n]{3,80})/i,
-    /\b(De\s+[A-ZÀ-Ü][A-Za-zÀ-ÿ'\-]{3,40})\b/
+    /((?:De|Het|'t)\s+[A-ZÀ-Ü][A-Za-zÀ-ÿ\s'\-]{2,50}?)(?=\s*(?:MB\s+Advies|\d|Diek|\n|$))/
   ],'De Gouden Reaal');
-  // Strip bedrijfsnaam MB Adviesgroep uit objectnaam
   const objectNaam=objectNaamRaw
-    .replace(/\s*MB\s+Adviesgroep\b.*/i,'')
-    .replace(/\s*Adviesgroep\b.*/i,'')
+    .replace(/\s*\bMB\s+Adviesgroep\b.*/i,'')
+    .replace(/\s*\bAdviesgroep\b.*/i,'')
     .trim();
 
   const adres=findFirst(t,[
@@ -1637,37 +1662,84 @@ function pageSdgEsrs(d){
     if(s==='ontbreekt')return `<span class="pill p-bad">Ontbreekt</span>`;
     return `<span class="pill p-mute">N.v.t.</span>`;
   };
+
+  // ── Volledige SDG-database (alle 17 VN-doelen) ──
+  const SDG_DB={
+    '1': {kleur:'#E5243B',label:'Geen armoede'},
+    '2': {kleur:'#DDA63A',label:'Geen honger'},
+    '3': {kleur:'#4C9F38',label:'Goede gezondheid en welzijn'},
+    '4': {kleur:'#C5192D',label:'Kwaliteitsonderwijs'},
+    '5': {kleur:'#FF3A21',label:'Gendergelijkheid'},
+    '6': {kleur:'#26BDE2',label:'Schoon water en sanitair'},
+    '7': {kleur:'#FCC30B',label:'Betaalbare en duurzame energie'},
+    '8': {kleur:'#A21942',label:'Waardig werk en economische groei'},
+    '9': {kleur:'#FD6925',label:'Industrie, innovatie & infrastructuur'},
+    '10':{kleur:'#DD1367',label:'Minder ongelijkheid'},
+    '11':{kleur:'#FD9D24',label:'Duurzame steden en gemeenschappen'},
+    '12':{kleur:'#BF8B2E',label:'Verantwoorde consumptie en productie'},
+    '13':{kleur:'#3F7E44',label:'Klimaatactie'},
+    '14':{kleur:'#0A97D9',label:'Leven in het water'},
+    '15':{kleur:'#56C02B',label:'Leven op het land'},
+    '16':{kleur:'#00689D',label:'Vrede, rechtvaardigheid & instituties'},
+    '17':{kleur:'#19486A',label:'Partnerschap voor de doelen'}
+  };
+
+  // ── Render SDG-badge ──
+  const sdgBadge=(nr,uitleg)=>{
+    const s=SDG_DB[String(nr)]||{kleur:'#888',label:'SDG '+nr};
+    return `<div style="display:grid;grid-template-columns:32px 1fr;gap:8px;align-items:flex-start;">
+      <div style="width:30px;height:30px;border-radius:6px;background:${s.kleur};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:6px;font-weight:700;flex-shrink:0;line-height:1.1;">
+        SDG<span style="font-size:11px;font-weight:800;line-height:1;">${nr}</span>
+      </div>
+      <div>
+        <div style="font-size:9.5px;font-weight:700;color:var(--ink);margin-bottom:1px;">${esc(s.label)}</div>
+        <div style="font-size:8.5px;color:var(--ink-3);line-height:1.4;">${esc(uitleg||'')}</div>
+      </div>
+    </div>`;
+  };
+
+  // ── Maatregelen met SDG-koppelingen uit AI-response ──
+  const maatregelen=arr(d.maatregelen).filter(m=>m.sdg_koppelingen&&m.sdg_koppelingen.length>0);
+
   return `
   <article class="a4 content">
     ${pageTop(d)}
     <div class="page-stamp">05 · 08</div>
     <div class="page-body">
-      <div class="page-eyebrow">SDG &middot; ESRS &middot; CSRD Readiness</div>
-      <div class="page-title">Bijdrage aan zes VN-duurzaamheidsdoelen (SDGs)</div>
-      <div class="page-title-sub">De VN hebben 17 Sustainable Development Goals (SDGs) vastgesteld. SDGs zijn de wereldwijde doelen voor een duurzamere samenleving. Deze renovatie draagt aantoonbaar bij aan zes van die doelen — hieronder per doel uitgelegd waarom en hoe.</div>
+      <div class="page-eyebrow">SDG &middot; ESRS &middot; CSRD</div>
+      <div class="page-title">Welke maatregel draagt bij aan welk doel?</div>
+      <div class="page-title-sub">Elke maatregel is door de AI gekoppeld aan de relevante VN-duurzaamheidsdoelen (SDGs), op basis van het ingediende verduurzamingsrapport. De uitleg gebruikt de cijfers uit uw rapport.</div>
       <div class="page-thin-rule"></div>
 
-      <div style="font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--orange);margin-bottom:10px;">SDG-mapping</div>
-      <div class="sdg-list" style="margin-bottom:20px;">
-        ${arr(d.sdg).map(s=>`
-          <div class="sdg-card">
-            <div class="sdg-num ${esc(s.cls)}">SDG<strong>${esc(s.nr)}</strong></div>
+      ${maatregelen.length>0 ? `
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        ${maatregelen.map(m=>`
+          <div style="background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);padding:11px 14px;display:grid;grid-template-columns:130px 1fr;gap:12px;align-items:flex-start;">
             <div>
-              <div class="sdg-cnt-name">${esc(s.naam)}</div>
-              <div class="sdg-cnt-text">${esc(s.text)}<small>${esc(s.target)}</small></div>
+              <div style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:2px;">${esc(m.nr||'')}</div>
+              <div style="font-size:10px;font-weight:700;color:var(--blue-deep);line-height:1.35;">${esc(m.naam||'')}</div>
+              ${m.co2?`<div style="font-size:8px;color:var(--green);margin-top:3px;font-weight:600;">↓ ${m.co2} t CO₂/jr</div>`:''}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              ${arr(m.sdg_koppelingen).map(k=>sdgBadge(k.sdg_nr,k.uitleg)).join('')}
             </div>
           </div>
         `).join('')}
       </div>
+      ` : `
+      <div style="background:var(--amber-bg);border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:10pt;color:var(--amber);">
+        De SDG-koppelingen worden automatisch gegenereerd op basis van het verduurzamingsrapport. Upload een rapport en genereer het dossier om de maatregelen te koppelen aan de juiste duurzaamheidsdoelen.
+      </div>
+      `}
 
-      <div style="font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--orange);margin:8px 0 4px;">ESRS / CSRD rapportage-gereedheid</div>
-      <div style="font-size:9pt;color:var(--ink-3);margin-bottom:8px;line-height:1.5;">CSRD is de Europese wet die grote bedrijven verplicht te rapporteren over duurzaamheid. ESRS zijn de bijbehorende rapportagestandaarden. Hieronder staat welke data al beschikbaar is en wat nog nodig is.</div>
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--orange);margin:4px 0 4px;">ESRS / CSRD rapportage-gereedheid</div>
+      <div style="font-size:8.5pt;color:var(--ink-3);margin-bottom:6px;line-height:1.4;">CSRD verplicht bedrijven te rapporteren over duurzaamheid. ESRS zijn de bijbehorende standaarden. Hieronder welke data al beschikbaar is.</div>
       <table class="rpt-table">
         <thead><tr>
-          <th style="width:18%">Code</th>
+          <th style="width:16%">Code</th>
           <th style="width:36%">Datapunt</th>
-          <th style="width:18%">Status</th>
-          <th>Bron / opmerking</th>
+          <th style="width:16%">Status</th>
+          <th>Bron</th>
         </tr></thead>
         <tbody>
           ${arr(d.esrs).map(r=>`<tr>
@@ -1683,7 +1755,6 @@ function pageSdgEsrs(d){
     ${pageFoot()}
   </article>`;
 }
-
 /* ─── PAGINA 5 — SFDR / PILLAR 3 / TAXONOMIE / DNSH ─── */
 function pageSfdrTax(d){
   const tax=d.taxonomie||{};
