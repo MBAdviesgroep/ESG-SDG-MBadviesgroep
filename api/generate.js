@@ -93,6 +93,15 @@ VARIEER DE UITLEG: elke maatregel heeft unieke uitleg, ook al deelt hij een SDG 
 ${sdgLijst}
 
 ════════════════════════════════════════
+RISICOS, VOORWAARDEN & MONITORING — VERPLICHT SPECIFIEK
+════════════════════════════════════════
+Genereer risicos, voorwaarden, monitoring en vervolgstappen die SPECIFIEK zijn voor dit pand.
+Gebruik concrete details uit het rapport: bouwjaar, locatie, pandtype, maatregelen, monumentenstatus.
+Een risico als "vertraging in uitvoering" is te generiek — schrijf bijv:
+"Hybride warmtepomp vereist gasnetaansluiting behouden naast warmtepomp — netbeheerder tijdig informeren."
+Of: "Monument uit 1742 — isolatiemaatregelen vereisen goedkeuring van gemeente/monumentencommissie."
+
+════════════════════════════════════════
 MAATREGELEN — VERPLICHT
 ════════════════════════════════════════
 Neem ALLE maatregelen op die in het verduurzamingsrapport staan — niet alleen de eerste.
@@ -241,33 +250,57 @@ Retourneer UITSLUITEND valide JSON — geen markdown, geen uitleg buiten de JSON
 
   "risicos": [
     {
-      "risk": "Omschrijving risico",
+      "INSTRUCTIE": "Genereer 4-6 risicos die SPECIFIEK zijn voor dit pand, deze locatie en deze maatregelen. Denk aan: bouwkundige risicos gezien bouwjaar, monumentenstatus, locatierisicos (overstromingsgebied, kust, stedelijk), uitvoeringsrisicos per maatregel, regelgevingsrisicos (energielabelplicht, subsidiewijzigingen), financiele risicos (terugverdientijd, subsidierisico). NIET generiek.",
+      "risk": "Specifiek risico voor dit pand/deze maatregelen — bijv. 'Rieten dak vereist gespecialiseerde aannemer, krapte op markt'",
       "ernst": "Hoog | Middel | Laag",
       "horizon": "Kort | Lang",
-      "action": "Concrete bankactie"
+      "action": "Concrete actie specifiek voor dit risico"
+    },
+    {
+      "risk": "Tweede specifiek risico",
+      "ernst": "Hoog | Middel | Laag",
+      "horizon": "Kort | Lang",
+      "action": "Concrete actie"
+    },
+    {
+      "risk": "Derde specifiek risico",
+      "ernst": "Hoog | Middel | Laag",
+      "horizon": "Kort | Lang",
+      "action": "Concrete actie"
+    },
+    {
+      "risk": "Vierde specifiek risico",
+      "ernst": "Hoog | Middel | Laag",
+      "horizon": "Kort | Lang",
+      "action": "Concrete actie"
     }
   ],
 
   "voorwaarden": [
-    "Voorwaarde 1",
-    "Voorwaarde 2"
+    "INSTRUCTIE: genereer 4-6 specifieke voorwaarden voor DEZE financiering, op basis van het rapport. Niet generiek. Bijv: 'Offerte dakisolatie rietdak aanleveren binnen 60 dagen — gespecialiseerde aannemer vereist.' of 'Monumentenvergunning bevestigen voor aanvang werkzaamheden gevel.'",
+    "Voorwaarde 2 specifiek voor dit pand",
+    "Voorwaarde 3 specifiek voor dit pand",
+    "Voorwaarde 4 specifiek voor dit pand"
   ],
 
   "monitoring": [
-    "Monitoring punt 1",
-    "Monitoring punt 2"
+    "INSTRUCTIE: genereer 3-5 monitoringpunten specifiek voor de maatregelen in dit rapport. Bijv: 'Gasverbruik meten voor en na installatie hybride warmtepomp via slimme meter.' of 'Jaarlijkse meterdata aanleveren: gas (m³), elektra (kWh) en zonne-opwek (kWh).'",
+    "Monitoringpunt 2 specifiek",
+    "Monitoringpunt 3 specifiek"
   ],
 
   "vervolg": [
-    "Stap 1: ...",
-    "Stap 2: ..."
+    "INSTRUCTIE: genereer 4 concrete vervolgstappen specifiek voor dit dossier en deze maatregelen. Gebruik stap-nummering en concrete acties met tijdlijn.",
+    "Stap 2 specifiek",
+    "Stap 3 specifiek",
+    "Stap 4 specifiek"
   ],
 
   "samenvatting_punten": [
-    "Punt 1 — besluitgericht",
-    "Punt 2 — besluitgericht",
-    "Punt 3 — besluitgericht",
-    "Punt 4 — besluitgericht"
+    "INSTRUCTIE: genereer 4 besluitgerichte punten specifiek voor dit pand. Beantwoord: kan het groen gefinancierd worden? Waarom? Wat moet nog aangeleverd worden? Wat is het voordeel?",
+    "Punt 2 besluitgericht en specifiek",
+    "Punt 3 besluitgericht en specifiek",
+    "Punt 4 besluitgericht en specifiek"
   ],
 
   "assurance_niveau": 3,
