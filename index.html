@@ -2026,94 +2026,116 @@ function pageMaatregelen(d){
 }
 
 
-/* ─── PAGINA 7 — BEWIJS, DATAGAPS, VERVOLG ─── */
+/* ─── PAGINA 8 — CONCLUSIE & VERVOLG ─── */
 function pageBewijsVervolg(d){
-  const lvl=d.assurance_niveau||2;
-  const labels=['1 · PDF-scan','2 · PDF + afgeleid','3 · Data-validatie','4 · Assurance'];
+  const lvl=d.assurance_niveau||3;
+  const levels=[
+    {nr:1,l:'PDF-scan',sub:'Ruwe data uit rapport'},
+    {nr:2,l:'PDF + afgeleid',sub:'Berekeningen op basis van rapport'},
+    {nr:3,l:'Data-validatie',sub:'Bronnen geverifieerd'},
+    {nr:4,l:'Post-implementatie',sub:'Meterdata na oplevering'}
+  ];
+
   return `
   <article class="a4 content">
     ${pageTop(d)}
     <div class="page-stamp">08 · 08</div>
     <div class="page-body">
-      <div class="page-eyebrow">Bewijs &middot; Datagaps &middot; Vervolg</div>
-      <div class="page-title">Bron- en bewijsmatrix met vervolgstappen</div>
-      <div class="page-title-sub">Dit overzicht laat zien wat al is onderbouwd en wat nog moet worden aangeleverd voor definitieve groene financiering. Blok A = al klaar. Blok B = nog nodig.</div>
+      <div class="page-eyebrow">Conclusie &middot; Vervolg</div>
+      <div class="page-title">Wat zijn de volgende stappen?</div>
       <div class="page-thin-rule"></div>
 
-      <div style="font-size:9pt;color:var(--ink-3);margin-bottom:8px;line-height:1.5;">Onderstaande tabel toont alle onderbouwde datapunten met bronvermelding en zekerheidsgraad. Hoog = gevalideerd en direct bruikbaar voor de financieringsaanvraag.</div>
-      <table class="rpt-table">
-        <thead><tr>
-          <th style="width:24%">Gegeven</th>
-          <th style="width:24%">Waarde</th>
-          <th style="width:16%">Bron</th>
-          <th style="width:10%">Zekerheid</th>
-          <th>Status</th>
-        </tr></thead>
-        <tbody>
-          ${arr(d.evidence).map(r=>`<tr>
-            <td class="nm">${esc(r.ond)}</td>
-            <td>${esc(r.w)}</td>
-            <td style="color:var(--ink-3);">${esc(r.bron)}</td>
-            <td><span class="pill ${r.z==='Hoog'?'p-good':r.z==='Middel'?'p-warn':'p-bad'}">${esc(r.z)}</span></td>
-            <td style="color:var(--ink-3);">${esc(r.actie)}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
+      <!-- Conclusieblok -->
+      <div style="background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 100%);border-radius:12px;padding:20px 24px;color:#fff;margin-bottom:14px;position:relative;overflow:hidden;">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);"></div>
+        <div style="font-size:7.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">Positief financieringsadvies</div>
+        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:10px;">${esc(d.object_naam||'Dit pand')} kwalificeert voor groene financiering.</div>
+        <div style="font-size:9.5pt;color:rgba(255,255,255,.88);line-height:1.65;margin-bottom:12px;">${esc(d.assurance_tekst||'Dit dossier is klaar voor de financieringsaanvraag op bewijsniveau 3. Na uitvoering van de maatregelen en registratie van het nieuwe energielabel wordt automatisch niveau 4 bereikt.')}</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          ${[
+            {l:'ESG-score',v:esc(String(d.bankscore||'—'))+' / 100',s:esc(d.bankscore_oordeel||'Geschikt voor groene financiering')},
+            {l:'Bewijsniveau',v:'Niveau '+esc(String(lvl))+' / 4',s:'Data-validatie — bronnen geverifieerd'},
+            {l:'Rentekorting',v:'−'+esc(String(d.rentekorting_bps||25))+' bps',s:'Op het green loan van '+esc(String(d.looptijd_jr||15))+' jaar'}
+          ].map(k=>`
+            <div style="background:rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;">
+              <div style="font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:3px;">${k.l}</div>
+              <div style="font-size:16px;font-weight:700;color:#fff;line-height:1;">${k.v}</div>
+              <div style="font-size:7.5px;color:rgba(255,255,255,.6);margin-top:3px;">${k.s}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
 
-      <div class="two-col" style="margin:16px 0 16px;">
-        <div class="col-card">
-          <div class="col-h" style="color:var(--green);">A · Reeds onderbouwd</div>
-          <div style="font-size:9pt;color:var(--ink-3);margin-bottom:8px;">De volgende punten zijn aantoonbaar en direct bruikbaar voor de financieringsaanvraag.</div>
-          <table class="rpt-table" style="margin:-4px 0 0;">
-            <tbody>
-              ${arr(d.evidence).filter(r=>r.actie==='Geverifieerd').slice(0,5).map(r=>`<tr>
-                <td class="nm" style="width:50%;">${esc(r.ond)}</td>
-                <td style="color:var(--ink-3);font-size:8.5pt;">${esc(r.w)}</td>
-                <td><span class="pill p-good">✓</span></td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-        <div class="col-card">
-          <div class="col-h" style="color:var(--orange);">B · Nog aan te leveren</div>
-          <div style="font-size:9pt;color:var(--ink-3);margin-bottom:8px;">Voor definitieve groene financiering zijn onderstaande stukken nog nodig.</div>
-          <table class="rpt-table" style="margin:-4px 0 0;">
-            <tbody>
-              ${arr(d.missing).map(m=>`<tr>
-                <td class="nm" style="width:55%;">${m.stuk}</td>
-                <td style="width:22%;"><span class="pill ${m.prio==='Hoog'?'p-bad':m.prio==='Middel'?'p-warn':'p-good'}">${esc(m.prio)}</span></td>
-                <td style="color:var(--ink-3);">${esc(m.actie)}</td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-        <div class="col-card" style="grid-column:1/-1;">
-          <div class="col-h">Aanbevolen vervolgstappen</div>
-          <div class="col-list">
-            ${arr(d.vervolg).map(v=>`<div>${esc(v)}</div>`).join('')}
+      <!-- B: Nog nodig + vervolgstappen naast elkaar -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
+          <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:8px;">Nog aan te leveren</div>
+          <div style="font-size:8.5px;color:var(--ink-3);margin-bottom:10px;">Voor definitieve groene financiering zijn onderstaande stukken nog nodig.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${arr(d.missing).filter(m=>!String(m.stuk||'').startsWith('INSTRUCTIE')).map(m=>`
+              <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-start;padding-bottom:7px;border-bottom:1px solid var(--blue-faint);">
+                <div>
+                  <div style="font-size:9pt;font-weight:600;color:var(--ink);margin-bottom:1px;">${esc(m.stuk||'')}</div>
+                  <div style="font-size:8px;color:var(--ink-3);">${esc(m.actie||'')}</div>
+                </div>
+                <span class="pill ${m.prio==='Hoog'?'p-bad':m.prio==='Middel'?'p-warn':'p-good'}" style="white-space:nowrap;">${esc(m.prio||'')}</span>
+              </div>
+            `).join('')}
           </div>
-          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--blue-faint);">
-            <div style="font-size:9.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px;">Assurance-pad</div>
-            <div style="display:flex;gap:5px;margin-bottom:10px;">
-              ${[1,2,3,4].map(i=>`<div style="flex:1;height:7px;border-radius:99px;background:${i<=lvl?'var(--green)':'var(--rule)'};"></div>`).join('')}
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-4);font-weight:600;letter-spacing:.5px;">
-              ${labels.map((l,i)=>`<span style="${i+1===lvl?'color:var(--green);':''}">${esc(l)}</span>`).join('')}
-            </div>
+        </div>
+
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
+          <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:8px;">Aanbevolen vervolgstappen</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${arr(d.vervolg).filter(v=>!String(v).startsWith('INSTRUCTIE')).map((v,i)=>`
+              <div style="display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:flex-start;padding-bottom:7px;border-bottom:1px solid var(--blue-faint);">
+                <div style="width:22px;height:22px;border-radius:50%;background:var(--blue-deep);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">${i+1}</div>
+                <div style="font-size:8.5pt;color:var(--ink-2);line-height:1.5;">${esc(v)}</div>
+              </div>
+            `).join('')}
           </div>
         </div>
       </div>
 
-      <div class="close-card">
-        <div class="close-eyebrow">Conclusie &amp; aanbeveling — MB Adviesgroep</div>
-        <div class="close-title">Positief financieringsadvies: dit pand kwalificeert voor groene financiering.</div>
-        <div class="close-text">${esc(d.assurance_tekst)}</div>
+      <!-- Assurance-balk -->
+      <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;margin-bottom:14px;">
+        <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:10px;">Assurance-pad — huidig niveau: ${lvl} van 4</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+          ${levels.map(lv=>`
+            <div style="padding:8px 10px;border-radius:8px;background:${lv.nr<=lvl?'var(--blue-deep)':lv.nr===lvl+1?'var(--blue-faint)':'var(--page)'};${lv.nr===lvl?'outline:2px solid var(--orange);outline-offset:1px;':''}">
+              <div style="font-size:9px;font-weight:700;color:${lv.nr<=lvl?'#fff':lv.nr===lvl+1?'var(--blue)':'var(--ink-4)'};margin-bottom:2px;">Niveau ${lv.nr}</div>
+              <div style="font-size:9px;font-weight:600;color:${lv.nr<=lvl?'rgba(255,255,255,.9)':'var(--ink-3)'};margin-bottom:1px;">${lv.l}</div>
+              <div style="font-size:7.5px;color:${lv.nr<=lvl?'rgba(255,255,255,.6)':'var(--ink-4)'};">${lv.sub}</div>
+              ${lv.nr===lvl?`<div style="font-size:7px;font-weight:700;color:var(--orange);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;">← Huidig</div>`:''}
+              ${lv.nr===lvl+1?`<div style="font-size:7px;font-weight:700;color:var(--blue);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;">→ Doel</div>`:''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Opgesteld door -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--page);border-radius:10px;border:1px solid var(--rule);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;">
+            <img src="${document.querySelector('.hdr-logo img')?.src||''}" style="width:100%;height:100%;object-fit:cover;" alt="MB">
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--ink);">MB Adviesgroep</div>
+            <div style="font-size:8px;color:var(--ink-3);">Verduurzamings- & vastgoedadvies · mbadviesgroep.nl</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:8px;color:var(--ink-3);">Opgesteld op ${esc(d.datum_rapport||'')}</div>
+          <div style="font-size:8px;color:var(--ink-3);">ESG Bridge · SFDR Art. 8 · EU Taxonomie 7.2 · ESRS-conform</div>
+        </div>
       </div>
 
     </div>
     ${pageFoot()}
   </article>`;
 }
+
 
 /* PRINT / RESET */
 function printReport(){
