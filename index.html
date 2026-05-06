@@ -1119,6 +1119,119 @@ body.report-mode .rpt-mode{display:block;}
   }
 }
 
+
+
+/* =========================================================
+   HARD OVERRIDE — alle inline gegenereerde kaartvlakken ook lichtblauw
+   Eerdere fix raakte vooral CSS-klassen. Veel pagina's (SDG, SFDR,
+   maatregelen, vervolg) bouwen kaarten met inline style="background:#fff".
+   Deze selector pakt die ook mee, zonder de cover of donkere CTA-blokken
+   te veranderen. Geen inhoudelijke wijzigingen.
+   ========================================================= */
+:root{
+  --mb-card-soft:#F1F9FD;
+  --mb-card-soft-2:#EAF6FC;
+  --mb-card-line:#C7DDE9;
+  --mb-card-line-soft:#D6E8F1;
+}
+
+.a4.content .page-body [style*="background:#fff"],
+.a4.content .page-body [style*="background: #fff"],
+.a4.content .page-body [style*="background:white"],
+.a4.content .page-body [style*="background: white"],
+.a4.content .kpi-rapport,
+.a4.content .score-side,
+.a4.content .chart-card,
+.a4.content .col-card,
+.a4.content .sdg-card,
+.a4.content .matrix,
+.a4.content .verdict,
+.a4.content .fin-strip,
+.a4.content .signoff,
+.a4.content .rpt-table-card{
+  background:linear-gradient(180deg,var(--mb-card-soft) 0%,var(--mb-card-soft-2) 100%)!important;
+  border:1px solid var(--mb-card-line)!important;
+  box-shadow:0 7px 22px rgba(19,68,96,.13),0 1px 4px rgba(19,68,96,.08)!important;
+  -webkit-print-color-adjust:exact!important;
+  print-color-adjust:exact!important;
+}
+
+/* Houd KPI-cellen, tabelrijen en matrixcellen binnen de kaart rustig licht */
+.a4.content .kpi-r-cell,
+.a4.content .fin-cell,
+.a4.content .matrix > div,
+.a4.content .rpt-table tbody td{
+  background:rgba(255,255,255,.18)!important;
+  border-color:var(--mb-card-line-soft)!important;
+}
+
+.a4.content .matrix .mh,
+.a4.content .rpt-table thead th{
+  background:#E4F1F8!important;
+  border-color:var(--mb-card-line)!important;
+}
+
+/* Specifiek voor kleine SDG-legend chips: ook lichtblauw, maar compact */
+.a4.content .page-body [style*="display:flex"][style*="background:#fff"][style*="border-radius:6px"]{
+  background:#F1F9FD!important;
+  border:1px solid var(--mb-card-line-soft)!important;
+  box-shadow:0 3px 9px rgba(19,68,96,.10)!important;
+}
+
+/* Blokken die bewust donkerblauw zijn, blijven donker */
+.a4.content .page-body [style*="linear-gradient(135deg,var(--blue-deep)"],
+.a4.content .close-card{
+  background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 100%)!important;
+  border:none!important;
+  color:#fff!important;
+}
+
+@media print{
+  .a4.content .page-body [style*="background:#fff"],
+  .a4.content .page-body [style*="background: #fff"],
+  .a4.content .page-body [style*="background:white"],
+  .a4.content .page-body [style*="background: white"],
+  .a4.content .kpi-rapport,
+  .a4.content .score-side,
+  .a4.content .chart-card,
+  .a4.content .col-card,
+  .a4.content .sdg-card,
+  .a4.content .matrix,
+  .a4.content .verdict,
+  .a4.content .fin-strip,
+  .a4.content .signoff,
+  .a4.content .rpt-table-card{
+    background:#F1F9FD!important;
+    border:0.35mm solid #C7DDE9!important;
+    box-shadow:0 1.05mm 3.0mm rgba(19,68,96,.16)!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  .a4.content .kpi-r-cell,
+  .a4.content .fin-cell,
+  .a4.content .matrix > div,
+  .a4.content .rpt-table tbody td{
+    background:#F7FCFE!important;
+    border-color:#D6E8F1!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  .a4.content .matrix .mh,
+  .a4.content .rpt-table thead th{
+    background:#E4F1F8!important;
+    border-color:#C7DDE9!important;
+  }
+
+  .a4.content .page-body [style*="linear-gradient(135deg,var(--blue-deep)"],
+  .a4.content .close-card{
+    background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 100%)!important;
+    border:none!important;
+    color:#fff!important;
+  }
+}
+
 </style>
 </head>
 <body>
