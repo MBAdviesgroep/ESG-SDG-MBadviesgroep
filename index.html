@@ -281,9 +281,10 @@ body.report-mode .rpt-mode{display:block;}
 .cover-bg img{width:100%;height:100%;object-fit:cover;display:block;}
 .cover-bg::after{
   content:'';position:absolute;inset:0;
-  /* Lichtere cover: foto blijft duidelijk zichtbaar, met genoeg contrast onderaan voor tekst */
+  /* Lichte cover, maar met extra lokaal contrast onderaan waar de titel staat */
   background:
-    linear-gradient(180deg,rgba(13,34,51,.20) 0%,rgba(13,34,51,.34) 55%,rgba(13,34,51,.56) 100%);
+    linear-gradient(180deg,rgba(13,34,51,.18) 0%,rgba(13,34,51,.28) 52%,rgba(13,34,51,.48) 100%),
+    radial-gradient(ellipse at 28% 82%,rgba(8,24,36,.46) 0%,rgba(8,24,36,.30) 35%,transparent 72%);
 }
 .a4.cover.no-photo .cover-bg{
   background:
@@ -332,19 +333,22 @@ body.report-mode .rpt-mode{display:block;}
 
 .cover-mid{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:18px;}
 .cover-eyebrow{
-  font-size:10.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;
-  color:var(--orange);margin-bottom:18px;
+  font-size:11px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;
+  color:#ff7842;margin-bottom:18px;
   display:flex;align-items:center;gap:14px;
+  text-shadow:0 2px 6px rgba(0,0,0,.65),0 0 2px rgba(0,0,0,.55);
 }
-.cover-eyebrow::after{content:'';flex:0 0 60px;height:1px;background:var(--orange);}
+.cover-eyebrow::after{content:'';flex:0 0 68px;height:2px;background:#ff7842;box-shadow:0 2px 6px rgba(0,0,0,.5);}
 .cover-eyebrow{letter-spacing:1.6px!important;}
 .cover-title{
-  font-family:var(--f-serif);font-size:46px;font-weight:600;
-  line-height:1.06;letter-spacing:-1px;color:#fff;margin-bottom:14px;text-shadow:0 2px 8px rgba(0,0,0,.38);
+  font-family:var(--f-serif);font-size:46px;font-weight:650;
+  line-height:1.06;letter-spacing:-1px;color:#fff;margin-bottom:14px;
+  text-shadow:0 3px 10px rgba(0,0,0,.50),0 1px 2px rgba(0,0,0,.45);
   max-width:600px;
 }
 .cover-sub{
-  font-size:13.5px;color:rgba(255,255,255,.90);max-width:560px;text-shadow:0 1px 5px rgba(0,0,0,.35);
+  font-size:13.5px;color:rgba(255,255,255,.95);max-width:560px;
+  text-shadow:0 2px 7px rgba(0,0,0,.55),0 1px 2px rgba(0,0,0,.42);
   line-height:1.55;margin-bottom:22px;
 }
 .cover-sub b{color:#fff;font-weight:600;}
@@ -358,9 +362,10 @@ body.report-mode .rpt-mode{display:block;}
 .cover-badge.dark{background:rgba(226,104,54,.22);border-color:rgba(226,104,54,.4);color:#fff;}
 
 .cover-foot{
-  border-top:1px solid rgba(255,255,255,.18);padding-top:18px;
+  border-top:1px solid rgba(255,255,255,.25);padding-top:18px;
   display:flex;align-items:center;justify-content:space-between;
-  font-size:10.5px;color:rgba(255,255,255,.55);letter-spacing:.4px;
+  font-size:10.5px;color:rgba(255,255,255,.76);letter-spacing:.4px;
+  text-shadow:0 2px 6px rgba(0,0,0,.45);
 }
 .cover-foot b{color:#fff;font-weight:600;}
 
