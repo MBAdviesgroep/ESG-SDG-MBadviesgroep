@@ -611,7 +611,7 @@ body.report-mode .rpt-mode{display:block;}
 /* FIT FIX: voorkom afsnijden op A4 voor pagina 2 en 4 */
 .a4.content{height:1123px;min-height:1123px;max-height:1123px;}
 .page-summary .page-body,
-.page-risk .page-body{padding:22px 36px 76px;}
+.page-risk .page-body{padding:24px 40px 76px;}
 .page-summary .page-title-sub,
 .page-risk .page-title-sub{margin-bottom:12px;line-height:1.45;font-size:12px;}
 .page-summary .page-thin-rule,
@@ -633,7 +633,7 @@ body.report-mode .rpt-mode{display:block;}
 .page-summary .chart-card{padding:12px 14px 10px;margin-bottom:8px;}
 .page-summary .chart-card-h{font-size:9px;margin-bottom:2px;}
 .page-summary .chart-card-t{font-size:12px;margin-bottom:6px;}
-.page-summary .chart-card svg{max-height:195px;}
+.page-summary .chart-card svg{max-height:220px;}
 .page-summary .verdict{padding:14px 16px;margin-bottom:0;}
 .page-summary .verdict-eyebrow{font-size:8.5px;margin-bottom:5px;}
 .page-summary .verdict-title{font-size:14px;margin-bottom:5px;}
@@ -641,24 +641,24 @@ body.report-mode .rpt-mode{display:block;}
 .page-summary .mgt-bullets{gap:4px;margin-top:6px;}
 .page-summary .mgt-bullets div{font-size:9.5px;line-height:1.3;}
 
-.page-risk .matrix{font-size:10.2px;margin-bottom:10px!important;}
-.page-risk .matrix>div{padding:7px 9px;line-height:1.28;}
+.page-risk .matrix{font-size:11px;margin-bottom:12px!important;}
+.page-risk .matrix>div{padding:8px 10px;line-height:1.3;}
 .page-risk .matrix .mh{font-size:8px;}
 .page-risk .chart-grid-2{gap:10px;margin-bottom:9px;}
-.page-risk .chart-card{padding:12px 14px 10px;margin-bottom:8px;}
+.page-risk .chart-card{padding:15px 16px 12px;margin-bottom:10px;}
 .page-risk .chart-card-h{font-size:9px;margin-bottom:2px;}
-.page-risk .chart-card-t{font-size:11.5px;margin-bottom:5px;}
-.page-risk .chart-card svg{max-height:138px;width:100%;}
+.page-risk .chart-card-t{font-size:12.2px;margin-bottom:6px;}
+.page-risk .chart-card svg{max-height:175px;width:100%;}
 .page-risk .two-col{gap:10px;}
-.page-risk .col-card{padding:12px 14px;}
+.page-risk .col-card{padding:14px 16px;}
 .page-risk .col-h{font-size:9px;margin-bottom:6px;padding-bottom:5px;}
 .page-risk .col-list{gap:5px;}
-.page-risk .col-list div{font-size:9.6px;line-height:1.3;}
+.page-risk .col-list div{font-size:10.2px;line-height:1.32;}
 .page-risk .col-list div::before{margin-top:5px;}
-.page-risk .verdict{padding:12px 14px!important;margin-top:9px!important;margin-bottom:0!important;}
+.page-risk .verdict{padding:14px 16px!important;margin-top:11px!important;margin-bottom:0!important;}
 .page-risk .verdict-eyebrow{font-size:9px;margin-bottom:4px;}
 .page-risk .verdict-title{font-size:12.5px!important;margin-bottom:4px!important;}
-.page-risk .verdict-text{font-size:9.6px!important;line-height:1.3!important;margin-bottom:5px!important;}
+.page-risk .verdict-text{font-size:10.3px!important;line-height:1.32!important;margin-bottom:5px!important;}
 .page-risk .mgt-bullets{gap:3px;margin-top:4px;}
 .page-risk .mgt-bullets div{font-size:8.9px;line-height:1.25;}
 
@@ -788,59 +788,67 @@ body.report-mode .rpt-mode{display:block;}
 }
 
 
-/* PRINT FIT FIX: extra compacte A4-export voor pagina 2 en 4 */
+/* PRINT FIT FIX: ruimere A4-export voor pagina 2 en 4
+   Doel: witruimte onderaan benutten, vooral tabellen en grafieken vergroten,
+   maar footer veilig vrijhouden. */
 @media print{
   .page-summary .page-body,
-  .page-risk .page-body{padding:16px 34px 58px!important;}
+  .page-risk .page-body{padding:18px 38px 58px!important;}
   .page-summary .page-title-sub,
-  .page-risk .page-title-sub{margin-bottom:9px!important;line-height:1.35!important;font-size:9.8px!important;}
+  .page-risk .page-title-sub{margin-bottom:11px!important;line-height:1.42!important;font-size:10.8px!important;}
   .page-summary .page-thin-rule,
-  .page-risk .page-thin-rule{margin:4px 0 8px!important;}
-  .page-summary .kpi-rapport{margin-bottom:7px!important;}
-  .page-summary .kpi-r-cell{padding:9px 12px!important;}
-  .page-summary .kpi-r-val{font-size:16.5px!important;}
-  .page-summary .kpi-r-sub{font-size:8.8px!important;}
-  .page-summary .score-row{gap:8px!important;margin-bottom:7px!important;}
-  .page-summary .score-card{padding:10px 13px!important;}
-  .page-summary .sc-num{font-size:34px!important;}
-  .page-summary .sc-bar{margin:6px 0 5px!important;}
-  .page-summary .sc-text{font-size:8.5px!important;line-height:1.28!important;}
-  .page-summary .score-side{padding:7px 9px!important;gap:1px!important;}
-  .page-summary .ss-row{padding:2px 0!important;}
-  .page-summary .ss-l{font-size:8.4px!important;}
-  .page-summary .ss-v{font-size:9.2px!important;}
-  .page-summary .chart-grid-2{gap:8px!important;margin-bottom:7px!important;}
-  .page-summary .chart-card{padding:9px 11px 8px!important;margin-bottom:6px!important;}
-  .page-summary .chart-card-h{font-size:7.7px!important;margin-bottom:1px!important;}
-  .page-summary .chart-card-t{font-size:9.2px!important;margin-bottom:3px!important;}
-  .page-summary .chart-card svg{max-height:150px!important;}
-  .page-summary .verdict{padding:10px 12px!important;margin-bottom:0!important;}
-  .page-summary .verdict-eyebrow{font-size:7px!important;margin-bottom:3px!important;}
-  .page-summary .verdict-title{font-size:11.4px!important;margin-bottom:3px!important;}
-  .page-summary .verdict-text{font-size:8.7px!important;line-height:1.26!important;}
-  .page-summary .mgt-bullets{gap:2px!important;margin-top:4px!important;}
-  .page-summary .mgt-bullets div{font-size:7.8px!important;line-height:1.18!important;}
+  .page-risk .page-thin-rule{margin:5px 0 10px!important;}
 
-  .page-risk .matrix{font-size:8.4px!important;margin-bottom:7px!important;}
-  .page-risk .matrix>div{padding:5px 7px!important;line-height:1.18!important;}
-  .page-risk .matrix .mh{font-size:7.1px!important;}
-  .page-risk .chart-grid-2{gap:8px!important;margin-bottom:6px!important;}
-  .page-risk .chart-card{padding:9px 11px 8px!important;margin-bottom:6px!important;}
-  .page-risk .chart-card-h{font-size:7.7px!important;margin-bottom:1px!important;}
-  .page-risk .chart-card-t{font-size:9px!important;margin-bottom:3px!important;}
-  .page-risk .chart-card svg{max-height:112px!important;width:100%!important;}
-  .page-risk .two-col{gap:8px!important;}
-  .page-risk .col-card{padding:9px 11px!important;}
-  .page-risk .col-h{font-size:7.7px!important;margin-bottom:4px!important;padding-bottom:4px!important;}
-  .page-risk .col-list{gap:3px!important;}
-  .page-risk .col-list div{font-size:8px!important;line-height:1.17!important;}
-  .page-risk .col-list div::before{margin-top:4px!important;}
-  .page-risk .verdict{padding:9px 11px!important;margin-top:7px!important;margin-bottom:0!important;}
-  .page-risk .verdict-eyebrow{font-size:7.7px!important;margin-bottom:3px!important;}
-  .page-risk .verdict-title{font-size:10.5px!important;margin-bottom:3px!important;}
-  .page-risk .verdict-text{font-size:7.9px!important;line-height:1.18!important;margin-bottom:3px!important;}
-  .page-risk .mgt-bullets{gap:2px!important;margin-top:3px!important;}
-  .page-risk .mgt-bullets div{font-size:7.5px!important;line-height:1.12!important;}
+  /* Pagina 2: score, tabel en grafieken groter */
+  .page-summary .kpi-rapport{margin-bottom:9px!important;}
+  .page-summary .kpi-r-cell{padding:12px 15px!important;}
+  .page-summary .kpi-r-lbl{font-size:8.2px!important;}
+  .page-summary .kpi-r-val{font-size:19.5px!important;}
+  .page-summary .kpi-r-sub{font-size:9.6px!important;}
+  .page-summary .score-row{grid-template-columns:1.28fr 1fr!important;gap:10px!important;margin-bottom:9px!important;}
+  .page-summary .score-card{padding:13px 16px!important;}
+  .page-summary .sc-eyebrow{font-size:8.2px!important;margin-bottom:6px!important;}
+  .page-summary .sc-num{font-size:39px!important;}
+  .page-summary .sc-bar{height:5px!important;margin:8px 0 6px!important;}
+  .page-summary .sc-verdict{font-size:11px!important;}
+  .page-summary .sc-text{font-size:9.4px!important;line-height:1.32!important;}
+  .page-summary .score-side{padding:9px 11px!important;gap:2px!important;}
+  .page-summary .ss-row{padding:3px 0!important;}
+  .page-summary .ss-l{font-size:9.2px!important;}
+  .page-summary .ss-v{font-size:10.4px!important;}
+  .page-summary .chart-grid-2{gap:10px!important;margin-bottom:9px!important;}
+  .page-summary .chart-card{padding:12px 14px 10px!important;margin-bottom:8px!important;}
+  .page-summary .chart-card-h{font-size:8.3px!important;margin-bottom:2px!important;}
+  .page-summary .chart-card-t{font-size:10.4px!important;margin-bottom:5px!important;}
+  .page-summary .chart-card svg{max-height:185px!important;}
+  .page-summary .verdict{padding:12px 14px!important;margin-bottom:0!important;}
+  .page-summary .verdict-eyebrow{font-size:8px!important;margin-bottom:4px!important;}
+  .page-summary .verdict-title{font-size:12.6px!important;margin-bottom:4px!important;}
+  .page-summary .verdict-text{font-size:9.5px!important;line-height:1.32!important;}
+  .page-summary .mgt-bullets{gap:3px!important;margin-top:5px!important;}
+  .page-summary .mgt-bullets div{font-size:8.7px!important;line-height:1.22!important;}
+
+  /* Pagina 4: risicomatrix, grafieken en actieblokken groter */
+  .page-risk .matrix{font-size:9.4px!important;margin-bottom:9px!important;}
+  .page-risk .matrix>div{padding:6.5px 9px!important;line-height:1.24!important;}
+  .page-risk .matrix .mh{font-size:7.8px!important;}
+  .page-risk .chart-grid-2{gap:10px!important;margin-bottom:8px!important;}
+  .page-risk .chart-card{padding:12px 14px 10px!important;margin-bottom:8px!important;}
+  .page-risk .chart-card-h{font-size:8.2px!important;margin-bottom:2px!important;}
+  .page-risk .chart-card-t{font-size:10.2px!important;margin-bottom:5px!important;}
+  .page-risk .chart-card svg{max-height:145px!important;width:100%!important;}
+  .page-risk .two-col{gap:10px!important;}
+  .page-risk .col-card{padding:12px 14px!important;}
+  .page-risk .col-h{font-size:8.3px!important;margin-bottom:5px!important;padding-bottom:5px!important;}
+  .page-risk .col-list{gap:4px!important;}
+  .page-risk .col-list div{font-size:8.9px!important;line-height:1.22!important;}
+  .page-risk .col-list div::before{margin-top:5px!important;}
+  .page-risk .verdict{padding:14px 16px!important;margin-top:11px!important;margin-bottom:0!important;}
+  .page-risk .verdict-eyebrow{font-size:8.3px!important;margin-bottom:4px!important;}
+  .page-risk .verdict-title{font-size:11.8px!important;margin-bottom:4px!important;}
+  .page-risk .verdict-text{font-size:8.7px!important;line-height:1.24!important;margin-bottom:4px!important;}
+  .page-risk .mgt-bullets{gap:2px!important;margin-top:4px!important;}
+  .page-risk .mgt-bullets div{font-size:8.2px!important;line-height:1.16!important;}
 }
 
 </style>
