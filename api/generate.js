@@ -96,10 +96,16 @@ ${sdgLijst}
 RISICOS, VOORWAARDEN & MONITORING — VERPLICHT SPECIFIEK
 ════════════════════════════════════════
 Genereer risicos, voorwaarden, monitoring en vervolgstappen die SPECIFIEK zijn voor dit pand.
-Gebruik concrete details uit het rapport: bouwjaar, locatie, pandtype, maatregelen, monumentenstatus.
-Een risico als "vertraging in uitvoering" is te generiek — schrijf bijv:
+Gebruik ALLEEN details die expliciet in het rapport staan. Speculeer NIET op basis van bouwjaar.
+NOEM HET PAND NOOIT EEN MONUMENT tenzij het rapport dat letterlijk vermeldt.
+NOEM GEEN monumentenvergunning tenzij dit expliciet in het rapport staat.
+Een oud bouwjaar (1742) betekent oud pand, NIET automatisch rijksmonument of gemeentelijk monument.
+
+Baseer risicos op: locatie, pandtype, functie (recreatieappartementen, bedrijfswoning), maatregelen uit het rapport.
+Goede voorbeelden van pand-specifieke risicos:
 "Hybride warmtepomp vereist gasnetaansluiting behouden naast warmtepomp — netbeheerder tijdig informeren."
-Of: "Monument uit 1742 — isolatiemaatregelen vereisen goedkeuring van gemeente/monumentencommissie."
+"Rieten dak vereist gespecialiseerde rietdekker voor dakisolatie — levertijden kunnen oplopen."
+"Recreatieappartementen: uitvoering plannen buiten verhuurseizoen om omzetderving te vermijden."
 
 ════════════════════════════════════════
 MAATREGELEN — VERPLICHT
@@ -250,7 +256,7 @@ Retourneer UITSLUITEND valide JSON — geen markdown, geen uitleg buiten de JSON
 
   "risicos": [
     {
-      "INSTRUCTIE": "Genereer 4-6 risicos die SPECIFIEK zijn voor dit pand, deze locatie en deze maatregelen. Denk aan: bouwkundige risicos gezien bouwjaar, monumentenstatus, locatierisicos (overstromingsgebied, kust, stedelijk), uitvoeringsrisicos per maatregel, regelgevingsrisicos (energielabelplicht, subsidiewijzigingen), financiele risicos (terugverdientijd, subsidierisico). NIET generiek.",
+      "INSTRUCTIE": "Genereer 4-6 risicos die SPECIFIEK zijn voor dit pand en deze maatregelen. Gebruik ALLEEN wat in het rapport staat. Nooit monument noemen tenzij expliciet vermeld. Focus op: uitvoeringsrisicos per maatregel (rieten dak, warmtepomp, zonnepanelen), planningsrisicos (verhuurseizoen recreatieappartementen), locatierisicos uit rapport, subsidie- en regelgevingsrisicos. NIET generiek.",
       "risk": "Specifiek risico voor dit pand/deze maatregelen — bijv. 'Rieten dak vereist gespecialiseerde aannemer, krapte op markt'",
       "ernst": "Hoog | Middel | Laag",
       "horizon": "Kort | Lang",
