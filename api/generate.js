@@ -55,32 +55,34 @@ SDG KOPPELINGSREGEL (VERPLICHT)
 ════════════════════════════════════════
 Hieronder staan ALLE 17 officiële VN Sustainable Development Goals.
 Gebruik UITSLUITEND de nummers en namen uit deze lijst.
-VERPLICHTE WERKWIJZE PER MAATREGEL — SDG-BEOORDELING:
-Ga voor ELKE maatregel uit het rapport alle 17 SDGs één voor één langs.
-Beoordeel per SDG expliciet: draagt deze maatregel bij aan dit doel? Ja of nee, en waarom?
-Neem alleen de SDGs op in sdg_koppelingen waarbij het antwoord JA is.
 
-Gebruik deze redenering per SDG:
-SDG 1  — Armoede: verlaagt de maatregel de energielasten voor bewoners/gebruikers?
-SDG 2  — Honger: raakt de maatregel voedsel- of landbouwprocessen? (zelden ja bij gebouwen)
-SDG 3  — Gezondheid: verbetert de maatregel luchtkwaliteit, binnenklimaat, vochtniveau of geluid?
-SDG 4  — Onderwijs: draagt de maatregel bij aan kennisdeling of duurzaam gebouwgebruik?
-SDG 5  — Gendergelijkheid: zorgt de maatregel voor gelijke toegang tot energie of comfort?
-SDG 6  — Water: vermindert de maatregel waterverbruik of waterverontreiniging?
-SDG 7  — Energie: verlaagt de maatregel het energieverbruik of verhoogt het hernieuwbare opwek?
-SDG 8  — Werk: creëert de uitvoering van de maatregel lokale werkgelegenheid?
-SDG 9  — Innovatie: introduceert de maatregel nieuwe of schone technologie in het gebouw?
-SDG 10 — Ongelijkheid: maakt de maatregel energie of woonkwaliteit toegankelijker?
-SDG 11 — Steden: verbetert de maatregel leefbaarheid, luchtkwaliteit of woningkwaliteit in de omgeving?
-SDG 12 — Consumptie: vermindert de maatregel verspilling van energie of materialen?
-SDG 13 — Klimaat: levert de maatregel een meetbare CO₂-reductie op?
-SDG 14 — Water (zee): vermindert de maatregel lozingen of impact op waterlichamen?
-SDG 15 — Land: heeft de maatregel geen negatieve impact op natuur of biodiversiteit?
-SDG 16 — Vrede/instituties: voldoet de uitvoering aan transparante en eerlijke werkwijzen?
-SDG 17 — Partnerschap: bevordert de maatregel samenwerking tussen eigenaar, adviseur en financier?
+VERPLICHTE SDG-ANALYSE — BEOORDELINGSMATRIX PER MAATREGEL:
+Doorloop voor ELKE maatregel ALLE 17 SDGs met JA of NEE.
+Voeg alleen SDGs met JA toe aan sdg_koppelingen.
+Verwacht minimum: 3 SDGs per maatregel. Sla nooit SDG 8, 15, 16 over zonder expliciete afweging.
 
-Leg per geselecteerde SDG concreet uit met cijfers uit het rapport (CO₂-ton, kWh, €, m³, %).
-Neem alleen SDGs op waar de bijdrage écht aantoonbaar is — niet elk SDG past bij elke maatregel.
+SDG 1  JA als maatregel energiekosten verlaagt voor bewoners/gebruikers (lagere woonlasten)
+SDG 2  NEE — gebouwrenovaties raken geen voedselproductie
+SDG 3  JA als maatregel binnenklimaat, luchtkwaliteit, vochtniveau of thermisch comfort verbetert
+SDG 4  JA als maatregel bewustwording of kennisoverdracht over duurzaamheid bevordert
+SDG 5  NEE — tenzij maatregel expliciet gelijke toegang voor vrouwen vergroot
+SDG 6  JA als maatregel waterverbruik vermindert of waterkwaliteit beschermt
+SDG 7  JA VERPLICHT bij isolatie, beglazing, installatie of opwek — altijd van toepassing
+SDG 8  JA VERPLICHT — elke maatregel creëert lokale werkgelegenheid bij uitvoering (aannemers, installateurs)
+SDG 9  JA als maatregel innovatieve of schone technologie introduceert (warmtepomp, PV, smart controls)
+SDG 10 JA als maatregel energie of woonkwaliteit toegankelijker maakt voor alle inkomensgroepen
+SDG 11 JA als maatregel leefbaarheid of kwaliteit bebouwde omgeving verbetert
+SDG 12 JA als maatregel energieverspilling of materialenverspilling vermindert
+SDG 13 JA VERPLICHT bij elke maatregel met CO₂-reductie — altijd van toepassing bij renovatie
+SDG 14 NEE — gebouwrenovaties raken geen waterlichamen, tenzij locatie aan kust
+SDG 15 JA VERPLICHT als locatie buiten Natura 2000 en geen impact op natuur — altijd controleren
+SDG 16 JA VERPLICHT als uitvoering transparant en conform OECD/ILO — bij professionele uitvoering altijd JA
+SDG 17 JA als maatregel samenwerking bevordert tussen eigenaar, adviseur, financier en overheid
+
+UITLEG-VEREISTE: gebruik altijd specifieke cijfers in de uitleg.
+Schrijf NOOIT alleen "verlaagt energieverbruik" — schrijf "verlaagt energieverbruik met X kWh/jr door [reden]".
+Schrijf NOOIT alleen "creëert werkgelegenheid" — schrijf "uitvoering door lokale installateur/aannemer, investering € X".
+Minimale uitleglengte: 1 volzin met cijfer of concrete handeling.
 
 ${sdgLijst}
 
