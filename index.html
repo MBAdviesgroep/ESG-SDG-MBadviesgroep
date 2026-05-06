@@ -967,8 +967,22 @@ async function startGenerate(){
   const steps=['ls1','ls2','ls3','ls4','ls5','ls6'];
   let si=0;
   const iv=setInterval(()=>{
-    if(si>0){const p=document.getElementById(steps[si-1]);if(p){p.classList.remove('active');p.classList.add('done');}}
-    if(si<steps.length){const c=document.getElementById(steps[si]);if(c)c.classList.add('active');si++;}
+    if(si>0&&si<steps.length){
+      const p=document.getElementById(steps[si-1]);
+      if(p){p.classList.remove('active');p.classList.add('done');}
+    }
+    if(si<steps.length-1){
+      // Stap door t/m de een-na-laatste stap
+      const c=document.getElementById(steps[si]);
+      if(c)c.classList.add('active');
+      si++;
+    } else if(si===steps.length-1){
+      // Laatste stap (A4-rapport opmaken) — activeer en stop daar
+      const c=document.getElementById(steps[si]);
+      if(c)c.classList.add('active');
+      si++;
+      clearInterval(iv); // blijf hangen op laatste stap
+    }
   },600);
 
   try{
@@ -1680,44 +1694,56 @@ function pageRisico(d){
 /* ─── PAGINA 4 — SDG / ESRS / CSRD READINESS ─── */
 function pageSdgEsrs(d){
 
-  // ── Volledige SDG-database (alle 17 VN-doelen) ──
   const SDG_DB={
     '1': {kleur:'#E5243B',label:'Geen armoede'},
     '2': {kleur:'#DDA63A',label:'Geen honger'},
-    '3': {kleur:'#4C9F38',label:'Goede gezondheid en welzijn'},
+    '3': {kleur:'#4C9F38',label:'Goede gezondheid'},
     '4': {kleur:'#C5192D',label:'Kwaliteitsonderwijs'},
     '5': {kleur:'#FF3A21',label:'Gendergelijkheid'},
-    '6': {kleur:'#26BDE2',label:'Schoon water en sanitair'},
-    '7': {kleur:'#FCC30B',label:'Betaalbare en duurzame energie'},
-    '8': {kleur:'#A21942',label:'Waardig werk en economische groei'},
-    '9': {kleur:'#FD6925',label:'Industrie, innovatie & infrastructuur'},
+    '6': {kleur:'#26BDE2',label:'Schoon water'},
+    '7': {kleur:'#FCC30B',label:'Duurzame energie'},
+    '8': {kleur:'#A21942',label:'Waardig werk'},
+    '9': {kleur:'#FD6925',label:'Innovatie'},
     '10':{kleur:'#DD1367',label:'Minder ongelijkheid'},
-    '11':{kleur:'#FD9D24',label:'Duurzame steden en gemeenschappen'},
-    '12':{kleur:'#BF8B2E',label:'Verantwoorde consumptie en productie'},
+    '11':{kleur:'#FD9D24',label:'Duurzame steden'},
+    '12':{kleur:'#BF8B2E',label:'Verantwoorde consumptie'},
     '13':{kleur:'#3F7E44',label:'Klimaatactie'},
-    '14':{kleur:'#0A97D9',label:'Leven in het water'},
-    '15':{kleur:'#56C02B',label:'Leven op het land'},
-    '16':{kleur:'#00689D',label:'Vrede, rechtvaardigheid & instituties'},
-    '17':{kleur:'#19486A',label:'Partnerschap voor de doelen'}
-  };
-
-  const sdgBadge=(nr,uitleg)=>{
-    const s=SDG_DB[String(nr)]||{kleur:'#888',label:'SDG '+nr};
-    return `<div style="display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--blue-faint);">
-      <div style="width:32px;height:32px;border-radius:7px;background:${s.kleur};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:6px;font-weight:700;flex-shrink:0;line-height:1.1;text-align:center;">
-        SDG<span style="font-size:12px;font-weight:800;line-height:1.1;display:block;">${nr}</span>
-      </div>
-      <div>
-        <div style="font-size:9.5px;font-weight:700;color:var(--ink);margin-bottom:1px;">${esc(s.label)}</div>
-        <div style="font-size:8.5px;color:var(--ink-3);line-height:1.45;">${esc(uitleg||'')}</div>
-      </div>
-    </div>`;
+    '14':{kleur:'#0A97D9',label:'Leven in water'},
+    '15':{kleur:'#56C02B',label:'Leven op land'},
+    '16':{kleur:'#00689D',label:'Vrede & instituties'},
+    '17':{kleur:'#19486A',label:'Partnerschap'}
   };
 
   const maatregelen=arr(d.maatregelen).filter(m=>m.sdg_koppelingen&&arr(m.sdg_koppelingen).length>0);
-
-  // Unieke SDGs over alle maatregelen — voor de samenvatting bovenaan
   const allSdgs=[...new Map(maatregelen.flatMap(m=>arr(m.sdg_koppelingen)).map(k=>[String(k.sdg_nr),k])).values()];
+
+  const mBlock=(m)=>{
+    const s=SDG_DB;
+    return `<div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:10px 12px;display:flex;flex-direction:column;gap:0;break-inside:avoid;">
+      <div style="margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid var(--blue-faint);">
+        <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:1px;">${esc(m.nr||'')}</div>
+        <div style="font-size:10px;font-weight:700;color:var(--blue-deep);line-height:1.3;">${esc(m.naam||'')}</div>
+        <div style="display:flex;gap:8px;margin-top:3px;">
+          ${m.co2?`<span style="font-size:7.5px;color:var(--green);font-weight:600;">↓ ${m.co2} t CO₂/jr</span>`:''}
+          ${m.bes?`<span style="font-size:7.5px;color:var(--ink-3);">€ ${(m.bes||0).toLocaleString('nl-NL')}/jr</span>`:''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        ${arr(m.sdg_koppelingen).map(k=>{
+          const sg=s[String(k.sdg_nr)]||{kleur:'#888',label:'SDG '+k.sdg_nr};
+          return `<div style="display:grid;grid-template-columns:22px 1fr;gap:6px;align-items:flex-start;">
+            <div style="width:22px;height:22px;border-radius:5px;background:${sg.kleur};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:5px;font-weight:700;flex-shrink:0;line-height:1;text-align:center;">
+              SDG<span style="font-size:9px;font-weight:800;display:block;line-height:1.1;">${k.sdg_nr}</span>
+            </div>
+            <div>
+              <div style="font-size:8px;font-weight:700;color:var(--ink);line-height:1.2;">${esc(sg.label)}</div>
+              <div style="font-size:7.5px;color:var(--ink-3);line-height:1.35;">${esc(k.uitleg||'')}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  };
 
   return `
   <article class="a4 content">
@@ -1726,40 +1752,28 @@ function pageSdgEsrs(d){
     <div class="page-body">
       <div class="page-eyebrow">SDG · Duurzaamheidsdoelen</div>
       <div class="page-title">Welke maatregel draagt bij aan welk doel?</div>
-      <div class="page-title-sub">De AI heeft de maatregelen uit het ingediende verduurzamingsrapport gekoppeld aan de VN-duurzaamheidsdoelen (SDGs). De uitleg gebruikt de cijfers uit uw rapport.</div>
+      <div class="page-title-sub">Per maatregel zijn de bijbehorende VN-duurzaamheidsdoelen (SDGs) bepaald op basis van het ingediende verduurzamingsrapport, met de cijfers uit uw rapport.</div>
       <div class="page-thin-rule"></div>
 
       ${maatregelen.length>0 ? `
 
-      <!-- SDG samenvatting — welke SDGs worden geraakt -->
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
-        ${allSdgs.map(k=>{const s=SDG_DB[String(k.sdg_nr)]||{kleur:'#888',label:'SDG '+k.sdg_nr};return `<div style="display:flex;align-items:center;gap:5px;background:#fff;border-radius:8px;padding:4px 10px 4px 5px;box-shadow:0 1px 4px rgba(0,0,0,.07);">
-          <div style="width:20px;height:20px;border-radius:4px;background:${s.kleur};color:#fff;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;">${k.sdg_nr}</div>
-          <span style="font-size:8.5px;font-weight:600;color:var(--ink);">${s.label}</span>
+      <!-- Gerakte SDGs samenvatting -->
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        ${allSdgs.map(k=>{const sg=SDG_DB[String(k.sdg_nr)]||{kleur:'#888',label:'SDG '+k.sdg_nr};return `<div style="display:flex;align-items:center;gap:4px;background:#fff;border-radius:6px;padding:3px 8px 3px 4px;box-shadow:0 1px 3px rgba(0,0,0,.06);">
+          <div style="width:16px;height:16px;border-radius:3px;background:${sg.kleur};color:#fff;font-size:7px;font-weight:800;display:flex;align-items:center;justify-content:center;">${k.sdg_nr}</div>
+          <span style="font-size:7.5px;font-weight:600;color:var(--ink);">${sg.label}</span>
         </div>`;}).join('')}
       </div>
 
-      <!-- Per maatregel: alle SDG-koppelingen -->
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        ${maatregelen.map(m=>`
-          <div style="background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);padding:12px 16px;display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:flex-start;">
-            <div style="padding-top:4px;">
-              <div style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:3px;">${esc(m.nr||'')}</div>
-              <div style="font-size:10.5px;font-weight:700;color:var(--blue-deep);line-height:1.35;margin-bottom:5px;">${esc(m.naam||'')}</div>
-              ${m.co2?`<div style="font-size:8px;color:var(--green);font-weight:600;margin-bottom:2px;">↓ ${m.co2} t CO₂/jr</div>`:''}
-              ${m.bes?`<div style="font-size:8px;color:var(--ink-3);">€ ${(m.bes||0).toLocaleString('nl-NL')} besparing/jr</div>`:''}
-            </div>
-            <div style="display:flex;flex-direction:column;">
-              ${arr(m.sdg_koppelingen).map(k=>sdgBadge(k.sdg_nr,k.uitleg)).join('')}
-            </div>
-          </div>
-        `).join('')}
+      <!-- 2-koloms grid van maatregelblokken -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${maatregelen.map(m=>mBlock(m)).join('')}
       </div>
 
       ` : `
       <div style="background:var(--amber-bg);border-radius:10px;padding:16px 18px;font-size:10pt;color:var(--amber);line-height:1.6;">
         <b>Nog geen rapport geanalyseerd.</b><br>
-        Upload een verduurzamingsrapport en klik op "Genereer ESG-dossier". De AI koppelt dan automatisch elke maatregel aan de juiste VN-duurzaamheidsdoelen, op basis van de cijfers in uw rapport.
+        Upload een verduurzamingsrapport en klik op "Genereer ESG-dossier". De AI koppelt dan automatisch elke maatregel aan de juiste VN-duurzaamheidsdoelen.
       </div>
       `}
 
