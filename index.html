@@ -1609,7 +1609,7 @@ function pageBanksamenvatting(d){
     <div class="page-body">
       <div class="page-eyebrow">ESG-Samenvatting &amp; Leeswijzer</div>
       <div class="page-title">ESG-beoordeling — in één oogopslag</div>
-      <div class="page-title-sub">Het object kwalificeert als groen-financieringsdossier op basis van het verduurzamingsrapport en de gehanteerde EU-kaders.</div>
+      <div class="page-title-sub">ESG-score, bewijsniveau en energielabeltraject voor ${esc(d.object_naam||"dit pand")}.</div>
       <div class="page-thin-rule"></div>
 
       <div class="kpi-rapport">
@@ -1661,12 +1661,15 @@ function pageBanksamenvatting(d){
         </div>
       </div>
 
-      <div class="verdict">
-        <div class="verdict-eyebrow">Managementsamenvatting</div>
-        <div class="verdict-title">In gewone taal: ${esc(d.bankscore_oordeel)}</div>
-        <div class="verdict-text">${esc(d.samenvatting)}</div>
-        <div class="mgt-bullets">
-          ${arr(d.samenvatting_punten).map(p=>`<div>${esc(p)}</div>`).join('')}
+      <!-- Samenvatting compact -->
+      <div style="background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 100%);border-radius:12px;padding:14px 18px;color:#fff;position:relative;overflow:hidden;">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);"></div>
+        <div style="font-size:7.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:4px;">In gewone taal</div>
+        <div style="font-size:9.5pt;color:rgba(255,255,255,.92);line-height:1.6;margin-bottom:10px;">${esc(d.samenvatting)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          ${arr(d.samenvatting_punten).filter(p=>!p.startsWith('INSTRUCTIE')).map(p=>`
+            <div style="background:rgba(255,255,255,.08);border-radius:6px;padding:6px 10px;font-size:8pt;color:rgba(255,255,255,.85);line-height:1.4;">&#x2022; ${esc(p)}</div>
+          `).join('')}
         </div>
       </div>
 
@@ -1684,7 +1687,7 @@ function pageRisico(d){
     <div class="page-body">
       <div class="page-eyebrow">ESG Risico &amp; Financieringsvoorwaarden</div>
       <div class="page-title">Risicomatrix &amp; financieringsvoorwaarden</div>
-      <div class="page-title-sub">Compacte risicobeoordeling, voorwaarden bij financiering en monitoring tijdens looptijd.</div>
+      <div class="page-title-sub">Pand-specifieke risico's, financieringsvoorwaarden en monitoring op basis van het ingediende rapport.</div>
       <div class="page-thin-rule"></div>
 
       <div class="matrix" style="margin-bottom:14px;">
@@ -1725,13 +1728,11 @@ function pageRisico(d){
         </div>
       </div>
 
-      <div class="verdict" style="margin-top:18px;">
-        <div class="verdict-eyebrow">Advies bij financieringsaanvraag</div>
-        <div class="verdict-title" style="font-size:13px;margin-bottom:8px;">${esc(d.bankscore_oordeel)} — ESG-dossier voor green-loan toets</div>
-        <div class="verdict-text" style="margin-bottom:10px;">${esc(d.samenvatting)}</div>
-        <div class="mgt-bullets">
-          ${arr(d.samenvatting_punten).filter(p=>!p.startsWith('INSTRUCTIE')).map(p=>`<div>${esc(p)}</div>`).join('')}
-        </div>
+      <!-- Compact adviesblok -->
+      <div style="background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 100%);border-radius:10px;padding:12px 16px;color:#fff;margin-top:12px;position:relative;overflow:hidden;">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--orange);"></div>
+        <div style="font-size:7.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:3px;">Advies bij financieringsaanvraag</div>
+        <div style="font-size:9pt;color:rgba(255,255,255,.92);line-height:1.55;">${esc(d.bankscore_oordeel)} — ${esc((d.samenvatting||'').split('.')[0]+'.')}</div>
       </div>
 
     </div>
