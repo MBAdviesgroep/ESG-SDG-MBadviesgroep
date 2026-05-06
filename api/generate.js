@@ -85,6 +85,15 @@ Neem alleen SDGs op waar de bijdrage écht aantoonbaar is — niet elk SDG past 
 ${sdgLijst}
 
 ════════════════════════════════════════
+SCOREBEREKENING — VERPLICHT
+════════════════════════════════════════
+Bereken alle vijf radar-scores (0-100) op basis van het ingediende rapport.
+Gebruik de berekenwijze die per score-veld staat beschreven in het JSON-schema.
+Bereken daarna de gewogen bankscore: (Transitierisico×0.25) + (Datakwaliteit×0.20) + (Bewijsniveau×0.20) + (Klimaatrisico×0.15) + (Rapportage×0.20).
+Pas de bankscore_oordeel aan op basis van de berekende score.
+Geef nooit de standaard voorbeeldwaarden terug — bereken altijd op basis van het rapport.
+
+════════════════════════════════════════
 BEREKENINGSREGELS
 ════════════════════════════════════════
 • Scope 1 CO₂ aardgas: m³ × 1,785 kg CO₂/m³ ÷ 1000 = tCO₂e/jr
@@ -128,23 +137,44 @@ Retourneer UITSLUITEND valide JSON — geen markdown, geen uitleg buiten de JSON
   "totaal_co2_na": "X,X tCO₂e/jr",
 
   "bankscore": 74,
-  "bankscore_oordeel": "Geschikt voor groene financiering",
+  "bankscore_toelichting": "Bereken de gewogen ESG-score (0-100) op basis van de vijf dimensies hieronder. Weging: Transitierisico 25%, Datakwaliteit 20%, Bewijsniveau 20%, Klimaatrisico 15%, Rapportage 20%. Rond af op hele getallen.",
+  "bankscore_oordeel": "Geschikt voor groene financiering — pas aan op basis van score: <50=Niet geschikt, 50-64=Beperkt geschikt, 65-74=Voorwaardelijk geschikt, 75-84=Geschikt, 85+=Sterk geschikt",
 
   "bankscore_componenten": [
-    {"l": "ESG-score (gewogen)", "v": "74 / 100"},
-    {"l": "Bewijsniveau", "v": "Niveau 3 / 4"},
-    {"l": "Datakwaliteit", "v": "Bron-rapport gevalideerd"},
-    {"l": "Beleidsrisico energie", "v": "Laag · dalend"},
-    {"l": "Klimaatrisico (fysiek)", "v": "Laag-middel"},
-    {"l": "Rapportagegereedheid", "v": "Officieel"}
+    {"l": "ESG-score (gewogen)", "v": "XX / 100 — vul in op basis van berekende bankscore"},
+    {"l": "Bewijsniveau", "v": "Niveau X / 4 — bepaal op basis van beschikbare documentatie in rapport"},
+    {"l": "Datakwaliteit", "v": "Omschrijf kwaliteit van de data in het rapport: ontbrekend/indicatief/gevalideerd/geverifieerd"},
+    {"l": "Beleidsrisico energie", "v": "Laag/Middel/Hoog — beoordeel op basis van huidig energielabel en afstand tot labelplicht"},
+    {"l": "Klimaatrisico (fysiek)", "v": "Laag/Middel/Hoog — beoordeel op basis van locatie (overstromingsrisico, hitte, droogte)"},
+    {"l": "Rapportagegereedheid", "v": "Indicatief/Gedeeltelijk/Officieel — op basis van volledigheid van het dossier"}
   ],
 
   "radar": [
-    {"l": "Transitierisico", "v": 78},
-    {"l": "Datakwaliteit", "v": 82},
-    {"l": "Bewijsniveau", "v": 75},
-    {"l": "Klimaatrisico", "v": 68},
-    {"l": "Rapportage", "v": 88}
+    {
+      "l": "Transitierisico",
+      "v": 78,
+      "berekenwijze": "Score 0-100. Hoog label (E/F/G) = laag transitierisico = lage score. Beoordeel: huidig energielabel, afstand tot doellabel, aanwezigheid maatregelen, tijdlijn uitvoering. Label C met plan naar A+ = score 70-80. Label G zonder plan = score 20-35."
+    },
+    {
+      "l": "Datakwaliteit",
+      "v": 82,
+      "berekenwijze": "Score 0-100. Beoordeel: zijn energieverbruikscijfers aanwezig (gas m³, elektra kWh)? Zijn kosten onderbouwd? Zijn berekeningen traceerbaar? Alleen label aanwezig = 30-40. Volledige verbruiksdata + berekeningen = 80-95."
+    },
+    {
+      "l": "Bewijsniveau",
+      "v": 75,
+      "berekenwijze": "Score 0-100 op basis van assurance-niveau: Niveau 1 (alleen PDF) = 25. Niveau 2 (PDF + berekeningen) = 50. Niveau 3 (gevalideerde data) = 75. Niveau 4 (post-implementatie meterdata) = 95."
+    },
+    {
+      "l": "Klimaatrisico",
+      "v": 68,
+      "berekenwijze": "Score 0-100. Hoog fysiek risico = lage score. Beoordeel locatie: kustgebied/laaggelegen = lager. Binnenland/hoog = hoger. Steden met hittestress = middel. Gebruik adres en regio uit het rapport."
+    },
+    {
+      "l": "Rapportage",
+      "v": 88,
+      "berekenwijze": "Score 0-100. Beoordeel: zijn ESRS E1 velden invulbaar op basis van het rapport? Is SFDR PAI-data beschikbaar? Is taxonomie-toets uitvoerbaar? Alleen algemeen rapport = 40-55. Volledig ESG-dossier met berekeningen = 80-95."
+    }
   ],
 
   "maatregelen": [
@@ -306,7 +336,7 @@ ${rapportTekst}`;
       messages: [
         {
           role: "system",
-          content: "Je bent een senior ESG/ESRS-bankadviseur. Je maakt een AANVULLEND bankdossier met ESRS-rapportage, SFDR-classificatie, EU Taxonomie-toets en ESG-financieringsadvies. BELANGRIJK: Bij sdg_koppelingen gebruik je UITSLUITEND de SDG-nummers die in de prompt zijn opgegeven (1-17). Loop voor elke maatregel alle 17 SDGs systematisch langs en neem alleen die op waarbij de bijdrage aantoonbaar is. Gebruik specifieke cijfers uit het rapport. Geef uitsluitend valide JSON terug, zonder markdown. Begin direct met { en eindig met }."
+          content: "Je bent een senior ESG/ESRS-bankadviseur. Je maakt een AANVULLEND bankdossier met ESRS-rapportage, SFDR-classificatie, EU Taxonomie-toets en ESG-financieringsadvies. BELANGRIJK: Bij sdg_koppelingen gebruik je UITSLUITEND de SDG-nummers die in de prompt zijn opgegeven (1-17). Loop voor elke maatregel alle 17 SDGs systematisch langs. Bereken alle vijf radar-scores en de gewogen bankscore op basis van het rapport — geef nooit de standaard voorbeeldwaarden terug. Gebruik specifieke cijfers uit het rapport. Geef uitsluitend valide JSON terug, zonder markdown. Begin direct met { en eindig met }."
         },
         {
           role: "user",
