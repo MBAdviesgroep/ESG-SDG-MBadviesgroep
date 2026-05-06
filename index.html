@@ -1021,6 +1021,39 @@ async function startGenerate(){
       const computed=Math.round(currentData.radar.reduce((sum,r,i)=>sum+(r.v*weights[i]),0));
       currentData.bankscore = isNaN(Number(apiData.bankscore)) ? computed : Math.round(Number(apiData.bankscore));
     }
+    // ── Parse alle numerieke financiële velden uit API-response ──
+    const numFields=['capex_totaal','capex_subsidie','capex_eigen','capex_lening',
+      'bes_jaar','co2_reductie_ton','primaire_energie_reductie_pct','co2_reductie_pct',
+      'rentekorting_bps','looptijd_jr','label_huidig_idx','label_streef_idx','bankscore'];
+    numFields.forEach(k=>{
+      if(currentData[k]!==undefined){
+        const n=Number(String(currentData[k]).replace(/[^0-9.,]/g,'').replace(',','.'));
+        if(!isNaN(n)) currentData[k]=Math.round(n*100)/100;
+      }
+    });
+
+    // ── Parse scope voor/na als objecten ──
+    ['scope_voor','scope_na'].forEach(k=>{
+      if(typeof currentData[k]==='string'){
+        try{ currentData[k]=JSON.parse(currentData[k]); }catch(e){}
+      }
+      if(typeof currentData[k]==='object'&&currentData[k]!==null){
+        ['s1','s2','tot'].forEach(f=>{
+          if(currentData[k][f]!==undefined) currentData[k][f]=Number(currentData[k][f])||0;
+        });
+      }
+    });
+
+    // ── Parse cashflow en co2_pad als arrays van getallen ──
+    ['cashflow','co2_pad'].forEach(k=>{
+      if(typeof currentData[k]==='string'){
+        try{ currentData[k]=JSON.parse(currentData[k]); }catch(e){}
+      }
+      if(Array.isArray(currentData[k])){
+        currentData[k]=currentData[k].map(v=>Number(v)||0);
+      }
+    });
+
     // ── Verwijder INSTRUCTIE-placeholders uit arrays ──
     ['risicos','voorwaarden','monitoring','vervolg','samenvatting_punten'].forEach(key=>{
       if(Array.isArray(currentData[key])){
