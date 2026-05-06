@@ -55,9 +55,32 @@ SDG KOPPELINGSREGEL (VERPLICHT)
 ════════════════════════════════════════
 Hieronder staan ALLE 17 officiële VN Sustainable Development Goals.
 Gebruik UITSLUITEND de nummers en namen uit deze lijst.
-Koppel elke maatregel uit het rapport aan 1-3 relevante SDGs uit deze lijst.
-Leg per koppeling concreet uit: WAAROM draagt díéze maatregel bij aan díét SDG-doel?
-Gebruik specifieke cijfers uit het rapport (CO₂-ton, kWh, €, %).
+VERPLICHTE WERKWIJZE PER MAATREGEL — SDG-BEOORDELING:
+Ga voor ELKE maatregel uit het rapport alle 17 SDGs één voor één langs.
+Beoordeel per SDG expliciet: draagt deze maatregel bij aan dit doel? Ja of nee, en waarom?
+Neem alleen de SDGs op in sdg_koppelingen waarbij het antwoord JA is.
+
+Gebruik deze redenering per SDG:
+SDG 1  — Armoede: verlaagt de maatregel de energielasten voor bewoners/gebruikers?
+SDG 2  — Honger: raakt de maatregel voedsel- of landbouwprocessen? (zelden ja bij gebouwen)
+SDG 3  — Gezondheid: verbetert de maatregel luchtkwaliteit, binnenklimaat, vochtniveau of geluid?
+SDG 4  — Onderwijs: draagt de maatregel bij aan kennisdeling of duurzaam gebouwgebruik?
+SDG 5  — Gendergelijkheid: zorgt de maatregel voor gelijke toegang tot energie of comfort?
+SDG 6  — Water: vermindert de maatregel waterverbruik of waterverontreiniging?
+SDG 7  — Energie: verlaagt de maatregel het energieverbruik of verhoogt het hernieuwbare opwek?
+SDG 8  — Werk: creëert de uitvoering van de maatregel lokale werkgelegenheid?
+SDG 9  — Innovatie: introduceert de maatregel nieuwe of schone technologie in het gebouw?
+SDG 10 — Ongelijkheid: maakt de maatregel energie of woonkwaliteit toegankelijker?
+SDG 11 — Steden: verbetert de maatregel leefbaarheid, luchtkwaliteit of woningkwaliteit in de omgeving?
+SDG 12 — Consumptie: vermindert de maatregel verspilling van energie of materialen?
+SDG 13 — Klimaat: levert de maatregel een meetbare CO₂-reductie op?
+SDG 14 — Water (zee): vermindert de maatregel lozingen of impact op waterlichamen?
+SDG 15 — Land: heeft de maatregel geen negatieve impact op natuur of biodiversiteit?
+SDG 16 — Vrede/instituties: voldoet de uitvoering aan transparante en eerlijke werkwijzen?
+SDG 17 — Partnerschap: bevordert de maatregel samenwerking tussen eigenaar, adviseur en financier?
+
+Leg per geselecteerde SDG concreet uit met cijfers uit het rapport (CO₂-ton, kWh, €, m³, %).
+Neem alleen SDGs op waar de bijdrage écht aantoonbaar is — niet elk SDG past bij elke maatregel.
 
 ${sdgLijst}
 
@@ -139,11 +162,19 @@ Retourneer UITSLUITEND valide JSON — geen markdown, geen uitleg buiten de JSON
       "sdg_koppelingen": [
         {
           "sdg_nr": "7",
-          "uitleg": "Concrete uitleg: WAAROM draagt díéze maatregel bij aan SDG 7? Gebruik specifieke cijfers uit het rapport."
+          "uitleg": "Concrete uitleg met cijfers uit het rapport: bijv. 'Verlaagt energieverbruik met X kWh/jr door betere isolatiewaarde Rc X.'"
         },
         {
           "sdg_nr": "13",
-          "uitleg": "Concrete uitleg met cijfers: bijv. 'Bespaart 1,05 tCO₂ per jaar door reductie gasverbruik met X m³.'"
+          "uitleg": "Concrete uitleg: bijv. 'Bespaart X tCO₂ per jaar door reductie gasverbruik met X m³.'"
+        },
+        {
+          "sdg_nr": "11",
+          "uitleg": "Concrete uitleg: bijv. 'Verbetert binnenklimaat en thermisch comfort voor bewoners en gasten.'"
+        },
+        {
+          "sdg_nr": "3",
+          "uitleg": "Concrete uitleg: bijv. 'Betere isolatie vermindert tocht en vochtige muren, wat de luchtkwaliteit en gezondheid verbetert.'"
         }
       ]
     }
@@ -275,7 +306,7 @@ ${rapportTekst}`;
       messages: [
         {
           role: "system",
-          content: "Je bent een senior ESG/ESRS-bankadviseur. Je maakt een AANVULLEND bankdossier met ESRS-rapportage, SFDR-classificatie, EU Taxonomie-toets en ESG-financieringsadvies. BELANGRIJK: Bij sdg_koppelingen gebruik je UITSLUITEND de SDG-nummers die in de prompt zijn opgegeven (1-17). Koppel elke maatregel aan 1-3 concrete SDGs met specifieke cijfers. Geef uitsluitend valide JSON terug, zonder markdown. Begin direct met { en eindig met }."
+          content: "Je bent een senior ESG/ESRS-bankadviseur. Je maakt een AANVULLEND bankdossier met ESRS-rapportage, SFDR-classificatie, EU Taxonomie-toets en ESG-financieringsadvies. BELANGRIJK: Bij sdg_koppelingen gebruik je UITSLUITEND de SDG-nummers die in de prompt zijn opgegeven (1-17). Loop voor elke maatregel alle 17 SDGs systematisch langs en neem alleen die op waarbij de bijdrage aantoonbaar is. Gebruik specifieke cijfers uit het rapport. Geef uitsluitend valide JSON terug, zonder markdown. Begin direct met { en eindig met }."
         },
         {
           role: "user",
