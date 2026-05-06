@@ -2031,106 +2031,260 @@ function pageRisico(d){
 
 /* ─── CONSISTENTIE-LAAG — verduurzamingsrapport is leidend ─── */
 function alignReportConsistency(d){
-  if(!d || typeof d!=='object') return d;
+  // Deze functie maakt het ESG/SDG-dossier consistent met het ingelezen
+  // verduurzamingsrapport. Belangrijk: geen casus-specifieke hardcoding.
+  // Het bronrapport is leidend; alleen als bronwaarden ontbreken wordt gerekend.
+  const r0=n=>Math.round((Number(n)||0));
+  const r1=n=>Math.round((Number(n)||0)*10)/10;
+  const cleanTxt=v=>String(v||'').replace(/\s+/g,' ').trim();
+  const norm=v=>cleanTxt(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9+]+/g,' ').trim();
+  const toN=v=>{
+    if(v===null||v===undefined) return 0;
+    if(typeof v==='number') return isNaN(v)?0:v;
+    let x=String(v).replace(/\s/g,'').replace(/€/g,'').replace(/jr|jaar|ton|kg|%|\/mnd|\/jaar/gi,'');
+    // Europese notatie: 29.800,50 -> 29800.50 ; 7,0 -> 7.0
+    if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(x)) x=x.replace(/\./g,'').replace(',','.');
+    else x=x.replace(',','.');
+    const n=parseFloat(x.replace(/[^0-9.-]/g,''));
+    return isNaN(n)?0:n;
+  };
+  const labelIdx=l=>['G','F','E','D','C','B','A','A+','A++','A+++','A++++'].indexOf(String(l||'').toUpperCase());
+  const findAll=(text,re)=>{const out=[];let m;while((m=re.exec(text))!==null){out.push(m); if(m.index===re.lastIndex) re.lastIndex++;} return out;};
+  const firstNumAfter=(text,patterns)=>{
+    for(const re of patterns){const m=text.match(re); if(m) return toN(m[1]);}
+    return 0;
+  };
+  const getSource=()=>{
+    const t=cleanTxt(typeof pdfText!=='undefined'?pdfText:'');
+    const src={measures:[]};
+    if(!t) return src;
 
-  const toN=(v)=>{
-    if(v===null || v===undefined) return 0;
-    if(typeof v==='number') return isFinite(v)?v:0;
-    const cleaned=String(v).replace(/\u00a0/g,' ').replace(/[^0-9,.-]/g,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.');
-    const n=Number(cleaned);
-    return isFinite(n)?n:0;
-  };
-  const r1=(n)=>Math.round((Number(n)||0)*10)/10;
-  const r0=(n)=>Math.round(Number(n)||0);
-  const labelIdx=(lab)=>{
-    const ladder=['G','F','E','D','C','B','A','A+','A++','A+++','A++++'];
-    return Math.max(0,ladder.indexOf(String(lab||'').toUpperCase()));
-  };
-  const replaceTerms=(str)=>String(str||'')
-    .replace(/woningwaarde/g,'vastgoedwaarde')
-    .replace(/Woningwaarde/g,'Vastgoedwaarde')
-    .replace(/wooncomfort/g,'gebruikerscomfort')
-    .replace(/Wooncomfort/g,'Gebruikerscomfort')
-    .replace(/woning\b/g,'pand')
-    .replace(/Woning\b/g,'Pand')
-    .replace(/woningen\b/g,'objecten')
-    .replace(/Woningen\b/g,'Objecten');
-  const deepClean=(x)=>{
-    if(typeof x==='string') return replaceTerms(x);
-    if(Array.isArray(x)) return x.map(deepClean);
-    if(x && typeof x==='object'){
-      Object.keys(x).forEach(k=>{ x[k]=deepClean(x[k]); });
+    // Labeltraject uit bronrapport: C → A++ of C naar A++.
+    let lm=t.match(/\b([A-G](?:\+{1,4})?)\s*(?:→|->|naar)\s*([A-G](?:\+{1,4})?)\b/i);
+    if(lm){src.huidig_label=lm[1].toUpperCase(); src.streef_label=lm[2].toUpperCase();}
+
+    // Totaalregels: liefst uit expliciete totaalpakketregel, anders KPI-blokken.
+    let total=t.match(/Totaal\s+pakket\s*€\s*([0-9.]+(?:,[0-9]+)?)\s*€\s*([0-9.]+(?:,[0-9]+)?)\s*([0-9]+(?:,[0-9]+)?)\s*(?:jr|jaar)/i);
+    if(total){src.capex_totaal=toN(total[1]); src.bes_jaar=toN(total[2]); src.tvt_jaar=toN(total[3]);}
+
+    // KPI-varianten in verduurzamingsrapport.
+    if(!src.capex_totaal){
+      src.capex_totaal=firstNumAfter(t,[
+        /TOTAAL\s+INVESTERING\s*€\s*([0-9.]+(?:,[0-9]+)?)/i,
+        /I\s*N\s*V\s*E\s*S\s*T\s*E\s*R\s*I\s*N\s*G\s*€\s*([0-9.]+(?:,[0-9]+)?)/i,
+        /Bruto\s+investering\s*€\s*([0-9.]+(?:,[0-9]+)?)/i
+      ]);
     }
-    return x;
+    if(!src.bes_jaar){
+      src.bes_jaar=firstNumAfter(t,[
+        /BESPARING\s*\/\s*JAAR\s*€\s*([0-9.]+(?:,[0-9]+)?)/i,
+        /JAARLIJKSE\s+BESPARING\s*€\s*([0-9.]+(?:,[0-9]+)?)/i,
+        /J\s*A\s*A\s*R\s*L\s*I\s*J\s*K\s*S\s*E\s*B\s*E\s*S\s*P\s*A\s*R\s*I\s*N\s*G\s*€\s*([0-9.]+(?:,[0-9]+)?)/i
+      ]);
+    }
+    if(!src.tvt_jaar){
+      src.tvt_jaar=firstNumAfter(t,[
+        /GEM\.?\s*(?:TERUGVERDIENTIJD|TVT)\s*([0-9]+(?:,[0-9]+)?)/i,
+        /T\s*E\s*R\s*U\s*G\s*V\s*E\s*R\s*D\s*I\s*E\s*N\s*T\s*I\s*J\s*D\s*(?:±|\+\/\-|circa)?\s*([0-9]+(?:,[0-9]+)?)/i,
+        /gewogen\s+gemiddelde[^0-9]{0,40}([0-9]+(?:,[0-9]+)?)\s*(?:jaar|jr)/i
+      ]);
+    }
+    const bm=t.match(/Break\s*-?\s*even\s*(?:jaar)?\s*([0-9]{1,2})/i);
+    if(bm) src.break_even_jaar=toN(bm[1]);
+
+    // Reducties: energie en CO2 uit het bronrapport.
+    let em=t.match(/(?:energie(?:reductie|besparing)|primaire\s*[- ]?energie)[^%]{0,45}([0-9]+(?:,[0-9]+)?)\s*%/i);
+    if(em) src.primaire_energie_reductie_pct=toN(em[1]);
+    let cm=t.match(/CO[₂2]\s*-?\s*reductie(?:\s+scope\s*1\+2)?[^%]{0,60}([0-9]+(?:,[0-9]+)?)\s*%\s*(?:\/|·|,|en)?\s*(?:ca\.?\s*)?([0-9]+(?:,[0-9]+)?)?\s*(?:ton|t)?/i);
+    if(cm){src.co2_reductie_pct=toN(cm[1]); if(cm[2]) src.co2_reductie_ton=toN(cm[2]);}
+    // Variant: 61% / 7,3 ton per jaar
+    let cm2=t.match(/([0-9]+(?:,[0-9]+)?)\s*%\s*\/\s*([0-9]+(?:,[0-9]+)?)\s*ton/i);
+    if(cm2 && !src.co2_reductie_ton){src.co2_reductie_pct=toN(cm2[1]); src.co2_reductie_ton=toN(cm2[2]);}
+
+    // Scope voor/na uit staafgrafiek-achtige tekst: Voor x y z t Na a b c t.
+    let sm=t.match(/Voor\s+([0-9]+(?:[,.][0-9]+)?)\s+([0-9]+(?:[,.][0-9]+)?)\s+([0-9]+(?:[,.][0-9]+)?)\s*t\s+Na\s+([0-9]+(?:[,.][0-9]+)?)\s+([0-9]+(?:[,.][0-9]+)?)\s+([0-9]+(?:[,.][0-9]+)?)\s*t/i);
+    if(sm){
+      src.scope_voor={s1:toN(sm[1]),s2:toN(sm[2]),tot:toN(sm[3])};
+      src.scope_na={s1:toN(sm[4]),s2:toN(sm[5]),tot:toN(sm[6])};
+      const diff=Math.max(0,src.scope_voor.tot-src.scope_na.tot);
+      if(diff>0 && !src.co2_reductie_ton) src.co2_reductie_ton=r1(diff);
+      if(diff>0 && !src.co2_reductie_pct) src.co2_reductie_pct=r0(diff/src.scope_voor.tot*100);
+    }
+
+    // Maatregelentabel. Volgorde in bronrapport: Maatregel | Besparing/jr | Investering | TVT | CO2.
+    const tableStart=t.search(/(?:GEADVISEERDE\s+MAATREGELEN|Maatregel\s+Besparing|M\s*A\s*A\s*T\s*R\s*E\s*G\s*E\s*L\s+B\s*E\s*S\s*P\s*A\s*R\s*I\s*N\s*G)/i);
+    const tableEnd=t.search(/(?:TOELICHTING\s+PER\s+MAATREGEL|T\s*O\s*E\s*L\s*I\s*C\s*H\s*T\s*I\s*N\s*G\s+P\s*E\s*R\s+M\s*A\s*A\s*T\s*R\s*E\s*G\s*E\s*L|BESPARING\s+PER\s+MAATREGEL|CUMULATIEVE\s+BESPARING|NETTO\s+INVESTERING)/i);
+    const sec=(tableStart>=0?t.slice(tableStart, tableEnd>tableStart?tableEnd:Math.min(t.length,tableStart+3500)):t);
+    const rowRe=/([A-Za-zÀ-ÿ0-9+\/'().\-\s]{3,70}?)\s+€\s*([0-9.]+(?:,[0-9]+)?)\s+€\s*([0-9.]+(?:,[0-9]+)?)\s+([0-9]+(?:,[0-9]+)?)\s*(?:jaar|jr)\s+((?:[0-9]+(?:[,.][0-9]+)?)\s*(?:kg|ton|t)|—|-)?/gi;
+    const badName=/^(maatregel|besparing|investering|tvt|co2|co₂|totaal|bruto|geselecteerde|gem|aantal|huidige|jaarlijkse|post|bedrag|toelichting|besparing per maatregel)$/i;
+    let rows=findAll(sec,rowRe).map((m,i)=>{
+      let name=cleanTxt(m[1]).replace(/^(?:M\d+\s*)/i,'').replace(/\s{2,}/g,' ').trim();
+      name=name.replace(/^(M\s*A\s*A\s*T\s*R\s*E\s*G\s*E\s*L\s*)/i,'').trim();
+      const co2raw=cleanTxt(m[5]||'');
+      let co2=0;
+      if(/kg/i.test(co2raw)) co2=r1(toN(co2raw)/1000);
+      else if(/ton|t/i.test(co2raw)) co2=r1(toN(co2raw));
+      return {nr:'M'+(i+1),naam:name,bes:r0(toN(m[2])),capex:r0(toN(m[3])),tvt:r1(toN(m[4])),co2};
+    }).filter(x=>x.naam && !badName.test(x.naam) && x.capex>0 && x.bes>=0 && x.tvt>0);
+
+    // Dedupliceer op naam; de eerste tabelrij is doorgaans de juiste bronrij.
+    const seen=new Set();
+    rows=rows.filter(x=>{const k=norm(x.naam); if(seen.has(k)) return false; seen.add(k); return true;});
+    if(rows.length) src.measures=rows;
+
+    // Als geen totaal uit KPI of totaalrij is gevonden, gebruik maatregelensom.
+    if(!src.capex_totaal && rows.length) src.capex_totaal=r0(rows.reduce((a,m)=>a+(m.capex||0),0));
+    if(!src.bes_jaar && rows.length) src.bes_jaar=r0(rows.reduce((a,m)=>a+(m.bes||0),0));
+    if(!src.tvt_jaar && src.capex_totaal>0 && src.bes_jaar>0) src.tvt_jaar=r1(src.capex_totaal/src.bes_jaar);
+    if(!src.break_even_jaar && src.tvt_jaar>0) src.break_even_jaar=Math.ceil(src.tvt_jaar);
+
+    return src;
   };
 
-  deepClean(d);
+  function mergeSdg(oldM,name){
+    const n=norm(name);
+    const old=Array.isArray(oldM)?oldM:[];
+    const found=old.find(x=>{
+      const ox=norm(x&&x.naam);
+      if(!ox) return false;
+      if(n.includes('hr') && /glas|beglazing/.test(ox)) return true;
+      if(n.includes('buitendeur') && /deur/.test(ox)) return true;
+      if(n.includes('zonne') && /zonne|pv/.test(ox)) return true;
+      if(n.includes('warmtepomp') && /warmtepomp/.test(ox)) return true;
+      if(n.includes('gevel') && /gevel|spouw/.test(ox)) return true;
+      if(n.includes('dak') && /dak/.test(ox)) return true;
+      if(n.includes('vloer') && /vloer/.test(ox)) return true;
+      if(n.includes('thermost') && /thermost/.test(ox)) return true;
+      return ox===n;
+    });
+    return found&&Array.isArray(found.sdg_koppelingen)?found.sdg_koppelingen:[];
+  }
 
+  function applySource(src){
+    const oldMeasures=Array.isArray(d.maatregelen)?d.maatregelen:[];
+    if(src.huidig_label) d.huidig_label=src.huidig_label;
+    if(src.streef_label) d.streef_label=src.streef_label;
+    const hi=labelIdx(d.huidig_label), si=labelIdx(d.streef_label);
+    if(hi>=0) d.label_huidig_idx=hi;
+    if(si>=0) d.label_streef_idx=si;
+    if(hi>=0 && si>=0) d.label_stappen=Math.max(0,si-hi);
+
+    if(Array.isArray(src.measures) && src.measures.length){
+      d.maatregelen=src.measures.map((m,i)=>({
+        ...m,
+        nr:m.nr||('M'+(i+1)),
+        sdg_koppelingen:mergeSdg(oldMeasures,m.naam)
+      }));
+    }
+    const ms=Array.isArray(d.maatregelen)?d.maatregelen:[];
+    const capexSum=ms.reduce((a,m)=>a+toN(m.capex),0);
+    const besSum=ms.reduce((a,m)=>a+toN(m.bes),0);
+    const co2Sum=ms.reduce((a,m)=>a+toN(m.co2),0);
+
+    if(src.capex_totaal) d.capex_totaal=r0(src.capex_totaal); else if(capexSum) d.capex_totaal=r0(capexSum);
+    if(src.bes_jaar) d.bes_jaar=r0(src.bes_jaar); else if(besSum) d.bes_jaar=r0(besSum);
+    d.bes_jaar_total=d.bes_jaar;
+    d.bes_jaar_additioneel=besSum? r0(besSum):d.bes_jaar;
+    d.bestaande_opwek_besparing=(d.bes_jaar && besSum && d.bes_jaar>besSum+50)?r0(d.bes_jaar-besSum):0;
+    d.besparing_definitie=d.bestaande_opwek_besparing
+      ? 'Totale jaarlijkse besparing volgens bronrapport: '+eur(d.bes_jaar)+'. Additionele besparing uit nieuwe maatregelen: '+eur(d.bes_jaar_additioneel)+'.'
+      : 'Jaarlijkse besparing volgens het bronrapport: '+eur(d.bes_jaar)+' per jaar.';
+
+    // TVT-regel: bronrapport is leidend. Alleen herrekenen als TVT ontbreekt.
+    if(src.tvt_jaar) d.tvt_jaar=r1(src.tvt_jaar);
+    else if(!d.tvt_jaar && d.capex_totaal>0 && d.bes_jaar>0) d.tvt_jaar=r1(d.capex_totaal/d.bes_jaar);
+    if(src.break_even_jaar) d.break_even_jaar=r0(src.break_even_jaar);
+    else if(!d.break_even_jaar && d.tvt_jaar>0) d.break_even_jaar=Math.ceil(d.tvt_jaar);
+
+    if(src.primaire_energie_reductie_pct) d.primaire_energie_reductie_pct=r0(src.primaire_energie_reductie_pct);
+    if(src.co2_reductie_pct) d.co2_reductie_pct=r0(src.co2_reductie_pct);
+    if(src.co2_reductie_ton) d.co2_reductie_ton=r1(src.co2_reductie_ton);
+    if(src.scope_voor) d.scope_voor=src.scope_voor;
+    if(src.scope_na) d.scope_na=src.scope_na;
+    if(!d.co2_reductie_ton && co2Sum) d.co2_reductie_ton=r1(co2Sum);
+    d.co2_reductie_maatregelen_ton=co2Sum?r1(co2Sum):d.co2_reductie_ton;
+    d.co2_uitleg='Scope 1+2-reductie uit het verduurzamingsrapport is leidend.' + (co2Sum && d.co2_reductie_ton && Math.abs(co2Sum-d.co2_reductie_ton)>0.1 ? ' De maatregelensom is indicatief en kan door afronding of bestaande opwek afwijken.' : '');
+
+    // Cashflow consistent met bron-TVT: capex en jaarlijkse besparing uit bronrapport.
+    if(d.capex_totaal && d.bes_jaar){
+      d.cashflow=Array.from({length:16},(_,i)=>r0(-d.capex_totaal+(d.bes_jaar*i)));
+    }
+    d.hoofdmaatregelen=ms.length;
+    return {ms,capexSum,besSum,co2Sum};
+  }
+
+  function deepClean(obj){
+    if(!obj||typeof obj!=='object') return obj;
+    Object.keys(obj).forEach(k=>{
+      const v=obj[k];
+      if(typeof v==='string'){
+        obj[k]=v
+          .replace(/\$\{labelVan\}/g, d.huidig_label||'')
+          .replace(/\$\{labelNaar\}/g, d.streef_label||'')
+          .replace(/\$\{energiePct\}%?/g, String(d.primaire_energie_reductie_pct||'')+'%')
+          .replace(/\$\{co2Pct\}%?/g, String(d.co2_reductie_pct||'')+'%')
+          .replace(/\$\{capex\}/g, eur(d.capex_totaal||0))
+          .replace(/\$\{besparing\}/g, eur(d.bes_jaar||0));
+      }else if(v&&typeof v==='object') deepClean(v);
+    });
+    return obj;
+  }
+
+  // Eerste schoonmaak, daarna bronrapport toepassen.
+  deepClean(d);
+  const src=getSource();
+  const calc=applySource(src);
+  const ms=calc.ms||[];
+
+  // Als API toch duplicaten of strings heeft meegegeven: normaliseer ná bronapply.
   if(Array.isArray(d.maatregelen)){
     const seen=new Set();
     d.maatregelen=d.maatregelen.filter(m=>m && typeof m==='object' && m.naam).map(m=>{
       m.capex=toN(m.capex); m.bes=toN(m.bes); m.co2=toN(m.co2); m.tvt=toN(m.tvt);
-      if(m.capex>0 && m.bes>0) m.tvt=r1(m.capex/m.bes);
+      if((!m.tvt || m.tvt<=0) && m.capex>0 && m.bes>0) m.tvt=r1(m.capex/m.bes);
       return m;
     }).filter(m=>{
-      const key=String(m.naam).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+      const key=norm(m.naam);
       if(seen.has(key)) return false;
       seen.add(key); return true;
     });
   }
 
-  const ms=Array.isArray(d.maatregelen)?d.maatregelen:[];
-  const bronBesparing=toN(d.bes_jaar); // uit verduurzamingsrapport/API; kan incl. bestaande zonnepanelen/opwek zijn
-  const capexSum=ms.reduce((a,m)=>a+toN(m.capex),0);
-  const besSum=ms.reduce((a,m)=>a+toN(m.bes),0); // additionele besparing uit nieuwe maatregelen
-  const co2Sum=ms.reduce((a,m)=>a+toN(m.co2),0);
-
-  if(capexSum>0) d.capex_totaal=r0(capexSum);
-  if(besSum>0) d.bes_jaar_additioneel=r0(besSum);
-  // Als het bronrapport een hogere jaarlijkse besparing noemt dan de maatregelensom,
-  // behandel het verschil expliciet als reeds aanwezige opwek/bestaande besparing (bijv. zonnepanelen).
-  if(bronBesparing>besSum+50){
-    d.bes_jaar_total=r0(bronBesparing);
-    d.bestaande_opwek_besparing=r0(bronBesparing-besSum);
-    d.besparing_definitie='Totale jaarlijkse duurzame besparing incl. bestaande opwek: '+eur(d.bes_jaar_total)+'. Additionele besparing uit nieuwe maatregelen: '+eur(d.bes_jaar_additioneel)+'.';
-    d.bes_jaar=d.bes_jaar_total;
-  }else if(besSum>0){
-    d.bes_jaar_total=r0(besSum);
-    d.bes_jaar=d.bes_jaar_total;
-    d.bestaande_opwek_besparing=0;
-    d.besparing_definitie='Jaarlijkse besparing uit het maatregelenpakket.';
-  }
-  if(d.capex_totaal>0 && d.bes_jaar>0){
-    d.tvt_jaar=r1(d.capex_totaal/d.bes_jaar);
-    d.break_even_jaar=Math.ceil(d.capex_totaal/d.bes_jaar);
-  }
-
-  if(d.scope_voor && d.scope_na && toN(d.scope_voor.tot)>0 && toN(d.scope_na.tot)>=0){
-    const diff=Math.max(0,toN(d.scope_voor.tot)-toN(d.scope_na.tot));
-    if(diff>0){
-      d.co2_reductie_ton=r1(diff);
-      d.co2_reductie_pct=r0((diff/toN(d.scope_voor.tot))*100);
-      d.co2_reductie_maatregelen_ton=r1(co2Sum);
-      if(co2Sum>0 && Math.abs(co2Sum-diff)>0.05){
-        d.co2_uitleg='Scope 1+2-totaal uit het bronrapport is leidend ('+r1(diff)+' ton/jaar). De maatregelensom is indicatief en kan door afronding of bestaande opwek afwijken ('+r1(co2Sum)+' ton/jaar).';
-      }
-    }
-  }else if(co2Sum>0){
-    d.co2_reductie_ton=r1(co2Sum);
-  }
-
-  const labelSteps=Math.max(0,labelIdx(d.streef_label)-labelIdx(d.huidig_label));
-  d.label_stappen=labelSteps;
-
   // Subsidie/fiscaal voordeel: geen hard bedrag claimen als het niet direct uit de brontabel sluitend volgt.
   if(toN(d.capex_subsidie)>toN(d.capex_totaal)*0.45) d.capex_subsidie=0;
   d.subsidie_tekst = toN(d.capex_subsidie)>0 ? eur(d.capex_subsidie) : 'te toetsen';
+
+  // Dynamische managementtekst: bronwaarden, geen casus-hardcoding.
+  const obj=esc(d.object_naam||'Het object');
+  const measuresTxt=(Array.isArray(d.maatregelen)?d.maatregelen.length:0) + ' hoofdmaatregelen';
+  const tvtTxt=(d.tvt_jaar?String(d.tvt_jaar).replace('.',','):'n.b.') + ' jaar';
+  const co2Txt=(d.co2_reductie_pct?String(d.co2_reductie_pct)+'%':'n.b.') + (d.co2_reductie_ton?' / '+String(d.co2_reductie_ton).replace('.',',')+' ton per jaar':'');
+  d.samenvatting=`De verduurzamingsmaatregelen voor ${obj} bestaan uit ${measuresTxt} met een totale bruto investering van ${eur(d.capex_totaal)} en een geraamde jaarlijkse besparing van ${eur(d.bes_jaar)}. De gemiddelde terugverdientijd bedraagt circa ${tvtTxt}. De maatregelen ondersteunen een labelverbetering van ${esc(d.huidig_label)} naar ${esc(d.streef_label)} en leiden indicatief tot ${esc(String(d.primaire_energie_reductie_pct||'n.b.'))}% energiereductie en ${co2Txt} CO₂-reductie op scope 1+2. Het object lijkt daarmee onder voorwaarden geschikt voor groene financiering, mits uitvoering, nieuw energielabel, DNSH-bewijs en sociale waarborgen worden bevestigd.`;
+  d.samenvatting_punten=[
+    `${measuresTxt}: ${eur(d.capex_totaal)} bruto investering en ${eur(d.bes_jaar)} geraamde jaarlijkse besparing.`,
+    `Gemiddelde terugverdientijd circa ${tvtTxt}; break-even in jaar ${esc(String(d.break_even_jaar||'n.b.'))}.`,
+    `Labeltraject ${esc(d.huidig_label)} → ${esc(d.streef_label)}, energiereductie ${esc(String(d.primaire_energie_reductie_pct||'n.b.'))}% en CO₂-reductie scope 1+2 circa ${co2Txt}.`,
+    'Indicatief geschikt voor groene financiering onder voorwaarden: uitvoering, nieuw energielabel, DNSH-bewijs en sociale waarborgen.'
+  ];
+
+  d.sfdr=`Het object lijkt onder voorwaarden te passen binnen SFDR Artikel 8: het maatregelenpakket verlaagt het energiegebruik, ondersteunt labelverbetering van ${esc(d.huidig_label)} naar ${esc(d.streef_label)} en reduceert scope 1+2-uitstoot indicatief met ${esc(String(d.co2_reductie_pct||'n.b.'))}%. Definitieve onderbouwing volgt na uitvoering en bewijsstukken.`;
+  d.pillar3=`Het dossier is bruikbaar voor Pillar 3-rapportage omdat het bronrapport een bruto investering van ${eur(d.capex_totaal)}, een jaarlijkse besparing van ${eur(d.bes_jaar)}, labeltraject ${esc(d.huidig_label)} → ${esc(d.streef_label)} en scope 1+2-reductie van ${co2Txt} onderbouwt.`;
+  d.pai=[
+    `PAI 1 — CO₂-uitstoot scope 1+2: indicatieve reductie ${co2Txt}.`,
+    `PAI 17 — Energieprestatie verbetert door ${esc(String(d.primaire_energie_reductie_pct||'n.b.'))}% energiereductie en labeltraject ${esc(d.huidig_label)} → ${esc(d.streef_label)}.`,
+    'PAI 18 — Fossiel-afhankelijk vastgoed: verbetering onder voorwaarde van uitvoering en nieuw energielabel.'
+  ];
+
+  if(!d.taxonomie || typeof d.taxonomie!=='object') d.taxonomie={};
+  d.taxonomie.eligibility='In aanmerking (eligible)';
+  d.taxonomie.alignment='Potentieel aligned — DNSH en sociale waarborgen te bevestigen';
+  d.taxonomie.contribution=`De renovatie kan onder EU Taxonomie 7.2 vallen op basis van het bronrapport: ${esc(String(d.primaire_energie_reductie_pct||'n.b.'))}% energiereductie, labeltraject ${esc(d.huidig_label)} → ${esc(d.streef_label)} en een scope 1+2 CO₂-reductie van circa ${co2Txt}. Definitieve alignment blijft afhankelijk van oplevering, nieuw energielabel, DNSH en sociale waarborgen.`;
 
   // Evidence/ESRS-overzichten gelijktrekken met de maatregelentabel.
   if(Array.isArray(d.evidence)){
     d.evidence=d.evidence.map(e=>{
       const ond=String(e.ond||'').toLowerCase();
-      if(ond.includes('maatregelenpakket') || ond.includes('capex')) e.w=eur(d.capex_totaal)+' ('+ms.length+' maatregelen)';
+      if(ond.includes('maatregelenpakket') || ond.includes('capex')) e.w=eur(d.capex_totaal)+' ('+arr(d.maatregelen).length+' maatregelen)';
       if(ond.includes('jaarlijkse besparing')) e.w=eur(d.bes_jaar)+'/jaar' + (d.bestaande_opwek_besparing? ' incl. bestaande opwek' : '');
       if(ond.includes('co₂') || ond.includes('co2')) e.w=String(d.co2_reductie_pct||'n.b.')+'% · ca. '+String(d.co2_reductie_ton||'n.b.').replace('.',',')+' ton/jaar';
       if(ond.includes('break')) e.w='Jaar '+String(d.break_even_jaar||'n.b.');
@@ -2149,36 +2303,43 @@ function alignReportConsistency(d){
     .replace(/^Geschikt/i,'Indicatief geschikt')
     .replace(/^Kansrijk/i,'Indicatief kansrijk');
 
-  if(d.taxonomie && typeof d.taxonomie==='object'){
-    d.taxonomie.eligibility='In aanmerking (eligible)';
-    d.taxonomie.alignment='Potentieel aligned — DNSH en sociale waarborgen te bevestigen';
-    d.taxonomie.contribution='De renovatie kan onder EU Taxonomie 7.2 vallen als de berekende primaire energiereductie, DNSH-toets en sociale waarborgen definitief worden bevestigd. De onderbouwing bestaat uit het maatregelenpakket, de labelverbetering '+esc(d.huidig_label||'')+' → '+esc(d.streef_label||'')+' en de daling van energiegebruik en CO₂-uitstoot.';
-  }
-
   ['sfdr','pillar3'].forEach(k=>{
     if(d[k]) d[k]=String(d[k])
       .replace(/voldoet aan/gi,'lijkt onder voorwaarden te passen binnen')
       .replace(/kwalificeert als/gi,'kan indicatief kwalificeren als')
-      .replace(/is relevant voor/gi,'is bruikbaar voor');
+      .replace(/is aligned/gi,'is potentieel aligned')
+      .replace(/Green Asset Ratio verhoogt/gi,'kan Green Asset Ratio ondersteunen');
   });
-
-  d.samenvatting=String(d.samenvatting||'')
-    .replace(/Dit pand kan groen worden gefinancierd\./i,'Dit pand lijkt onder voorwaarden geschikt voor groene financiering.')
-    .replace(/Het dossier voldoet aan de EU Taxonomie 7\.2[^.]*\./i,'Definitieve kwalificatie onder EU Taxonomie 7.2 volgt pas na oplevering, nieuw energielabel en bevestiging van DNSH en sociale waarborgen.');
-  if(d.bestaande_opwek_besparing){
-    const zin='Besparing: '+eur(d.bes_jaar)+' per jaar inclusief bestaande opwek; additionele nieuwe maatregelen: '+eur(d.bes_jaar_additioneel)+' per jaar.';
-    d.samenvatting_punten=Array.isArray(d.samenvatting_punten)?[zin,...d.samenvatting_punten.filter(x=>String(x)!==zin)]:[zin];
-  }
-  if(Array.isArray(d.samenvatting_punten)){
-    d.samenvatting_punten=d.samenvatting_punten.map(x=>String(x)
-      .replace(/kan groen gefinancierd worden/i,'lijkt onder voorwaarden geschikt voor groene financiering')
-      .replace(/kwalificeert als groen/i,'kan indicatief als groen kwalificeren'));
+  if(Array.isArray(d.conclusie_punten)){
+    d.conclusie_punten=d.conclusie_punten.map(x=>String(x).replace(/kwalificeert voor/gi,'lijkt onder voorwaarden geschikt voor'));
   }
 
+  // Geen eurobedragen als kWh presenteren in SDG-teksten.
+  if(Array.isArray(d.maatregelen)){
+    d.maatregelen=d.maatregelen.map(m=>{
+      if(Array.isArray(m.sdg_koppelingen)){
+        m.sdg_koppelingen=m.sdg_koppelingen.map(s=>{
+          if(s && typeof s==='object'){
+            let txt=String(s.toelichting||s.text||'');
+            txt=txt.replace(/bespaart\s+€?\s*([0-9.]+(?:,[0-9]+)?)\s*kWh\s*\/\s*jr/gi,'levert een geraamde jaarlijkse energiekostenbesparing op van € $1 per jaar')
+                   .replace(/bespaart\s+([0-9.]+(?:,[0-9]+)?)\s*kWh\s*\/\s*jr/gi,'verbetert de energieprestatie en verlaagt de jaarlijkse energiekosten')
+                   .replace(/met\s+€\s*([0-9.]+(?:,[0-9]+)?)\s*kWh/gi,'met een geraamde besparing van € $1 per jaar');
+            if(!txt || /kWh\s*\/\s*jr/i.test(txt)) txt='Verbetert de energieprestatie en verlaagt de jaarlijkse energiekosten met circa '+eur(m.bes)+' per jaar.';
+            s.toelichting=txt; s.text=txt;
+          }
+          return s;
+        });
+      }
+      return m;
+    });
+  }
+
+  // Laatste cleanup voor placeholders.
+  deepClean(d);
   return d;
 }
 
-/* ─── SDG-VERRIJKING — behoud AI-output, vul ontbrekende logische SDG's aan ─── */
+
 function enrichSdgMappings(d){
   if(!d || !Array.isArray(d.maatregelen)) return d;
 
@@ -2224,6 +2385,19 @@ function enrichSdgMappings(d){
     if(/zonne/.test(n)){
       kopp=add(kopp,11,'Lokale duurzame elektriciteitsopwekking ondersteunt een duurzamer gebouw.');
     }
+
+    // Geen kWh verzinnen: als de bron alleen eurobesparing geeft, formuleer in euro's.
+    kopp=kopp.map(k=>{
+      const txt=String((k&&k.uitleg)||'');
+      if(/kwh|m³|m3/i.test(txt) && m.bes){
+        const euro='€ '+Number(m.bes||0).toLocaleString('nl-NL');
+        const base=/zonne/i.test(n)
+          ? 'Verhoogt de duurzame opwekking en verlaagt de jaarlijkse energiekosten met circa '+euro+' per jaar.'
+          : 'Verbetert de energieprestatie en verlaagt de jaarlijkse energiekosten met circa '+euro+' per jaar.';
+        return {...k,uitleg:base};
+      }
+      return k;
+    });
 
     // Verwijder duplicaten, sorteer SDG's logisch en beperk niet: de pagina is compact genoeg.
     const seen=new Set();
@@ -2351,7 +2525,7 @@ function pageSfdrTax(d){
     <div class="page-stamp">06 · 08</div>
     <div class="page-body">
       <div class="page-eyebrow">SFDR &middot; Pillar 3 &middot; EU Taxonomie</div>
-      <div class="page-title">Voldoet dit dossier aan de regels voor groene financiering?</div>
+      <div class="page-title">Past dit dossier onder voorwaarden binnen groene financiering?</div>
       <div class="page-thin-rule"></div>
 
       <!-- In gewone taal -->
@@ -2447,7 +2621,7 @@ function pageMaatregelen(d){
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
         <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
           <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">Break-even</div>
-          <div style="font-size:28px;font-weight:700;color:var(--blue-deep);line-height:1;margin-bottom:4px;">Jaar ${esc(String(d.bes_jaar>0?Math.ceil((d.capex_totaal-(d.capex_subsidie||0))/d.bes_jaar):11))}</div>
+          <div style="font-size:28px;font-weight:700;color:var(--blue-deep);line-height:1;margin-bottom:4px;">Jaar ${esc(String(d.break_even_jaar||((d.capex_totaal&&d.bes_jaar)?Math.ceil(d.capex_totaal/d.bes_jaar):'n.b.')))}</div>
           <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Op basis van ${eur(d.bes_jaar||totBes)} besparing per jaar. Daarna puur positief rendement.</div>
         </div>
         <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
@@ -2489,8 +2663,8 @@ function pageMaatregelen(d){
               <td style="padding:8px 8px 8px 0;color:var(--blue-deep);font-size:8.5pt;">Totaal pakket</td>
               <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${eur(d.capex_totaal)}</td>
               <td style="padding:8px 8px 8px 0;text-align:right;color:var(--green);font-size:8.5pt;">${eur(d.bes_jaar||totBes)}</td>
-              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${(d.co2_reductie_ton||totCo2).toFixed(2)}</td>
-              <td style="padding:8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${(d.capex_totaal/(d.bes_jaar||totBes)).toFixed(1)} jr</td>
+              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${Number(d.co2_reductie_ton||totCo2||0).toFixed(2)}</td>
+              <td style="padding:8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${Number(d.tvt_jaar||((d.capex_totaal&&d.bes_jaar)?d.capex_totaal/d.bes_jaar:0)).toFixed(1)} jr</td>
             </tr>
           </tbody>
         </table>
