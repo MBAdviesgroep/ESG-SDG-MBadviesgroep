@@ -1016,6 +1016,109 @@ body.report-mode .rpt-mode{display:block;}
   }
 }
 
+
+
+/* =========================================================
+   GLOBAL CARD TINT FIX — lichtblauwe vakjes op alle pagina's
+   Zelfde rustige look als pagina 2: alle witte rapportkaarten
+   krijgen een lichte blauwgrijze basis, zichtbare rand en
+   consistente print/PDF-weergave. Geen inhoudelijke wijzigingen.
+   ========================================================= */
+:root{
+  --card-blue-bg:#F3FAFE;
+  --card-blue-bg-2:#EEF7FC;
+  --card-blue-border:#CFE2EC;
+  --card-blue-border-2:#BDD6E3;
+}
+
+.a4.content .kpi-rapport,
+.a4.content .score-side,
+.a4.content .chart-card,
+.a4.content .col-card,
+.a4.content .sdg-card,
+.a4.content .matrix,
+.a4.content .verdict,
+.a4.content .fin-strip,
+.a4.content .signoff,
+.a4.content .rpt-table-card{
+  background:linear-gradient(180deg,var(--card-blue-bg) 0%,var(--card-blue-bg-2) 100%)!important;
+  border:1px solid var(--card-blue-border)!important;
+  box-shadow:0 7px 22px rgba(19,68,96,.12),0 1px 4px rgba(19,68,96,.08)!important;
+}
+
+.a4.content .sdg-card,
+.a4.content .chart-card,
+.a4.content .col-card,
+.a4.content .verdict,
+.a4.content .score-side{
+  border-radius:15px!important;
+}
+
+.a4.content .kpi-r-cell,
+.a4.content .fin-cell,
+.a4.content .matrix > div{
+  background:rgba(255,255,255,.22)!important;
+  border-color:var(--card-blue-border)!important;
+}
+
+.a4.content .kpi-r-cell:not(:last-child),
+.a4.content .fin-cell:not(:last-child){
+  border-right:1px solid var(--card-blue-border)!important;
+}
+
+.a4.content .matrix .mh,
+.a4.content .rpt-table thead th{
+  background:#EAF4FA!important;
+}
+
+/* SDG-pagina: de maatregelkaarten moeten ook duidelijk blauw zijn */
+.a4.content .sdg-list .sdg-card{
+  background:linear-gradient(180deg,#F4FAFE 0%,#EDF7FC 100%)!important;
+  border-color:#C9DFEA!important;
+}
+
+/* Tabellen/rijen binnen kaarten mogen niet terug wit lijken */
+.a4.content .rpt-table tbody tr:nth-child(even) td{
+  background:rgba(255,255,255,.18)!important;
+}
+.a4.content .rpt-table tbody td{
+  border-bottom-color:#D6E6EE!important;
+}
+
+@media print{
+  .a4.content .kpi-rapport,
+  .a4.content .score-side,
+  .a4.content .chart-card,
+  .a4.content .col-card,
+  .a4.content .sdg-card,
+  .a4.content .matrix,
+  .a4.content .verdict,
+  .a4.content .fin-strip,
+  .a4.content .signoff,
+  .a4.content .rpt-table-card{
+    background:#F1F9FD!important;
+    border:0.35mm solid #C9DFEA!important;
+    box-shadow:0 1.05mm 3.2mm rgba(19,68,96,.16)!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  .a4.content .kpi-r-cell,
+  .a4.content .fin-cell,
+  .a4.content .matrix > div{
+    background:#F6FBFE!important;
+    border-color:#D1E3EC!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  .a4.content .matrix .mh{
+    background:#E9F4FA!important;
+  }
+  .a4.content .sdg-list .sdg-card{
+    background:#F1F9FD!important;
+    border-color:#C9DFEA!important;
+  }
+}
+
 </style>
 </head>
 <body>
