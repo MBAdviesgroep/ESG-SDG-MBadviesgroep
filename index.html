@@ -1008,11 +1008,16 @@ function buildLocalReport(text){
   // Primaire-energie reductie: ~10% per labelstap; cap 50%
   const primEnergieRed=Math.min(50,labelStappen*10+10);
 
-  const objectNaam=findFirst(t,[
+  const objectNaamRaw=findFirst(t,[
     /(?:object|gebouw|pand|project)\s*[:\-]\s*([^\n]{3,80})/i,
     /(?:verduurzamingsrapport|rapportage)\s+(?:voor\s+)?([^\n]{3,80})/i,
-    /\b(De\s+[A-ZÀ-Ü][A-Za-zÀ-ÿ' \-]{3,40})\b/
+    /\b(De\s+[A-ZÀ-Ü][A-Za-zÀ-ÿ'\-]{3,40})\b/
   ],'De Gouden Reaal');
+  // Strip bedrijfsnaam MB Adviesgroep uit objectnaam
+  const objectNaam=objectNaamRaw
+    .replace(/\s*MB\s+Adviesgroep\b.*/i,'')
+    .replace(/\s*Adviesgroep\b.*/i,'')
+    .trim();
 
   const adres=findFirst(t,[
     /(?:adres|locatie)\s*[:\-]\s*([^\n]{6,120})/i,
@@ -1917,7 +1922,7 @@ function pageBewijsVervolg(d){
 function printReport(){
   const orig=document.title;
   const t=currentData?.object_naam||'MB Adviesgroep';
-  document.title='ESG-dossier — '+t;
+  document.title='ESG-dossier — '+(t||'').replace(/\s*MB\s+Adviesgroep\b.*/i,'').trim();
   setTimeout(()=>{
     window.print();
     setTimeout(()=>{document.title=orig;},800);
