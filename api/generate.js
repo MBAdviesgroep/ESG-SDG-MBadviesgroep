@@ -85,6 +85,14 @@ Neem alleen SDGs op waar de bijdrage écht aantoonbaar is — niet elk SDG past 
 ${sdgLijst}
 
 ════════════════════════════════════════
+MAATREGELEN — VERPLICHT
+════════════════════════════════════════
+Neem ALLE maatregelen op die in het verduurzamingsrapport staan — niet alleen de eerste.
+Elke maatregel krijgt een eigen object in de maatregelen-array.
+Gebruik de exacte namen, bedragen en cijfers uit het rapport.
+Loop voor elke maatregel alle 17 SDGs langs zoals beschreven.
+
+════════════════════════════════════════
 SCOREBEREKENING — VERPLICHT
 ════════════════════════════════════════
 Bereken alle vijf radar-scores (0-100) op basis van het ingediende rapport.
@@ -136,9 +144,8 @@ Retourneer UITSLUITEND valide JSON — geen markdown, geen uitleg buiten de JSON
   "totaal_co2_huidig": "X,X tCO₂e/jr",
   "totaal_co2_na": "X,X tCO₂e/jr",
 
-  "bankscore": 74,
-  "bankscore_toelichting": "Bereken de gewogen ESG-score (0-100) op basis van de vijf dimensies hieronder. Weging: Transitierisico 25%, Datakwaliteit 20%, Bewijsniveau 20%, Klimaatrisico 15%, Rapportage 20%. Rond af op hele getallen.",
-  "bankscore_oordeel": "Geschikt voor groene financiering — pas aan op basis van score: <50=Niet geschikt, 50-64=Beperkt geschikt, 65-74=Voorwaardelijk geschikt, 75-84=Geschikt, 85+=Sterk geschikt",
+  "bankscore": "BEREKEN: (Transitierisico×0.25)+(Datakwaliteit×0.20)+(Bewijsniveau×0.20)+(Klimaatrisico×0.15)+(Rapportage×0.20) — geef een heel getal terug, GEEN string",
+  "bankscore_oordeel": "Bepaal op basis van berekende score: <50=Niet geschikt voor groene financiering, 50-64=Beperkt geschikt, 65-74=Voorwaardelijk geschikt voor groene financiering, 75-84=Geschikt voor groene financiering, 85+=Sterk geschikt voor groene financiering",
 
   "bankscore_componenten": [
     {"l": "ESG-score (gewogen)", "v": "XX / 100 — vul in op basis van berekende bankscore"},
@@ -152,61 +159,75 @@ Retourneer UITSLUITEND valide JSON — geen markdown, geen uitleg buiten de JSON
   "radar": [
     {
       "l": "Transitierisico",
-      "v": 78,
-      "berekenwijze": "Score 0-100. Hoog label (E/F/G) = laag transitierisico = lage score. Beoordeel: huidig energielabel, afstand tot doellabel, aanwezigheid maatregelen, tijdlijn uitvoering. Label C met plan naar A+ = score 70-80. Label G zonder plan = score 20-35."
+      "v": "BEREKEN_OP_BASIS_VAN_RAPPORT — gebruik GEEN voorbeeldwaarde. Beoordeel: huidig energielabel, afstand tot doellabel, maatregelen aanwezig? Label G zonder plan = 20-35. Label C met plan naar A+ = 65-80. Label A al bereikt = 85-95.",
+      "INSTRUCTIE": "Vervang de string hierboven door een heel getal tussen 0 en 100."
     },
     {
       "l": "Datakwaliteit",
-      "v": 82,
-      "berekenwijze": "Score 0-100. Beoordeel: zijn energieverbruikscijfers aanwezig (gas m³, elektra kWh)? Zijn kosten onderbouwd? Zijn berekeningen traceerbaar? Alleen label aanwezig = 30-40. Volledige verbruiksdata + berekeningen = 80-95."
+      "v": "BEREKEN_OP_BASIS_VAN_RAPPORT — gebruik GEEN voorbeeldwaarde. Beoordeel: zijn gas m³ en elektra kWh aanwezig? Zijn kosten onderbouwd? Traceerbare berekeningen? Alleen label = 30-40. Volledige verbruiksdata = 80-95.",
+      "INSTRUCTIE": "Vervang de string hierboven door een heel getal tussen 0 en 100."
     },
     {
       "l": "Bewijsniveau",
-      "v": 75,
-      "berekenwijze": "Score 0-100 op basis van assurance-niveau: Niveau 1 (alleen PDF) = 25. Niveau 2 (PDF + berekeningen) = 50. Niveau 3 (gevalideerde data) = 75. Niveau 4 (post-implementatie meterdata) = 95."
+      "v": "BEREKEN_OP_BASIS_VAN_RAPPORT — gebruik GEEN voorbeeldwaarde. Niveau 1 (alleen PDF) = 20-30. Niveau 2 (PDF + berekeningen) = 45-55. Niveau 3 (gevalideerde data + kengetallen) = 70-80. Niveau 4 (meterdata na oplevering) = 90-100.",
+      "INSTRUCTIE": "Vervang de string hierboven door een heel getal tussen 0 en 100."
     },
     {
       "l": "Klimaatrisico",
-      "v": 68,
-      "berekenwijze": "Score 0-100. Hoog fysiek risico = lage score. Beoordeel locatie: kustgebied/laaggelegen = lager. Binnenland/hoog = hoger. Steden met hittestress = middel. Gebruik adres en regio uit het rapport."
+      "v": "BEREKEN_OP_BASIS_VAN_RAPPORT — gebruik GEEN voorbeeldwaarde. Hoog risico = lage score. Kustgebied/laaggelegen/stedelijk = 40-60. Binnenland/hooggelegen = 65-80. Gebruik het adres uit het rapport.",
+      "INSTRUCTIE": "Vervang de string hierboven door een heel getal tussen 0 en 100."
     },
     {
       "l": "Rapportage",
-      "v": 88,
-      "berekenwijze": "Score 0-100. Beoordeel: zijn ESRS E1 velden invulbaar op basis van het rapport? Is SFDR PAI-data beschikbaar? Is taxonomie-toets uitvoerbaar? Alleen algemeen rapport = 40-55. Volledig ESG-dossier met berekeningen = 80-95."
+      "v": "BEREKEN_OP_BASIS_VAN_RAPPORT — gebruik GEEN voorbeeldwaarde. Beoordeel volledigheid: ESRS E1 invulbaar? SFDR PAI-data beschikbaar? Taxonomie-toets uitvoerbaar? Summier rapport = 40-55. Volledig dossier met berekeningen = 80-95.",
+      "INSTRUCTIE": "Vervang de string hierboven door een heel getal tussen 0 en 100."
     }
   ],
 
   "maatregelen": [
     {
+      "INSTRUCTIE": "VERPLICHT: neem ALLE maatregelen op die in het verduurzamingsrapport staan. Niet alleen de eerste. Elke maatregel krijgt een eigen object in deze array. Gebruik exact de namen, bedragen en cijfers uit het rapport.",
       "nr": "M1",
-      "naam": "naam maatregel exact uit het rapport",
-      "capex": 9800,
-      "bes": 760,
-      "co2": 1.05,
-      "tvt": 12.9,
-      "subs": 1470,
-      "label": "+1",
-      "scope": "Scope 1",
-      "omschrijving": "ESG-relevantie voor bankdossier",
+      "naam": "exacte naam maatregel 1 uit het rapport",
+      "capex": 0,
+      "bes": 0,
+      "co2": 0.0,
+      "tvt": 0.0,
+      "subs": 0,
+      "label": "+0",
+      "scope": "Scope 1 of Scope 2 of Scope 1+2",
+      "omschrijving": "ESG-relevantie van deze specifieke maatregel",
       "sdg_koppelingen": [
         {
           "sdg_nr": "7",
-          "uitleg": "Concrete uitleg met cijfers uit het rapport: bijv. 'Verlaagt energieverbruik met X kWh/jr door betere isolatiewaarde Rc X.'"
+          "uitleg": "Concrete uitleg met cijfers uit het rapport voor maatregel 1."
         },
         {
           "sdg_nr": "13",
-          "uitleg": "Concrete uitleg: bijv. 'Bespaart X tCO₂ per jaar door reductie gasverbruik met X m³.'"
-        },
-        {
-          "sdg_nr": "11",
-          "uitleg": "Concrete uitleg: bijv. 'Verbetert binnenklimaat en thermisch comfort voor bewoners en gasten.'"
-        },
-        {
-          "sdg_nr": "3",
-          "uitleg": "Concrete uitleg: bijv. 'Betere isolatie vermindert tocht en vochtige muren, wat de luchtkwaliteit en gezondheid verbetert.'"
+          "uitleg": "Concrete uitleg met CO₂-cijfers voor maatregel 1."
         }
       ]
+    },
+    {
+      "nr": "M2",
+      "naam": "exacte naam maatregel 2 uit het rapport",
+      "capex": 0,
+      "bes": 0,
+      "co2": 0.0,
+      "tvt": 0.0,
+      "subs": 0,
+      "label": "+0",
+      "scope": "Scope 1 of Scope 2 of Scope 1+2",
+      "omschrijving": "ESG-relevantie van deze specifieke maatregel",
+      "sdg_koppelingen": [
+        {
+          "sdg_nr": "7",
+          "uitleg": "Concrete uitleg voor maatregel 2."
+        }
+      ]
+    },
+    {
+      "INSTRUCTIE_VERVOLG": "Voeg hier alle overige maatregelen toe uit het rapport op dezelfde manier. Het aantal objecten in deze array moet gelijk zijn aan het aantal maatregelen in het rapport."
     }
   ],
 
@@ -336,7 +357,7 @@ ${rapportTekst}`;
       messages: [
         {
           role: "system",
-          content: "Je bent een senior ESG/ESRS-bankadviseur. Je maakt een AANVULLEND bankdossier met ESRS-rapportage, SFDR-classificatie, EU Taxonomie-toets en ESG-financieringsadvies. BELANGRIJK: Bij sdg_koppelingen gebruik je UITSLUITEND de SDG-nummers die in de prompt zijn opgegeven (1-17). Loop voor elke maatregel alle 17 SDGs systematisch langs. Bereken alle vijf radar-scores en de gewogen bankscore op basis van het rapport — geef nooit de standaard voorbeeldwaarden terug. Gebruik specifieke cijfers uit het rapport. Geef uitsluitend valide JSON terug, zonder markdown. Begin direct met { en eindig met }."
+          content: "Je bent een senior ESG/ESRS-bankadviseur. Je maakt een AANVULLEND bankdossier met ESRS-rapportage, SFDR-classificatie, EU Taxonomie-toets en ESG-financieringsadvies. BELANGRIJK: Bij sdg_koppelingen gebruik je UITSLUITEND de SDG-nummers die in de prompt zijn opgegeven (1-17). Loop voor elke maatregel alle 17 SDGs systematisch langs. Bereken alle vijf radar-scores als GEHELE GETALLEN (niet als strings) op basis van het rapport — de velden met 'BEREKEN_OP_BASIS_VAN_RAPPORT' moeten worden vervangen door een getal. Bereken daarna de gewogen bankscore als geheel getal. Gebruik specifieke cijfers uit het rapport. Geef uitsluitend valide JSON terug, zonder markdown. Begin direct met { en eindig met }."
         },
         {
           role: "user",
