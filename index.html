@@ -994,6 +994,25 @@ async function startGenerate(){
     // API-data overschrijft lokale data waar aanwezig
     currentData = Object.assign({}, localBase, apiData);
 
+    // ── Zorg dat radar-scores altijd getallen zijn (niet strings) ──
+    if(Array.isArray(currentData.radar)){
+      currentData.radar = currentData.radar.map(r=>({
+        ...r,
+        v: isNaN(Number(r.v)) ? (localBase.radar.find(lr=>lr.l===r.l)||{v:60}).v : Math.round(Number(r.v))
+      }));
+    }
+    // ── Bereken bankscore opnieuw als gewogen gemiddelde van radar ──
+    if(Array.isArray(currentData.radar) && currentData.radar.length===5){
+      const weights=[0.25,0.20,0.20,0.15,0.20];
+      const computed=Math.round(currentData.radar.reduce((sum,r,i)=>sum+(r.v*weights[i]),0));
+      currentData.bankscore = isNaN(Number(apiData.bankscore)) ? computed : Math.round(Number(apiData.bankscore));
+    }
+    // ── Zorg dat bankscore_oordeel klopt bij berekende score ──
+    const sc=currentData.bankscore;
+    if(typeof apiData.bankscore_oordeel!=='string'||apiData.bankscore_oordeel.includes('BEREKEN')){
+      currentData.bankscore_oordeel = sc>=85?'Sterk geschikt voor groene financiering':sc>=75?'Geschikt voor groene financiering':sc>=65?'Voorwaardelijk geschikt voor groene financiering':sc>=50?'Beperkt geschikt voor groene financiering':'Niet geschikt voor groene financiering';
+    }
+
     // Zorg dat datum altijd gevuld is
     if(!currentData.datum_rapport){
       currentData.datum_rapport = new Date().toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
