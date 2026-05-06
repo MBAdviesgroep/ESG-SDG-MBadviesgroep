@@ -3233,3 +3233,92 @@ function resetTool(){
   }
 }
 </style>
+
+<!-- Extra subtle card tint override: nog minder blauw, wel zichtbaar door rand + schaduw -->
+<style id="mb-extra-subtle-card-tint">
+:root{
+  --mb-card-subtle:#FDFEFE;
+  --mb-card-subtle-2:#FBFDFF;
+  --mb-card-border:#E4EDF3;
+  --mb-card-border-soft:#EEF3F6;
+  --mb-card-shadow:0 4px 14px rgba(17,68,96,.055),0 0 0 1px rgba(27,89,123,.035);
+  --mb-card-shadow-print:0 2px 8px rgba(17,68,96,.065),0 0 0 1px rgba(27,89,123,.075);
+}
+
+.a4.content .page-body [style*="background:#fff"],
+.a4.content .page-body [style*="background: #fff"],
+.a4.content .page-body [style*="background:white"],
+.a4.content .page-body [style*="background: white"],
+.a4.content .chart-card,
+.a4.content .col-card,
+.a4.content .sdg-card,
+.a4.content .verdict,
+.a4.content .kpi-rapport,
+.a4.content .score-side,
+.a4.content .matrix,
+.a4.content .fin-strip,
+.a4.content .rpt-table-card{
+  background:var(--mb-card-subtle)!important;
+  border:1px solid var(--mb-card-border)!important;
+  box-shadow:var(--mb-card-shadow)!important;
+}
+
+.a4.content .verdict,
+.a4.content .page-body [style*="background:var(--blue-faint)"]{
+  background:var(--mb-card-subtle-2)!important;
+  border-color:var(--mb-card-border)!important;
+}
+
+.a4.content .page-body [style*="background:var(--page)"],
+.a4.content .page-body [style*="background:#f8f6f2"],
+.a4.content .page-body [style*="background:#F1F9FD"],
+.a4.content .page-body [style*="background:#E4F1F8"],
+.a4.content .page-body [style*="background:#F7FCFE"],
+.a4.content .page-body [style*="background:#F7F9FB"]{
+  background:#FCFCFD!important;
+  border-color:var(--mb-card-border-soft)!important;
+}
+
+.a4.content .score-card,
+.a4.content .close-card,
+.a4.content .page-body [style*="linear-gradient(135deg,var(--blue-deep)"],
+.a4.content .page-body [style*="linear-gradient(160deg"]{
+  border:none!important;
+}
+
+@media print{
+  .a4.content .page-body [style*="background:#fff"],
+  .a4.content .page-body [style*="background: #fff"],
+  .a4.content .page-body [style*="background:white"],
+  .a4.content .page-body [style*="background: white"],
+  .a4.content .chart-card,
+  .a4.content .col-card,
+  .a4.content .sdg-card,
+  .a4.content .verdict,
+  .a4.content .kpi-rapport,
+  .a4.content .score-side,
+  .a4.content .matrix,
+  .a4.content .fin-strip,
+  .a4.content .rpt-table-card{
+    background:#FDFEFE!important;
+    border:1px solid #E4EDF3!important;
+    box-shadow:var(--mb-card-shadow-print)!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  .a4.content .verdict,
+  .a4.content .page-body [style*="background:var(--blue-faint)"]{
+    background:#FBFDFF!important;
+  }
+
+  .a4.content .page-body [style*="background:var(--page)"],
+  .a4.content .page-body [style*="background:#f8f6f2"],
+  .a4.content .page-body [style*="background:#F1F9FD"],
+  .a4.content .page-body [style*="background:#E4F1F8"],
+  .a4.content .page-body [style*="background:#F7FCFE"],
+  .a4.content .page-body [style*="background:#F7F9FB"]{
+    background:#FCFCFD!important;
+  }
+}
+</style>
