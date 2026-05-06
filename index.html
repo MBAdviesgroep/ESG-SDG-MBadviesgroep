@@ -950,6 +950,52 @@ body.report-mode .rpt-mode{display:block;}
   }
 }
 
+
+
+/* =========================================================
+   COVER PRINT FIX — geen witte/lichte halo-vlakken rond tekst
+   In print kunnen text-shadows op foto's als lichte blokken renderen.
+   Daarom: covertekst zonder shadow, maar met een iets krachtiger
+   donkere onder-gradient voor leesbaarheid.
+   ========================================================= */
+@media print{
+  .a4.cover .cover-brand-name,
+  .a4.cover .cover-brand-sub,
+  .a4.cover .cover-date,
+  .a4.cover .cover-eyebrow,
+  .a4.cover .cover-title,
+  .a4.cover .cover-sub,
+  .a4.cover .cover-sub b,
+  .a4.cover .cover-foot,
+  .a4.cover .cover-foot b,
+  .a4.cover .cover-badge{
+    text-shadow:none!important;
+    box-shadow:none!important;
+    filter:none!important;
+    -webkit-text-stroke:0!important;
+    background-clip:border-box!important;
+  }
+  .a4.cover .cover-bg::after{
+    background:
+      linear-gradient(180deg,rgba(13,34,51,.16) 0%,rgba(13,34,51,.30) 46%,rgba(13,34,51,.66) 100%),
+      radial-gradient(ellipse at 32% 82%,rgba(8,24,36,.58) 0%,rgba(8,24,36,.46) 36%,rgba(8,24,36,.10) 72%,transparent 100%)!important;
+  }
+  .a4.cover .cover-eyebrow::after,
+  .a4.cover .cover-rule-top,
+  .a4.cover .cover-foot{
+    box-shadow:none!important;
+  }
+  .a4.cover .cover-badge{
+    background:rgba(13,34,51,.34)!important;
+    border-color:rgba(255,255,255,.30)!important;
+    color:#fff!important;
+  }
+  .a4.cover .cover-badge.dark{
+    background:rgba(217,98,47,.38)!important;
+    border-color:rgba(217,98,47,.52)!important;
+  }
+}
+
 </style>
 </head>
 <body>
