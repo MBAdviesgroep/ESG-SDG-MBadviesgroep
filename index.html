@@ -1703,8 +1703,8 @@ function pageScoreUitleg(d){
           <div style="display:flex;flex-direction:column;gap:7px;margin-top:2px;">
             ${[
               ['Capex',eur(d.capex_totaal),'Totale bruto investering voor alle '+arr(d.maatregelen).length+' maatregelen, exclusief BTW.'],
-              ['Jaarlijkse besparing',eur(d.bes_jaar)+' /jr','Berekende energiekostenbesparing per jaar na uitvoering.'],
-              ['Terugverdientijd',String(d.tvt_jaar||((d.capex_totaal&&d.bes_jaar)?(d.capex_totaal/d.bes_jaar).toFixed(1):'n.b.'))+' jaar','Bruto investering gedeeld door jaarlijkse besparing.'],
+              ['Jaarlijkse besparing',eur(d.bes_jaar)+' /jr',(d.bestaande_opwek_besparing?'Totale besparing incl. bestaande opwek; additionele maatregelen: '+eur(d.bes_jaar_additioneel)+'/jr.':'Berekende energiekostenbesparing per jaar na uitvoering.')],
+              ['Terugverdientijd',String(d.tvt_jaar||((d.capex_totaal&&d.bes_jaar)?(d.capex_totaal/d.bes_jaar).toFixed(1):'n.b.'))+' jaar',(d.bestaande_opwek_besparing?'Bruto investering gedeeld door totale jaarlijkse besparing incl. bestaande opwek.':'Bruto investering gedeeld door jaarlijkse besparing.')],
               ['Break-even','Jaar '+String(d.break_even_jaar||((d.capex_totaal&&d.bes_jaar)?Math.ceil(d.capex_totaal/d.bes_jaar):'n.b.')),'Zelfde uitgangspunt als het verduurzamingsrapport; eventuele subsidies en fiscale voordelen kunnen dit verbeteren.'],
               ['CO₂-reductie',String(d.co2_reductie_ton||0).replace('.',',')+' ton /jr','Scope 1 = directe uitstoot (gas/verwarming). Scope 2 = indirecte uitstoot (elektriciteit). De totaalreductie sluit aan op de scope 1+2-berekening.'],
             ].map(([k,v,u])=>`
@@ -1893,7 +1893,7 @@ function pageBanksamenvatting(d){
     <div class="page-body">
       <div class="page-eyebrow">ESG-Samenvatting &amp; Leeswijzer</div>
       <div class="page-title">ESG-beoordeling — in één oogopslag</div>
-      <div class="page-title-sub">Het object kwalificeert als groen-financieringsdossier op basis van het verduurzamingsrapport en de gehanteerde EU-kaders.</div>
+      <div class="page-title-sub">Het object lijkt indicatief geschikt als groen-financieringsdossier, onder voorbehoud van oplevering, bewijsstukken, DNSH en sociale waarborgen.</div>
       <div class="page-thin-rule"></div>
 
       <div class="kpi-rapport">
@@ -1940,7 +1940,7 @@ function pageBanksamenvatting(d){
           <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-3);margin-top:8px;">
             <span><b style="color:var(--blue-deep);">Primaire-energie</b> &minus;${esc(d.primaire_energie_reductie_pct)}%</span>
             <span><b style="color:var(--blue-deep);">CO₂</b> &minus;${esc(d.co2_reductie_pct)}% · ${esc(d.co2_reductie_ton)} t/jr</span>
-            <span><b style="color:var(--blue-deep);">Besparing</b> € ${esc((d.bes_jaar||0).toLocaleString('nl-NL'))}/jr</span>
+            <span><b style="color:var(--blue-deep);">Besparing</b> € ${esc((d.bes_jaar||0).toLocaleString('nl-NL'))}/jr${d.bestaande_opwek_besparing?' incl. bestaande opwek':''}</span>
           </div>
         </div>
       </div>
@@ -2080,12 +2080,26 @@ function alignReportConsistency(d){
   }
 
   const ms=Array.isArray(d.maatregelen)?d.maatregelen:[];
+  const bronBesparing=toN(d.bes_jaar); // uit verduurzamingsrapport/API; kan incl. bestaande zonnepanelen/opwek zijn
   const capexSum=ms.reduce((a,m)=>a+toN(m.capex),0);
-  const besSum=ms.reduce((a,m)=>a+toN(m.bes),0);
+  const besSum=ms.reduce((a,m)=>a+toN(m.bes),0); // additionele besparing uit nieuwe maatregelen
   const co2Sum=ms.reduce((a,m)=>a+toN(m.co2),0);
 
   if(capexSum>0) d.capex_totaal=r0(capexSum);
-  if(besSum>0) d.bes_jaar=r0(besSum);
+  if(besSum>0) d.bes_jaar_additioneel=r0(besSum);
+  // Als het bronrapport een hogere jaarlijkse besparing noemt dan de maatregelensom,
+  // behandel het verschil expliciet als reeds aanwezige opwek/bestaande besparing (bijv. zonnepanelen).
+  if(bronBesparing>besSum+50){
+    d.bes_jaar_total=r0(bronBesparing);
+    d.bestaande_opwek_besparing=r0(bronBesparing-besSum);
+    d.besparing_definitie='Totale jaarlijkse duurzame besparing incl. bestaande opwek: '+eur(d.bes_jaar_total)+'. Additionele besparing uit nieuwe maatregelen: '+eur(d.bes_jaar_additioneel)+'.';
+    d.bes_jaar=d.bes_jaar_total;
+  }else if(besSum>0){
+    d.bes_jaar_total=r0(besSum);
+    d.bes_jaar=d.bes_jaar_total;
+    d.bestaande_opwek_besparing=0;
+    d.besparing_definitie='Jaarlijkse besparing uit het maatregelenpakket.';
+  }
   if(d.capex_totaal>0 && d.bes_jaar>0){
     d.tvt_jaar=r1(d.capex_totaal/d.bes_jaar);
     d.break_even_jaar=Math.ceil(d.capex_totaal/d.bes_jaar);
@@ -2096,9 +2110,9 @@ function alignReportConsistency(d){
     if(diff>0){
       d.co2_reductie_ton=r1(diff);
       d.co2_reductie_pct=r0((diff/toN(d.scope_voor.tot))*100);
-      if(co2Sum>0 && Math.abs(co2Sum-diff)/Math.max(diff,1)>0.20){
-        const factor=diff/co2Sum;
-        d.maatregelen=d.maatregelen.map(m=>({...m,co2:r1(toN(m.co2)*factor)}));
+      d.co2_reductie_maatregelen_ton=r1(co2Sum);
+      if(co2Sum>0 && Math.abs(co2Sum-diff)>0.05){
+        d.co2_uitleg='Scope 1+2-totaal uit het bronrapport is leidend ('+r1(diff)+' ton/jaar). De maatregelensom is indicatief en kan door afronding of bestaande opwek afwijken ('+r1(co2Sum)+' ton/jaar).';
       }
     }
   }else if(co2Sum>0){
@@ -2117,7 +2131,7 @@ function alignReportConsistency(d){
     d.evidence=d.evidence.map(e=>{
       const ond=String(e.ond||'').toLowerCase();
       if(ond.includes('maatregelenpakket') || ond.includes('capex')) e.w=eur(d.capex_totaal)+' ('+ms.length+' maatregelen)';
-      if(ond.includes('jaarlijkse besparing')) e.w=eur(d.bes_jaar)+'/jaar';
+      if(ond.includes('jaarlijkse besparing')) e.w=eur(d.bes_jaar)+'/jaar' + (d.bestaande_opwek_besparing? ' incl. bestaande opwek' : '');
       if(ond.includes('co₂') || ond.includes('co2')) e.w=String(d.co2_reductie_pct||'n.b.')+'% · ca. '+String(d.co2_reductie_ton||'n.b.').replace('.',',')+' ton/jaar';
       if(ond.includes('break')) e.w='Jaar '+String(d.break_even_jaar||'n.b.');
       if(ond.includes('taxonomie')) e.w='7.2 · indicatief eligible, alignment onder voorwaarden';
@@ -2141,9 +2155,20 @@ function alignReportConsistency(d){
     d.taxonomie.contribution='De renovatie kan onder EU Taxonomie 7.2 vallen als de berekende primaire energiereductie, DNSH-toets en sociale waarborgen definitief worden bevestigd. De onderbouwing bestaat uit het maatregelenpakket, de labelverbetering '+esc(d.huidig_label||'')+' → '+esc(d.streef_label||'')+' en de daling van energiegebruik en CO₂-uitstoot.';
   }
 
+  ['sfdr','pillar3'].forEach(k=>{
+    if(d[k]) d[k]=String(d[k])
+      .replace(/voldoet aan/gi,'lijkt onder voorwaarden te passen binnen')
+      .replace(/kwalificeert als/gi,'kan indicatief kwalificeren als')
+      .replace(/is relevant voor/gi,'is bruikbaar voor');
+  });
+
   d.samenvatting=String(d.samenvatting||'')
     .replace(/Dit pand kan groen worden gefinancierd\./i,'Dit pand lijkt onder voorwaarden geschikt voor groene financiering.')
     .replace(/Het dossier voldoet aan de EU Taxonomie 7\.2[^.]*\./i,'Definitieve kwalificatie onder EU Taxonomie 7.2 volgt pas na oplevering, nieuw energielabel en bevestiging van DNSH en sociale waarborgen.');
+  if(d.bestaande_opwek_besparing){
+    const zin='Besparing: '+eur(d.bes_jaar)+' per jaar inclusief bestaande opwek; additionele nieuwe maatregelen: '+eur(d.bes_jaar_additioneel)+' per jaar.';
+    d.samenvatting_punten=Array.isArray(d.samenvatting_punten)?[zin,...d.samenvatting_punten.filter(x=>String(x)!==zin)]:[zin];
+  }
   if(Array.isArray(d.samenvatting_punten)){
     d.samenvatting_punten=d.samenvatting_punten.map(x=>String(x)
       .replace(/kan groen gefinancierd worden/i,'lijkt onder voorwaarden geschikt voor groene financiering')
@@ -2366,7 +2391,7 @@ function pageSfdrTax(d){
           <div style="font-size:8.5pt;color:var(--ink-2);line-height:1.55;margin-bottom:8px;">${esc(tax.contribution||'Primaire energiereductie '+energiePct+'% — indicatief boven de drempel van 30%. Aangevuld met '+stappen+' labelstappen ('+labelVan+' → '+labelNaar+'). Definitieve Taxonomie-alignment blijft afhankelijk van DNSH en sociale waarborgen.')}</div>
           <div style="border-top:1px solid var(--blue-faint);padding-top:7px;display:flex;flex-wrap:wrap;gap:4px;">
             <span class="pill p-good" style="font-size:7px;">${esc(tax.eligibility||'Eligible')}</span>
-            <span class="pill p-warn" style="font-size:7px;">Aligned</span>
+            <span class="pill p-warn" style="font-size:7px;">Potentieel aligned</span>
             <span class="pill p-info" style="font-size:7px;">DNSH vereist</span>
             <span class="pill p-mute" style="font-size:7px;">Waarborgen te bevestigen</span>
           </div>
@@ -2428,12 +2453,12 @@ function pageMaatregelen(d){
         <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
           <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">Jaarlijkse besparing</div>
           <div style="font-size:28px;font-weight:700;color:var(--green);line-height:1;margin-bottom:4px;">${eur(d.bes_jaar||totBes)}</div>
-          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Structurele verlaging van de energiekosten per jaar na uitvoering van alle maatregelen.</div>
+          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Totale jaarlijkse besparing conform bronrapport${d.bestaande_opwek_besparing?', inclusief bestaande opwek. Additionele maatregelen: '+eur(d.bes_jaar_additioneel)+'/jr.':'.'}</div>
         </div>
         <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
           <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">CO₂-reductie</div>
           <div style="font-size:28px;font-weight:700;color:var(--blue-deep);line-height:1;margin-bottom:4px;">${esc(String(d.co2_reductie_pct||35))}%</div>
-          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Ca. ${esc(String(d.co2_reductie_ton||totCo2.toFixed(1)))} ton CO₂ minder per jaar op scope 1+2. Onderbouwt EU Taxonomie 7.2 alignment.</div>
+          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Ca. ${esc(String(d.co2_reductie_ton||totCo2.toFixed(1)))} ton CO₂ minder per jaar op scope 1+2. ${esc(d.co2_uitleg||'Onderbouwt de indicatieve EU Taxonomie 7.2-beoordeling.')}</div>
         </div>
       </div>
 
@@ -2463,12 +2488,13 @@ function pageMaatregelen(d){
             <tr style="background:#f8f6f2;font-weight:700;">
               <td style="padding:8px 8px 8px 0;color:var(--blue-deep);font-size:8.5pt;">Totaal pakket</td>
               <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${eur(d.capex_totaal)}</td>
-              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--green);font-size:8.5pt;">${eur(totBes)}</td>
-              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${totCo2.toFixed(2)}</td>
-              <td style="padding:8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${(d.capex_totaal/totBes).toFixed(1)} jr</td>
+              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--green);font-size:8.5pt;">${eur(d.bes_jaar||totBes)}</td>
+              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${(d.co2_reductie_ton||totCo2).toFixed(2)}</td>
+              <td style="padding:8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${(d.capex_totaal/(d.bes_jaar||totBes)).toFixed(1)} jr</td>
             </tr>
           </tbody>
         </table>
+        ${d.bestaande_opwek_besparing?`<div style="font-size:7.8px;color:var(--ink-3);line-height:1.4;margin-top:7px;">Let op: de totalen sluiten aan op het verduurzamingsrapport en bevatten circa ${eur(d.bestaande_opwek_besparing)}/jr bestaande opwek/besparing. De additionele besparing uit nieuwe maatregelen bedraagt ${eur(d.bes_jaar_additioneel)}/jr.</div>`:''}
       </div>
 
       <!-- Cashflow grafiek -->
@@ -2507,8 +2533,8 @@ function pageBewijsVervolg(d){
       <div style="background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 100%);border-radius:12px;padding:20px 24px;color:#fff;margin-bottom:14px;position:relative;overflow:hidden;">
         <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);"></div>
         <div style="font-size:7.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">Positief financieringsadvies</div>
-        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:10px;">${esc(d.object_naam||'Dit pand')} kwalificeert voor groene financiering.</div>
-        <div style="font-size:9.5pt;color:rgba(255,255,255,.88);line-height:1.65;margin-bottom:12px;">${esc(d.assurance_tekst||'Dit dossier is klaar voor de financieringsaanvraag op bewijsniveau 3. Na uitvoering van de maatregelen en registratie van het nieuwe energielabel wordt automatisch niveau 4 bereikt.')}</div>
+        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:10px;">${esc(d.object_naam||'Dit pand')} lijkt onder voorwaarden geschikt voor groene financiering.</div>
+        <div style="font-size:9.5pt;color:rgba(255,255,255,.88);line-height:1.65;margin-bottom:12px;">${esc(d.assurance_tekst||'Dit dossier is bruikbaar als indicatieve basis voor de financieringsaanvraag op bewijsniveau 3. Definitieve kwalificatie volgt pas na uitvoering, bewijsstukken, EP-online registratie, DNSH en sociale waarborgen.')}</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
           ${[
             {l:'ESG-score',v:esc(String(d.bankscore||'—'))+' / 100',s:esc(d.bankscore_oordeel||'Geschikt voor groene financiering')},
