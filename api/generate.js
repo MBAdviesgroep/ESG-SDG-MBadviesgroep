@@ -343,26 +343,26 @@ Retourneer UITSLUITEND valide JSON — geen markdown, geen uitleg buiten de JSON
     {"code": "ESRS G1-1", "punt": "Governance & datakwaliteit", "status": "beschikbaar", "bron": "ESG Bridge · MB Adviesgroep"}
   ],
 
-  "sfdr": "Uitleg SFDR Artikel 8 in gewone taal met concrete PAI-cijfers uit het rapport.",
+  "sfdr": "Schrijf 2-3 zinnen in gewone taal: waarom past dit specifieke pand binnen SFDR Artikel 8? Gebruik de concrete cijfers uit het rapport (energiereductie %, CO₂-reductie %, labelverbetering).",
   "pai": [
     "PAI 1 — CO₂-uitstoot (scope 1+2): daalt met X% na uitvoering.",
     "PAI 17 — Energieverbruik per m²: van X naar X kWh/m²/jaar.",
     "PAI 18 — Fossiel-afhankelijk vastgoed: valt na uitvoering niet meer onder slecht presterend."
   ],
-  "pillar3": "Uitleg Pillar 3 in gewone taal met concrete labelstappen en GAR-relevantie.",
+  "pillar3": "Schrijf 2-3 zinnen in gewone taal: waarom is dit pand relevant voor de Pillar 3 rapportage van de bank? Gebruik concrete labelstappen en energiegegevens uit het rapport.",
 
   "taxonomie": {
     "activiteit": "7.2 Renovatie van bestaande gebouwen",
     "eligibility": "In aanmerking (Eligible)",
     "alignment": "Voldoet (Aligned) — X labelstappen + energiereductie X%",
-    "contribution": "Uitleg EU Taxonomie 7.2 in gewone taal met specifieke cijfers uit het rapport.",
+    "contribution": "Schrijf 2-3 zinnen in gewone taal: waarom voldoet deze renovatie aan EU Taxonomie 7.2? Gebruik de primaire energiereductie (%), CO₂-reductie (%) en labelstappen uit het rapport. Maak onderscheid tussen primaire energiereductie en CO₂-reductie.",
     "dnsh": [
-      {"l": "Klimaatadaptatie", "v": "Risicoscan uitgevoerd — laag tot middel risico"},
-      {"l": "Water", "v": "Geen impact — geen waterintensieve installatie"},
-      {"l": "Circulaire economie", "v": "Materiaalplan aanwezig — hergebruik van materialen"},
-      {"l": "Vervuiling", "v": "Asbestvrij pand — lage-emissie materialen"},
-      {"l": "Natuur & biodiversiteit", "v": "Locatie buiten Natura 2000-gebieden"},
-      {"l": "Sociale waarborgen", "v": "Uitvoering conform OECD- en ILO-richtlijnen"}
+      {"l": "Klimaatadaptatie", "v": "Beoordeel op basis van locatie uit het rapport: overstromingsrisico, hittestress, droogte. Geef specifieke uitkomst voor dit adres."},
+      {"l": "Water", "v": "Beoordeel of maatregelen waterverbruik of waterkwaliteit raken. Bij geen waterintensieve installatie: geen impact."},
+      {"l": "Circulaire economie", "v": "Beoordeel of materialen worden hergebruikt of recyclebaar zijn. Noem specifieke materialen uit het rapport (bijv. riet, glas, isolatiemateriaal)."},
+      {"l": "Vervuiling", "v": "Beoordeel of het pand asbestvrij is en of lage-emissie materialen worden gebruikt. Gebruik info uit het rapport."},
+      {"l": "Natuur & biodiversiteit", "v": "Beoordeel locatie t.o.v. Natura 2000 en EHS. Gebruik het adres uit het rapport voor de beoordeling."},
+      {"l": "Sociale waarborgen", "v": "Beoordeel of uitvoering conform OECD/ILO-richtlijnen plaatsvindt. Vermeld of dit al bevestigd is of nog te bevestigen."}
     ]
   },
 
