@@ -3134,3 +3134,102 @@ function resetTool(){
 </script>
 </body>
 </html>
+
+<!-- Subtle card tint override: minder blauw, wel zichtbaar als vlak -->
+<style id="mb-subtle-card-tint-final">
+:root{
+  --mb-card-subtle:#FAFCFE;
+  --mb-card-subtle-2:#F6FAFD;
+  --mb-card-border:#DCEAF2;
+  --mb-card-border-soft:#E8F1F6;
+  --mb-card-shadow:0 5px 18px rgba(17,68,96,.075),0 0 0 1px rgba(27,89,123,.055);
+  --mb-card-shadow-print:0 3px 10px rgba(17,68,96,.09),0 0 0 1px rgba(27,89,123,.10);
+}
+
+/* Algemene kaarten: bijna wit met subtiele blauwzweem */
+.a4.content .page-body [style*="background:#fff"],
+.a4.content .page-body [style*="background: #fff"],
+.a4.content .page-body [style*="background:white"],
+.a4.content .page-body [style*="background: white"],
+.a4.content .chart-card,
+.a4.content .col-card,
+.a4.content .sdg-card,
+.a4.content .verdict,
+.a4.content .kpi-rapport,
+.a4.content .score-side,
+.a4.content .matrix,
+.a4.content .fin-strip,
+.a4.content .close-card + div,
+.a4.content .rpt-table-card{
+  background:var(--mb-card-subtle)!important;
+  border:1px solid var(--mb-card-border)!important;
+  box-shadow:var(--mb-card-shadow)!important;
+}
+
+/* Grote management-/adviesblokken mogen net iets meer kleur houden */
+.a4.content .verdict,
+.a4.content .page-body [style*="background:var(--blue-faint)"]{
+  background:var(--mb-card-subtle-2)!important;
+  border-color:var(--mb-card-border)!important;
+}
+
+/* Interne rijen/blokjes minder blauw dan voorheen */
+.a4.content .page-body [style*="background:var(--page)"],
+.a4.content .page-body [style*="background:#f8f6f2"],
+.a4.content .page-body [style*="background:#F1F9FD"],
+.a4.content .page-body [style*="background:#E4F1F8"],
+.a4.content .page-body [style*="background:#F7FCFE"]{
+  background:#F7F9FB!important;
+  border-color:var(--mb-card-border-soft)!important;
+}
+
+/* SDG legenda chips: liever wit met duidelijke rand, niet blauw vlak */
+.a4.content .page-body [style*="display:flex"][style*="background:#fff"][style*="border-radius:6px"]{
+  background:#FFFFFF!important;
+  border:1px solid var(--mb-card-border-soft)!important;
+  box-shadow:0 2px 7px rgba(17,68,96,.055)!important;
+}
+
+/* Donkerblauwe highlight-kaarten niet aantasten */
+.a4.content .score-card,
+.a4.content .close-card,
+.a4.content .page-body [style*="linear-gradient(135deg,var(--blue-deep)"],
+.a4.content .page-body [style*="linear-gradient(160deg"]{
+  border:none!important;
+}
+
+@media print{
+  .a4.content .page-body [style*="background:#fff"],
+  .a4.content .page-body [style*="background: #fff"],
+  .a4.content .page-body [style*="background:white"],
+  .a4.content .page-body [style*="background: white"],
+  .a4.content .chart-card,
+  .a4.content .col-card,
+  .a4.content .sdg-card,
+  .a4.content .verdict,
+  .a4.content .kpi-rapport,
+  .a4.content .score-side,
+  .a4.content .matrix,
+  .a4.content .fin-strip,
+  .a4.content .rpt-table-card{
+    background:#FAFCFE!important;
+    border:1px solid #DCEAF2!important;
+    box-shadow:var(--mb-card-shadow-print)!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  .a4.content .page-body [style*="background:var(--page)"],
+  .a4.content .page-body [style*="background:#f8f6f2"],
+  .a4.content .page-body [style*="background:#F1F9FD"],
+  .a4.content .page-body [style*="background:#E4F1F8"],
+  .a4.content .page-body [style*="background:#F7FCFE"]{
+    background:#F7F9FB!important;
+  }
+  .a4.content .score-card,
+  .a4.content .close-card,
+  .a4.content .page-body [style*="linear-gradient(135deg,var(--blue-deep)"],
+  .a4.content .page-body [style*="linear-gradient(160deg"]{
+    border:none!important;
+  }
+}
+</style>
