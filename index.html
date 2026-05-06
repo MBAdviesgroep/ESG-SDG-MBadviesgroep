@@ -1255,7 +1255,7 @@ async function startGenerate(){
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({pdfText: pdfText||'', consistencyRules: 'Gebruik het verduurzamingsrapport als leidende bron. Neem investering, jaarlijkse besparing, TVT, break-even, labeltraject, aantal maatregelen en CO2-reductie dynamisch over. Herbereken alleen als waarden ontbreken. Formuleer groene financiering altijd indicatief en onder voorwaarden.'})
+      body: JSON.stringify({pdfText: pdfText||'', consistencyRules: 'Gebruik het verduurzamingsrapport als leidende bron. Neem investering, jaarlijkse besparing, TVT, break-even, labeltraject, aantal maatregelen en CO2-reductie dynamisch over. Het labeltraject moet exact uit het bronrapport komen, bijvoorbeeld C naar A++ of C → A++; verzin geen streeflabel en gebruik geen oude casuswaarden. Herbereken alleen als waarden ontbreken. Formuleer groene financiering altijd indicatief en onder voorwaarden.'})
     });
 
     clearInterval(iv);
@@ -2053,9 +2053,38 @@ function alignReportConsistency(d){
     const src={measures:[]};
     if(!t) return src;
 
-    // Labeltraject uit bronrapport: C → A++ of C naar A++.
-    let lm=t.match(/\b([A-G](?:\+{1,4})?)\s*(?:→|->|naar)\s*([A-G](?:\+{1,4})?)\b/i);
-    if(lm){src.huidig_label=lm[1].toUpperCase(); src.streef_label=lm[2].toUpperCase();}
+    // Labeltraject uit bronrapport is leidend. Dit moet robuust zijn voor PDF-tekst,
+    // OCR-achtige spaties en varianten zoals C → A++, C naar A++, huidig label C / streeflabel A++.
+    const normLabel=s=>String(s||'').toUpperCase().replace(/\s+/g,'').replace(/[＋]/g,'+');
+    const validLabel=s=>/^[A-G](?:\+{0,4})$/.test(normLabel(s));
+    const setLabels=(a,b)=>{
+      a=normLabel(a); b=normLabel(b);
+      if(validLabel(a) && validLabel(b)){src.huidig_label=a; src.streef_label=b; return true;}
+      return false;
+    };
+    const compact=t.replace(/\s+/g,' ');
+    const compactNoSpaces=t.replace(/\s+/g,'');
+    let lm=null;
+    const labelPatterns=[
+      /(?:labeltraject|energielabel[-\s]*traject|energieprestatie\s*verbetering)[^A-G]{0,80}([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)\s*(?:→|➔|->|–>|—>|naar|tot)\s*([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)/i,
+      /([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)\s*(?:→|➔|->|–>|—>|naar|tot)\s*([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)\s*(?:energieprestatie\s*verbetering|energielabel[-\s]*traject|labeltraject)/i,
+      /(?:van|huidig(?:e)?\s*(?:energie)?label)\s*([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)[^A-G]{0,80}(?:naar|tot|streef(?:label)?|doel(?:label)?)\s*([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)/i,
+      /([A-G](?:\+{0,4})?)(?:→|->|naar|tot)([A-G](?:\+{0,4})?)/i
+    ];
+    for(const re of labelPatterns){lm=compact.match(re) || compactNoSpaces.match(re); if(lm && setLabels(lm[1],lm[2])) break;}
+    if(!src.huidig_label || !src.streef_label){
+      // Fallback: combineer losse bronvelden, maar gebruik geen label-ladder als bron.
+      const hm=compact.match(/(?:huidig(?:e)?\s*(?:energie)?label|energielabel\s*(?:is|:)?|heeft\s+energielabel)\s*([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)/i);
+      const sm=compact.match(/(?:streef(?:\s|-)?label|doel(?:\s|-)?label|label\s+([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)\s+haalbaar|naar\s+label)\s*([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)/i);
+      const h=hm?hm[1]:'';
+      const st=sm?(sm[2]||sm[1]):'';
+      if(validLabel(h) && validLabel(st)) setLabels(h,st);
+    }
+    if(!src.huidig_label || !src.streef_label){
+      // Covervariant uit de Duurzaamheidstool: "C A+ Energielabeltraject".
+      const cm=compact.match(/([A-G])\s+([A-G](?:\s*\+\s*\+?\s*\+?\s*\+?)?)\s+(?:Energielabeltraject|Labeltraject)/i);
+      if(cm) setLabels(cm[1],cm[2]);
+    }
 
     // Totaalregels: liefst uit expliciete totaalpakketregel, anders KPI-blokken.
     let total=t.match(/Totaal\s+pakket\s*€\s*([0-9.]+(?:,[0-9]+)?)\s*€\s*([0-9.]+(?:,[0-9]+)?)\s*([0-9]+(?:,[0-9]+)?)\s*(?:jr|jaar)/i);
@@ -2091,16 +2120,34 @@ function alignReportConsistency(d){
     let em=t.match(/(?:energie(?:reductie|besparing)|primaire\s*[- ]?energie)[^%]{0,55}([0-9]+(?:,[0-9]+)?)\s*%/i);
     if(em) src.primaire_energie_reductie_pct=toN(em[1]);
 
-    // CO2: scope 1+2 is leidend als het bronrapport dit expliciet of via voor/na-scopewaarden geeft.
-    let cmScope=t.match(/CO[₂2]\s*-?\s*reductie\s*scope\s*1\s*\+\s*2[^%]{0,80}([0-9]+(?:,[0-9]+)?)\s*%\s*(?:\/|·|,|en)?\s*(?:ca\.?\s*)?([0-9]+(?:,[0-9]+)?)?\s*(?:ton|t)?/i);
-    if(cmScope){src.co2_reductie_pct=toN(cmScope[1]); if(cmScope[2]) src.co2_reductie_ton=toN(cmScope[2]); src.co2_source='scope_explicit';}
-    if(!src.co2_reductie_pct){
-      let cm=t.match(/CO[₂2]\s*-?\s*reductie[^%]{0,60}([0-9]+(?:,[0-9]+)?)\s*%\s*(?:\/|·|,|en)?\s*(?:ca\.?\s*)?([0-9]+(?:,[0-9]+)?)?\s*(?:ton|t)?/i);
-      if(cm){src.co2_reductie_pct=toN(cm[1]); if(cm[2]) src.co2_reductie_ton=toN(cm[2]); src.co2_source='generic';}
+    // CO2: neem CO2-waarden uit het bronrapport over. Niet opnieuw optellen
+    // of uit de maatregelentabel afleiden als het bronrapport een totaal noemt.
+    // Herken meerdere PDF-varianten:
+    // - CO2-reductie scope 1+2 61% / 7,3 ton per jaar
+    // - CO2-reductie t.o.v. nu 61% ≈ 7,3 ton
+    // - C O 2 - R E D U C T I E T . O . V . N U 61% ... 7,3 ton
+    const looseCo2=t.replace(/CO₂/g,'CO2').replace(/C\s*O\s*2/gi,'CO2').replace(/\s+/g,' ');
+    const co2Patterns=[
+      /CO2\s*-?\s*reductie\s*(?:scope\s*1\s*\+\s*2|t\.?\s*o\.?\s*v\.?\s*nu)?[^%]{0,120}([0-9]+(?:[,.][0-9]+)?)\s*%[^0-9]{0,80}(?:ca\.?|circa|≈|~)?\s*([0-9]+(?:[,.][0-9]+)?)\s*(?:ton|t)\b/i,
+      /CO2\s*-?\s*reductie\s*(?:scope\s*1\s*\+\s*2|t\.?\s*o\.?\s*v\.?\s*nu)?[^%]{0,120}([0-9]+(?:[,.][0-9]+)?)\s*%/i,
+      /([0-9]+(?:[,.][0-9]+)?)\s*%\s*(?:\/|·|,|en)\s*(?:ca\.?|circa|≈|~)?\s*([0-9]+(?:[,.][0-9]+)?)\s*(?:ton|t)\b[^.]{0,80}(?:CO2|scope\s*1\s*\+\s*2)/i
+    ];
+    for(const re of co2Patterns){
+      const m=looseCo2.match(re);
+      if(m){
+        src.co2_reductie_pct=toN(m[1]);
+        if(m[2]) src.co2_reductie_ton=toN(m[2]);
+        src.co2_source=/scope\s*1\s*\+\s*2/i.test(m[0])?'scope_explicit':'bron_explicit';
+        break;
+      }
     }
-    // Variant: 61% / 7,3 ton per jaar, alleen gebruiken als er nog geen scope-specifieke waarde is.
-    let cm2=t.match(/([0-9]+(?:,[0-9]+)?)\s*%\s*\/\s*([0-9]+(?:,[0-9]+)?)\s*(?:ton|t)/i);
-    if(cm2 && src.co2_source!=='scope_explicit' && !src.co2_reductie_ton){src.co2_reductie_pct=toN(cm2[1]); src.co2_reductie_ton=toN(cm2[2]); src.co2_source=src.co2_source||'generic_pair';}
+    // Als percentage en ton los staan in hetzelfde CO2-blok, koppel ze alsnog.
+    if(src.co2_reductie_pct && !src.co2_reductie_ton){
+      const idx=looseCo2.search(/CO2\s*-?\s*reductie/i);
+      const block=idx>=0?looseCo2.slice(idx,idx+300):looseCo2;
+      const tm=block.match(/(?:ca\.?|circa|≈|~)?\s*([0-9]+(?:[,.][0-9]+)?)\s*(?:ton|t)\b/i);
+      if(tm) src.co2_reductie_ton=toN(tm[1]);
+    }
 
     // Scope voor/na uit staafgrafiek-achtige tekst: Voor x y z t Na a b c t.
     let sm=t.match(/Voor\s+([0-9]+(?:[,.][0-9]+)?)\s+([0-9]+(?:[,.][0-9]+)?)\s+([0-9]+(?:[,.][0-9]+)?)\s*t\s+Na\s+([0-9]+(?:[,.][0-9]+)?)\s+([0-9]+(?:[,.][0-9]+)?)\s+([0-9]+(?:[,.][0-9]+)?)\s*t/i);
@@ -2208,9 +2255,13 @@ function alignReportConsistency(d){
     if(src.co2_reductie_ton) d.co2_reductie_ton=r1(src.co2_reductie_ton);
     if(src.scope_voor) d.scope_voor=src.scope_voor;
     if(src.scope_na) d.scope_na=src.scope_na;
-    if(!d.co2_reductie_ton && co2Sum) d.co2_reductie_ton=r1(co2Sum);
-    d.co2_reductie_maatregelen_ton=co2Sum?r1(co2Sum):d.co2_reductie_ton;
-    d.co2_uitleg='CO₂-definitie: de totale scope 1+2-reductie uit het verduurzamingsrapport is leidend voor de ESG-output.' + (co2Sum && d.co2_reductie_ton && Math.abs(co2Sum-d.co2_reductie_ton)>0.1 ? ' De maatregelensom ('+String(r1(co2Sum)).replace('.',',')+' ton/jaar) wordt apart behandeld en kan door afronding, bestaande opwek of definitieverschil afwijken.' : '');
+    d.co2_reductie_maatregelen_ton=co2Sum?r1(co2Sum):0;
+    if(!d.co2_reductie_ton && co2Sum){
+      // Alleen als het bronrapport geen totaal-CO2 noemt, mag de maatregelensom als afgeleide indicatie worden gebruikt.
+      d.co2_reductie_ton=r1(co2Sum);
+      d.co2_afgeleid=true;
+    }
+    d.co2_uitleg='CO₂-definitie: de totale scope 1+2-reductie uit het verduurzamingsrapport is leidend voor de ESG-output.' + (d.co2_afgeleid ? ' Omdat geen totaalwaarde is gevonden, is de tonnage afgeleid uit de maatregelentabel.' : '') + (co2Sum && d.co2_reductie_ton && Math.abs(co2Sum-d.co2_reductie_ton)>0.1 ? ' De maatregelensom ('+String(r1(co2Sum)).replace('.',',')+' ton/jaar) wordt apart behandeld en kan door afronding, bestaande opwek of definitieverschil afwijken.' : '');
 
     // Cashflow consistent met bron-TVT: capex en jaarlijkse besparing uit bronrapport.
     if(d.capex_totaal && d.bes_jaar){
@@ -2681,7 +2732,7 @@ function pageMaatregelen(d){
               <td style="padding:8px 8px 8px 0;color:var(--blue-deep);font-size:8.5pt;">Totaal pakket</td>
               <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${eur(d.capex_totaal)}</td>
               <td style="padding:8px 8px 8px 0;text-align:right;color:var(--green);font-size:8.5pt;">${eur(d.bes_jaar||totBes)}</td>
-              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${Number(d.co2_reductie_ton||totCo2||0).toFixed(2)}</td>
+              <td style="padding:8px 8px 8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${Number(totCo2||d.co2_reductie_ton||0).toFixed(2)}</td>
               <td style="padding:8px 0;text-align:right;color:var(--blue-deep);font-size:8.5pt;">${Number(d.tvt_jaar||((d.capex_totaal&&d.bes_jaar)?d.capex_totaal/d.bes_jaar:0)).toFixed(1)} jr</td>
             </tr>
           </tbody>
