@@ -1073,7 +1073,7 @@ function buildLocalReport(text){
     streef_label:streefLabel,
 
     // Page 2 — Bank summary
-    bankscore:74,
+    bankscore:68, // fallback — wordt overschreven door AI
     bankscore_oordeel:'Geschikt voor groene financiering',
     samenvatting:'Dit pand kan groen worden gefinancierd. De vijf geplande maatregelen \u2014 dakisolatie, triple glas, hybride warmtepomp, zonnepanelen en slimme monitoring \u2014 leveren aantoonbaar 35% minder CO\u2082-uitstoot en 50% minder energieverbruik. De totale investering is \u20ac\u00a029.900, waarvan \u20ac\u00a020.000 via een green loan met rentekorting. Met een jaarlijkse besparing van \u20ac\u00a02.300 is de investering binnen 11 jaar terugverdiend. Het dossier voldoet aan de EU Taxonomie 7.2 en aan de rapportage-eisen van SFDR Artikel 8 en ESRS E1. Wat nog nodig is: harde offertes, een uitvoeringsplanning en de subsidiebeschikking van RVO.',
     samenvatting_punten:[
@@ -1208,13 +1208,13 @@ function buildLocalReport(text){
     co2_pad:[12.0,11.6,10.9,9.8,8.5,7.8,7.7,7.6,7.5,7.4,7.3,7.2,7.1,7.0,6.9,6.8],
     // Cumulatieve cashflow (€, na subsidie & rentekorting) over 15 jaar
     cashflow:[-24695,-22395,-20095,-17795,-15495,-13195,-10895,-8595,-6295,-3995,-1695,605,2905,5205,7505,9805],
-    // ESG-score radar (5 dimensies, 0-100)
+    // ESG-score radar — fallback waarden (worden overschreven door AI)
     radar:[
-      {l:'Transitierisico',v:78},
-      {l:'Datakwaliteit',v:82},
+      {l:'Transitierisico',v:65},
+      {l:'Datakwaliteit',v:60},
       {l:'Bewijsniveau',v:75},
-      {l:'Klimaatrisico',v:68},
-      {l:'Rapportage',v:88}
+      {l:'Klimaatrisico',v:60},
+      {l:'Rapportage',v:70}
     ],
     // Energielabel-ladder
     label_pad:labelLadder,
@@ -1297,13 +1297,17 @@ function pageScoreUitleg(d){
       <div class="col-card" style="margin-bottom:14px;">
         <div class="col-h">De vijf ESG-dimensies — wat meten ze?</div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:6px;">
-          ${[
-            {l:'Transitierisico',v:d.radar[0].v,uitleg:'Hoe kwetsbaar is het pand voor aanscherpend energiebeleid? Hogere score = lager risico op waardedaling door regelgeving.'},
-            {l:'Datakwaliteit',v:d.radar[1].v,uitleg:'Hoe betrouwbaar en compleet zijn de onderliggende data? Hogere score = beter onderbouwd dossier.'},
-            {l:'Bewijsniveau',v:d.radar[2].v,uitleg:'Welk niveau van externe validatie is aanwezig? Loopt op van PDF-scan tot post-implementatie assurance.'},
-            {l:'Klimaatrisico',v:d.radar[3].v,uitleg:'Fysiek klimaatrisico op de locatie: overstroming, hitte, droogte. Gebaseerd op Klimaatatlas-data.'},
-            {l:'Rapportage',v:d.radar[4].v,uitleg:'In hoeverre is het dossier gereed voor ESRS-, SFDR- en Pillar 3-rapportage door de financier?'}
-          ].map(dim=>`
+          ${arr(d.radar).map((dim,i)=>{
+            const uitlegMap={
+              'Transitierisico':'Hoe kwetsbaar is het pand voor aanscherpend energiebeleid? Een hogere score betekent minder risico op waardedaling door nieuwe regelgeving.',
+              'Datakwaliteit':'Hoe betrouwbaar en volledig zijn de onderliggende data in het rapport? Een hogere score betekent een beter onderbouwd dossier.',
+              'Bewijsniveau':'In hoeverre zijn de gegevens extern gevalideerd? Loopt op van een eenvoudige PDF-scan tot geverifieerde meterdata na oplevering.',
+              'Klimaatrisico':'Het fysieke klimaatrisico op de locatie: kans op overstroming, hittestress of droogte. Gebaseerd op locatiegegevens.',
+              'Rapportage':'In hoeverre is het dossier gereed voor ESRS-, SFDR- en Pillar 3-rapportage door de financier?'
+            };
+            const uitleg=uitlegMap[dim.l]||dim.l;
+            return {l:dim.l,v:dim.v,uitleg};
+          }).map(dim=>`
             <div style="text-align:center;padding:10px 8px;background:var(--page);border-radius:10px;">
               <div style="font-size:20px;font-weight:700;color:var(--blue-deep);line-height:1;">${dim.v}</div>
               <div style="font-size:8px;font-weight:700;color:var(--orange);letter-spacing:.5px;margin:3px 0 5px;text-transform:uppercase;">${dim.l}</div>
