@@ -1939,33 +1939,17 @@ function pageMaatregelen(d){
     ${pageTop(d)}
     <div class="page-stamp">07 · 08</div>
     <div class="page-body">
-      <div class="page-eyebrow">Financiering &middot; Terugverdientijd</div>
-      <div class="page-title">Hoe is de investering gefinancierd?</div>
-      <div class="page-title-sub">De verduurzaming is gefinancierd via een combinatie van subsidie, eigen inbreng en een green loan met rentekorting. Hieronder de structuur en het terugverdienpad.</div>
+      <div class="page-eyebrow">Maatregelen &middot; Terugverdientijd</div>
+      <div class="page-title">Wat levert de investering op?</div>
+      <div class="page-title-sub">Per maatregel de investering, jaarlijkse besparing, CO₂-effect en terugverdientijd — gevolgd door het cumulatieve terugverdienpad over 15 jaar.</div>
       <div class="page-thin-rule"></div>
 
-      <!-- Financieringsblokken -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:16px;">
-        ${[
-          {l:'Totale investering',v:eur(d.capex_totaal),s:'Alle maatregelen · excl. btw',accent:false},
-          {l:'Subsidie',v:d.capex_subsidie>0?eur(d.capex_subsidie):'Wordt berekend',s:'EIA / ISDE / SVOH',accent:false},
-          {l:'Eigen inbreng',v:d.capex_eigen>0?eur(d.capex_eigen):'Wordt berekend',s:d.capex_eigen>0&&d.capex_totaal>0?'≈ '+Math.round((d.capex_eigen/d.capex_totaal)*100)+'% van investering':'Na subsidie en lening',accent:false},
-          {l:'Green loan',v:d.capex_lening>0?eur(d.capex_lening):'Wordt berekend',s:d.looptijd_jr+' jr · '+esc(d.rente_referentie)+' · −'+esc(String(d.rentekorting_bps))+' bps rentekorting',accent:true}
-        ].map((c,i)=>`
-          <div style="background:${c.accent?'var(--blue-deep)':'#fff'};padding:16px 18px;${i>0?'border-left:1px solid var(--blue-faint);':''}">
-            <div style="font-size:7.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:${c.accent?'rgba(255,255,255,.55)':'var(--ink-4)'};margin-bottom:6px;">${c.l}</div>
-            <div style="font-size:22px;font-weight:700;color:${c.accent?'#fff':'var(--blue-deep)'};line-height:1;margin-bottom:4px;">${c.v}</div>
-            <div style="font-size:8px;color:${c.accent?'rgba(255,255,255,.6)':'var(--ink-3)'};">${c.s}</div>
-          </div>
-        `).join('')}
-      </div>
-
-      <!-- Wat betekent de rentekorting -->
+      <!-- Kerngetallen -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
         <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
           <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">Break-even</div>
-          <div style="font-size:28px;font-weight:700;color:var(--blue-deep);line-height:1;margin-bottom:4px;">Jaar 11</div>
-          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Met subsidie en rentekorting is de volledige investering terugverdiend in jaar 11. Daarna puur positief rendement.</div>
+          <div style="font-size:28px;font-weight:700;color:var(--blue-deep);line-height:1;margin-bottom:4px;">Jaar ${esc(String(d.bes_jaar>0?Math.ceil((d.capex_totaal-(d.capex_subsidie||0))/d.bes_jaar):11))}</div>
+          <div style="font-size:8.5px;color:var(--ink-3);line-height:1.5;">Op basis van ${eur(d.bes_jaar||totBes)} besparing per jaar. Daarna puur positief rendement.</div>
         </div>
         <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
           <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px;">Jaarlijkse besparing</div>
