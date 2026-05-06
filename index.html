@@ -1345,6 +1345,9 @@ async function startGenerate(){
     // Zo blijft de output stabiel, ook als de AI minder SDG's teruggeeft dan gewenst.
     currentData = enrichSdgMappings(currentData);
 
+    // Consistentiecheck: ESG-dossier moet 1-op-1 aansluiten op het verduurzamingsrapport.
+    currentData = alignReportConsistency(currentData);
+
     renderReport(currentData);
     document.getElementById('appPage').style.display='none';
     document.body.classList.add('report-mode');
@@ -1690,11 +1693,11 @@ function pageScoreUitleg(d){
           <div class="col-h">Financiële indicatoren uitgelegd</div>
           <div style="display:flex;flex-direction:column;gap:7px;margin-top:2px;">
             ${[
-              ['Capex','€ 29.900','Totale investering voor alle 5 maatregelen, exclusief BTW.'],
-              ['Jaarlijkse besparing','€ 2.300 /jr','Berekende energiekostenbesparing per jaar na uitvoering.'],
-              ['Terugverdientijd','13 jaar','Hoeveel jaar duurt het voor de investering zichzelf terugverdient.'],
-              ['Break-even','Jaar 11','Met subsidie en rentekorting is de cumulatieve cashflow positief vanaf jaar 11.'],
-              ['CO₂-reductie','4,2 ton /jr','Scope 1 = directe uitstoot (gas/verwarming). Scope 2 = indirecte uitstoot (elektriciteit). Samen dalen ze met 4,2 ton per jaar.'],
+              ['Capex',eur(d.capex_totaal),'Totale bruto investering voor alle '+arr(d.maatregelen).length+' maatregelen, exclusief BTW.'],
+              ['Jaarlijkse besparing',eur(d.bes_jaar)+' /jr','Berekende energiekostenbesparing per jaar na uitvoering.'],
+              ['Terugverdientijd',String(d.tvt_jaar||((d.capex_totaal&&d.bes_jaar)?(d.capex_totaal/d.bes_jaar).toFixed(1):'n.b.'))+' jaar','Bruto investering gedeeld door jaarlijkse besparing.'],
+              ['Break-even','Jaar '+String(d.break_even_jaar||((d.capex_totaal&&d.bes_jaar)?Math.ceil(d.capex_totaal/d.bes_jaar):'n.b.')),'Zelfde uitgangspunt als het verduurzamingsrapport; eventuele subsidies en fiscale voordelen kunnen dit verbeteren.'],
+              ['CO₂-reductie',String(d.co2_reductie_ton||0).replace('.',',')+' ton /jr','Scope 1 = directe uitstoot (gas/verwarming). Scope 2 = indirecte uitstoot (elektriciteit). De totaalreductie sluit aan op de scope 1+2-berekening.'],
             ].map(([k,v,u])=>`
               <div style="display:flex;gap:8px;padding-bottom:6px;border-bottom:1px solid var(--blue-faint);">
                 <div style="min-width:110px;">
@@ -2016,6 +2019,131 @@ function pageRisico(d){
 }
 
 
+
+/* ─── CONSISTENTIE-LAAG — verduurzamingsrapport is leidend ─── */
+function alignReportConsistency(d){
+  if(!d || typeof d!=='object') return d;
+
+  const toN=(v)=>{
+    if(v===null || v===undefined) return 0;
+    if(typeof v==='number') return isFinite(v)?v:0;
+    const cleaned=String(v).replace(/\u00a0/g,' ').replace(/[^0-9,.-]/g,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.');
+    const n=Number(cleaned);
+    return isFinite(n)?n:0;
+  };
+  const r1=(n)=>Math.round((Number(n)||0)*10)/10;
+  const r0=(n)=>Math.round(Number(n)||0);
+  const labelIdx=(lab)=>{
+    const ladder=['G','F','E','D','C','B','A','A+','A++','A+++','A++++'];
+    return Math.max(0,ladder.indexOf(String(lab||'').toUpperCase()));
+  };
+  const replaceTerms=(str)=>String(str||'')
+    .replace(/woningwaarde/g,'vastgoedwaarde')
+    .replace(/Woningwaarde/g,'Vastgoedwaarde')
+    .replace(/wooncomfort/g,'gebruikerscomfort')
+    .replace(/Wooncomfort/g,'Gebruikerscomfort')
+    .replace(/woning\b/g,'pand')
+    .replace(/Woning\b/g,'Pand')
+    .replace(/woningen\b/g,'objecten')
+    .replace(/Woningen\b/g,'Objecten');
+  const deepClean=(x)=>{
+    if(typeof x==='string') return replaceTerms(x);
+    if(Array.isArray(x)) return x.map(deepClean);
+    if(x && typeof x==='object'){
+      Object.keys(x).forEach(k=>{ x[k]=deepClean(x[k]); });
+    }
+    return x;
+  };
+
+  deepClean(d);
+
+  if(Array.isArray(d.maatregelen)){
+    const seen=new Set();
+    d.maatregelen=d.maatregelen.filter(m=>m && typeof m==='object' && m.naam).map(m=>{
+      m.capex=toN(m.capex); m.bes=toN(m.bes); m.co2=toN(m.co2); m.tvt=toN(m.tvt);
+      if(m.capex>0 && m.bes>0) m.tvt=r1(m.capex/m.bes);
+      return m;
+    }).filter(m=>{
+      const key=String(m.naam).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+      if(seen.has(key)) return false;
+      seen.add(key); return true;
+    });
+  }
+
+  const ms=Array.isArray(d.maatregelen)?d.maatregelen:[];
+  const capexSum=ms.reduce((a,m)=>a+toN(m.capex),0);
+  const besSum=ms.reduce((a,m)=>a+toN(m.bes),0);
+  const co2Sum=ms.reduce((a,m)=>a+toN(m.co2),0);
+
+  if(capexSum>0) d.capex_totaal=r0(capexSum);
+  if(besSum>0) d.bes_jaar=r0(besSum);
+  if(d.capex_totaal>0 && d.bes_jaar>0){
+    d.tvt_jaar=r1(d.capex_totaal/d.bes_jaar);
+    d.break_even_jaar=Math.ceil(d.capex_totaal/d.bes_jaar);
+  }
+
+  if(d.scope_voor && d.scope_na && toN(d.scope_voor.tot)>0 && toN(d.scope_na.tot)>=0){
+    const diff=Math.max(0,toN(d.scope_voor.tot)-toN(d.scope_na.tot));
+    if(diff>0){
+      d.co2_reductie_ton=r1(diff);
+      d.co2_reductie_pct=r0((diff/toN(d.scope_voor.tot))*100);
+      if(co2Sum>0 && Math.abs(co2Sum-diff)/Math.max(diff,1)>0.20){
+        const factor=diff/co2Sum;
+        d.maatregelen=d.maatregelen.map(m=>({...m,co2:r1(toN(m.co2)*factor)}));
+      }
+    }
+  }else if(co2Sum>0){
+    d.co2_reductie_ton=r1(co2Sum);
+  }
+
+  const labelSteps=Math.max(0,labelIdx(d.streef_label)-labelIdx(d.huidig_label));
+  d.label_stappen=labelSteps;
+
+  // Subsidie/fiscaal voordeel: geen hard bedrag claimen als het niet direct uit de brontabel sluitend volgt.
+  if(toN(d.capex_subsidie)>toN(d.capex_totaal)*0.45) d.capex_subsidie=0;
+  d.subsidie_tekst = toN(d.capex_subsidie)>0 ? eur(d.capex_subsidie) : 'te toetsen';
+
+  // Evidence/ESRS-overzichten gelijktrekken met de maatregelentabel.
+  if(Array.isArray(d.evidence)){
+    d.evidence=d.evidence.map(e=>{
+      const ond=String(e.ond||'').toLowerCase();
+      if(ond.includes('maatregelenpakket') || ond.includes('capex')) e.w=eur(d.capex_totaal)+' ('+ms.length+' maatregelen)';
+      if(ond.includes('jaarlijkse besparing')) e.w=eur(d.bes_jaar)+'/jaar';
+      if(ond.includes('co₂') || ond.includes('co2')) e.w=String(d.co2_reductie_pct||'n.b.')+'% · ca. '+String(d.co2_reductie_ton||'n.b.').replace('.',',')+' ton/jaar';
+      if(ond.includes('break')) e.w='Jaar '+String(d.break_even_jaar||'n.b.');
+      if(ond.includes('taxonomie')) e.w='7.2 · indicatief eligible, alignment onder voorwaarden';
+      if(ond.includes('dnsh')) e.w='Nog definitief te bevestigen';
+      return e;
+    });
+  }
+  if(Array.isArray(d.esrs)){
+    d.esrs=d.esrs.map(e=>{ if(String(e.code||'').includes('E1-3')) e.bron='Verduurzamingsadvies, capex '+eur(d.capex_totaal); return e; });
+  }
+
+  // Juridisch/regulatoir voorzichtig formuleren totdat DNSH, sociale waarborgen en oplevering bevestigd zijn.
+  d.bankscore_oordeel=String(d.bankscore_oordeel||'Indicatief geschikt voor groene financiering')
+    .replace(/^Sterk geschikt/i,'Indicatief sterk geschikt')
+    .replace(/^Geschikt/i,'Indicatief geschikt')
+    .replace(/^Kansrijk/i,'Indicatief kansrijk');
+
+  if(d.taxonomie && typeof d.taxonomie==='object'){
+    d.taxonomie.eligibility='In aanmerking (eligible)';
+    d.taxonomie.alignment='Potentieel aligned — DNSH en sociale waarborgen te bevestigen';
+    d.taxonomie.contribution='De renovatie kan onder EU Taxonomie 7.2 vallen als de berekende primaire energiereductie, DNSH-toets en sociale waarborgen definitief worden bevestigd. De onderbouwing bestaat uit het maatregelenpakket, de labelverbetering '+esc(d.huidig_label||'')+' → '+esc(d.streef_label||'')+' en de daling van energiegebruik en CO₂-uitstoot.';
+  }
+
+  d.samenvatting=String(d.samenvatting||'')
+    .replace(/Dit pand kan groen worden gefinancierd\./i,'Dit pand lijkt onder voorwaarden geschikt voor groene financiering.')
+    .replace(/Het dossier voldoet aan de EU Taxonomie 7\.2[^.]*\./i,'Definitieve kwalificatie onder EU Taxonomie 7.2 volgt pas na oplevering, nieuw energielabel en bevestiging van DNSH en sociale waarborgen.');
+  if(Array.isArray(d.samenvatting_punten)){
+    d.samenvatting_punten=d.samenvatting_punten.map(x=>String(x)
+      .replace(/kan groen gefinancierd worden/i,'lijkt onder voorwaarden geschikt voor groene financiering')
+      .replace(/kwalificeert als groen/i,'kan indicatief als groen kwalificeren'));
+  }
+
+  return d;
+}
+
 /* ─── SDG-VERRIJKING — behoud AI-output, vul ontbrekende logische SDG's aan ─── */
 function enrichSdgMappings(d){
   if(!d || !Array.isArray(d.maatregelen)) return d;
@@ -2196,7 +2324,7 @@ function pageSfdrTax(d){
       <div style="background:var(--blue-faint);border-radius:10px;padding:10px 14px;margin-bottom:12px;border-left:3px solid var(--blue);">
         <div style="font-size:7.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:3px;">In gewone taal</div>
         <div style="font-size:9pt;color:var(--ink-2);line-height:1.55;">
-          Ja. De verduurzaming van <b>${esc(d.object_naam||'dit pand')}</b> levert ${energiePct}% minder energieverbruik, ${co2Pct}% minder CO₂ en ${stappen} labelstappen (${labelVan} → ${labelNaar}). Dat voldoet aan drie Europese kaders voor groene financiering. Voor de klant: rentekorting van ${esc(String(d.rentekorting_bps||25))} basispunten. Voor de bank: het onderpand telt mee in haar verplichte duurzaamheidsrapportage.
+          Indicatief ja. De verduurzaming van <b>${esc(d.object_naam||'dit pand')}</b> levert naar verwachting ${energiePct}% minder energieverbruik, ${co2Pct}% minder CO₂ en ${stappen} labelstappen (${labelVan} → ${labelNaar}). Daarmee kan het dossier onder voorwaarden passen binnen Europese kaders voor groene financiering. Definitieve kwalificatie volgt pas na oplevering, nieuw energielabel en bevestiging van DNSH en sociale waarborgen.
         </div>
       </div>
 
@@ -2219,14 +2347,14 @@ function pageSfdrTax(d){
           <div style="font-size:8.5pt;color:var(--ink-2);line-height:1.55;margin-bottom:8px;">${esc(d.pillar3||'Na uitvoering kwalificeert dit pand als groen onderpand in de Green Asset Ratio van de financier.')}</div>
           <div style="border-top:1px solid var(--blue-faint);padding-top:7px;">
             <div style="font-size:7px;font-weight:700;color:var(--ink-4);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase;">Bruikbaar voor de bank</div>
-            ${['Energielabel ${labelVan} → ${labelNaar} — kernmetric EBA-rapportage','CO₂-intensiteit voor/na — verplicht voor Pillar 3','Energiereductie ${energiePct}% — onderbouwt GAR-kwalificatie'].map(p=>`<div style="font-size:7.5px;color:var(--ink-3);padding:2px 0;border-bottom:1px solid var(--blue-faint);">&#x2022; ${p}</div>`).join('')}
+            ${[`Energielabel ${labelVan} → ${labelNaar} — kernmetric EBA-rapportage`,`CO₂-intensiteit voor/na — relevant voor Pillar 3`,`Energiereductie ${energiePct}% — ondersteunt GAR-beoordeling`].map(p=>`<div style="font-size:7.5px;color:var(--ink-3);padding:2px 0;border-bottom:1px solid var(--blue-faint);">&#x2022; ${p}</div>`).join('')}
           </div>
         </div>
 
         <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:12px 13px;">
           <div style="font-size:7.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:5px;">EU Taxonomie 7.2</div>
           <div style="font-size:8px;color:var(--ink-3);margin-bottom:5px;font-style:italic;">Europese classificatie voor duurzame renovatie van bestaande gebouwen.</div>
-          <div style="font-size:8.5pt;color:var(--ink-2);line-height:1.55;margin-bottom:8px;">${esc(tax.contribution||'Primaire energiereductie '+energiePct+'% — ruim boven de drempel van 30%. Aangevuld met '+stappen+' labelstappen ('+labelVan+' → '+labelNaar+'). Voldoet aan activiteit 7.2.')}</div>
+          <div style="font-size:8.5pt;color:var(--ink-2);line-height:1.55;margin-bottom:8px;">${esc(tax.contribution||'Primaire energiereductie '+energiePct+'% — indicatief boven de drempel van 30%. Aangevuld met '+stappen+' labelstappen ('+labelVan+' → '+labelNaar+'). Definitieve Taxonomie-alignment blijft afhankelijk van DNSH en sociale waarborgen.')}</div>
           <div style="border-top:1px solid var(--blue-faint);padding-top:7px;display:flex;flex-wrap:wrap;gap:4px;">
             <span class="pill p-good" style="font-size:7px;">${esc(tax.eligibility||'Eligible')}</span>
             <span class="pill p-warn" style="font-size:7px;">Aligned</span>
@@ -2255,7 +2383,7 @@ function pageSfdrTax(d){
         <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--orange);"></div>
         <div style="font-size:7.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:3px;">Conclusie</div>
         <div style="font-size:8.5pt;color:rgba(255,255,255,.92);line-height:1.55;">
-          ${esc(d.object_naam||'Het pand')} voldoet na uitvoering aan SFDR Artikel 8, Pillar 3 en EU Taxonomie 7.2. <b style="color:#fff;">Definitieve kwalificatie</b> volgt na oplevering, registratie van het nieuwe energielabel en bevestiging van DNSH en sociale waarborgen.
+          ${esc(d.object_naam||'Het pand')} is indicatief geschikt voor groene financiering onder SFDR Artikel 8, Pillar 3 en EU Taxonomie 7.2. <b style="color:#fff;">Definitieve kwalificatie</b> volgt na oplevering, registratie van het nieuwe energielabel en bevestiging van DNSH en sociale waarborgen.
         </div>
       </div>
 
@@ -2337,7 +2465,7 @@ function pageMaatregelen(d){
       <!-- Cashflow grafiek -->
       <div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 16px;">
         <div style="font-size:7.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:2px;">Cumulatieve cashflow over 15 jaar</div>
-        <div style="font-size:8.5pt;color:var(--ink-3);margin-bottom:10px;">Na subsidie (${eur(d.capex_subsidie)}) en rentekorting is de investering volledig terugverdiend in jaar 11. Daarna puur winst.</div>
+        <div style="font-size:8.5pt;color:var(--ink-3);margin-bottom:10px;">De investering is indicatief terugverdiend rond jaar ${esc(String(d.break_even_jaar||((d.capex_totaal&&d.bes_jaar)?Math.ceil(d.capex_totaal/d.bes_jaar):'n.b.')))}. Subsidie en fiscale voordelen zijn te toetsen en kunnen de netto terugverdientijd verbeteren.</div>
         ${chartLine(d.cashflow,{w:660,h:140,xstep:3,xlabels:['Y0','Y1','Y2','Y3','Y4','Y5','Y6','Y7','Y8','Y9','Y10','Y11','Y12','Y13','Y14','Y15'],fmt:v=>(v>=0?'+':'')+'€'+(Math.round(v/1000))+'k',color:'var(--orange)'})}
       </div>
 
