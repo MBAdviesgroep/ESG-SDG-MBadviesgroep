@@ -1587,6 +1587,15 @@ function buildLocalReport(text){
   };
 }
 
+
+/* Globale formatter voor eurobedragen. Bewust als function declaration,
+   zodat oudere pagina-renderfuncties deze al kunnen gebruiken voordat
+   pageMaatregelen() zijn lokale helper aanmaakt. */
+function eur(v){
+  const n = Number(v || 0);
+  return '€ ' + n.toLocaleString('nl-NL');
+}
+
 /* ═══════════════════════════════════════════════════════════
    RENDER REPORT — 6 A4 pagina's
    ═══════════════════════════════════════════════════════════ */
