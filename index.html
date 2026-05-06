@@ -857,6 +857,99 @@ body.report-mode .rpt-mode{display:block;}
   .page-risk .mgt-bullets div{font-size:8.2px!important;line-height:1.16!important;}
 }
 
+
+
+/* =========================================================
+   PRINT/SCREEN CONTRAST FIX — witte kaarten duidelijker
+   Doel: kaarten blijven rustig wit, maar vallen in PDF/print
+   duidelijker van de pagina af door een subtiele tint, rand
+   en sterkere schaduw. Geen inhoudelijke wijzigingen.
+   ========================================================= */
+.a4.content .kpi-rapport,
+.a4.content .score-side,
+.a4.content .chart-card,
+.a4.content .col-card,
+.a4.content .sdg-card,
+.a4.content .matrix,
+.a4.content .verdict,
+.a4.content .fin-strip,
+.a4.content .signoff,
+.a4.content .close-card-light,
+.a4.content .rpt-table-card{
+  background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%)!important;
+  border:1px solid #dce8ef!important;
+  box-shadow:0 6px 20px rgba(19,68,96,.095),0 1px 3px rgba(19,68,96,.06)!important;
+}
+
+.a4.content .kpi-rapport,
+.a4.content .fin-strip{
+  border-color:#d4e4ec!important;
+}
+
+.a4.content .chart-card,
+.a4.content .col-card,
+.a4.content .sdg-card,
+.a4.content .verdict{
+  border-radius:15px!important;
+}
+
+.a4.content .matrix{
+  border-radius:15px!important;
+  overflow:hidden!important;
+}
+
+.a4.content .matrix > div{
+  border-color:#dbe7ee!important;
+}
+
+.a4.content .matrix .mh{
+  background:#f3f7fa!important;
+}
+
+.a4.content .kpi-r-cell,
+.a4.content .fin-cell{
+  background:rgba(255,255,255,.45)!important;
+}
+
+.a4.content .kpi-r-cell:not(:last-child),
+.a4.content .fin-cell:not(:last-child){
+  border-right:1px solid #dbe7ee!important;
+}
+
+/* Extra subtiele blauwe basis voor lichte advies/managementblokken */
+.a4.content .verdict{
+  background:linear-gradient(160deg,#ffffff 0%,#f4f9fc 100%)!important;
+}
+
+@media print{
+  .a4.content .kpi-rapport,
+  .a4.content .score-side,
+  .a4.content .chart-card,
+  .a4.content .col-card,
+  .a4.content .sdg-card,
+  .a4.content .matrix,
+  .a4.content .verdict,
+  .a4.content .fin-strip,
+  .a4.content .signoff,
+  .a4.content .close-card-light,
+  .a4.content .rpt-table-card{
+    background:#fbfdff!important;
+    border:0.35mm solid #d2e0e8!important;
+    box-shadow:0 1.1mm 3.2mm rgba(19,68,96,.16)!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  .a4.content .verdict{
+    background:#f3f9fd!important;
+    border-color:#cfe1eb!important;
+  }
+
+  .a4.content .matrix .mh{
+    background:#f1f6f9!important;
+  }
+}
+
 </style>
 </head>
 <body>
